@@ -13,20 +13,21 @@ import (
 	"path/filepath"
 )
 
-var listWinShell = []WinShell{
-	Cmd,
-	Db2,
-}
-
 // WinShell represents a Windows shell.
 type WinShell uint8
 
-// List of Windows shells.
+// Windows shells.
 const (
 	_ WinShell = iota
 	Cmd
 	Db2
 )
+
+// ListWinShell is the list of Windows shells.
+var ListWinShell = []WinShell{
+	Cmd,
+	Db2,
+}
 
 func (sh WinShell) String() string {
 	switch sh {
