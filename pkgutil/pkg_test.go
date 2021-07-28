@@ -33,6 +33,9 @@ func TestPackager(t *testing.T) {
 	if err = pack.Remove(cmd); err != nil {
 		t.Errorf("\n%s", err)
 	}
+	if err = pack.Purge(cmd); err != nil {
+		t.Errorf("\n%s", err)
+	}
 
 	if err = pack.Clean(); err != nil {
 		t.Errorf("\n%s", err)

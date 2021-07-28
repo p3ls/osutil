@@ -4,8 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// Package distro detects the Linux distribution.
-package distro
+package system
 
 import (
 	"os"
@@ -52,8 +51,8 @@ var idToDistro = map[string]Distro{
 	"ubuntu":              Ubuntu,
 }
 
-// Detect returns the Linux distribution.
-func Detect() (Distro, error) {
+// DetectDistro returns the Linux distribution.
+func DetectDistro() (Distro, error) {
 	var id string
 	var err error
 

@@ -4,12 +4,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package distro
+package system
 
 import "testing"
 
 func TestDetect(t *testing.T) {
-	if distro, err := Detect(); err != nil {
+	if distro, err := DetectDistro(); err != nil {
 		t.Fatal(err)
 	} else {
 		t.Log(distro)

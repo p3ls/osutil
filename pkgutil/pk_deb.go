@@ -33,7 +33,7 @@ func (p deb) Update() error {
 }
 
 func (p deb) Upgrade() error {
-	return osutil.ExecSudo("/usr/bin/apt-get", "upgrade")
+	return osutil.ExecSudo("/usr/bin/apt-get", "upgrade", "-y")
 }
 
 func (p deb) Clean() error {
