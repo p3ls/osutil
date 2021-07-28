@@ -57,7 +57,7 @@ var testsError = []struct {
 
 func TestRun(t *testing.T) {
 	for _, v := range testsOk {
-		out, match, _ := RunWithMatch(v.cmd)
+		out, match, _ := ExecAsBashWithMatch(v.cmd)
 
 		if v.match != match {
 			t.Errorf("`%s` (match): expected %t, found %t\n", v.cmd, v.match, match)
@@ -69,7 +69,7 @@ func TestRun(t *testing.T) {
 	}
 
 	for _, v := range testsOutput {
-		out, match, _ := RunWithMatch(v.cmd)
+		out, match, _ := ExecAsBashWithMatch(v.cmd)
 
 		if string(out) != v.out {
 			t.Errorf("`%s` (output): expected %q, found %q\n", v.cmd, v.out, out)
@@ -80,8 +80,8 @@ func TestRun(t *testing.T) {
 	}
 
 	for _, v := range testsError {
-		_, err := Run(v.cmd)
-		mainErr := err.(runError).err
+		_, err := ExecAsBash(v.cmd)
+		mainErr := err.(execAsBashError).err
 
 		if mainErr.Error() != v.err.Error() {
 			t.Errorf("`%s` (error): expected %q, found %q\n", v.cmd, v.err, mainErr)

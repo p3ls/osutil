@@ -9,64 +9,55 @@ package sh
 import (
 	"io"
 	"log"
-	"log/syslog"
 	"os"
 )
 
-const PATH = "/sbin:/bin:/usr/sbin:/usr/bin"
-
-const logFilename = "/.shutil.log" // in boot
+const (
+	path_       = "/sbin:/bin:/usr/sbin:/usr/bin"
+	logFilename = "/.shutil.log" // at boot
+)
 
 var (
-	env   []string
-	home  string // to expand symbol "~"
-	BOOT  bool   // does the script is being run during boot?
-	DEBUG bool
-
 	logFile *os.File
 	Log     = log.New(io.Discard, "", 0)
 )
 
-// Sets environment variables and a null logger.
-func init() {
-	log.SetFlags(0)
-	log.SetPrefix("ERROR: ")
+// To be used at functions related to 'ExecAsBash'.
+var (
+	env  []string
+	home string // to expand symbol "~"
+)
 
-	if BOOT {
-		env = []string{"PATH=" + PATH} // from file boot
-	} else {
-		env = os.Environ()
-		home = os.Getenv("HOME")
-	}
+// Gets some environment variables.
+func init() {
+	env = os.Environ()
+	home = os.Getenv("HOME")
 
 	/*if path := os.Getenv("PATH"); path == "" {
-		if err = os.Setenv("PATH", PATH); err != nil {
+		if err = os.Setenv("PATH", path_); err != nil {
 			log.Print(err)
 		}
 	}*/
 }
 
-// StartLogger initializes the log file.
-func StartLogger() {
+// StartBootLogger initializes the log file to be used during the boot.
+func StartBootLogger() {
 	var err error
 
-	if BOOT {
-		if logFile, err = os.OpenFile(logFilename, os.O_WRONLY|os.O_TRUNC, 0); err != nil {
-			log.Print(err)
-		} else {
-			Log = log.New(logFile, "", log.Lshortfile)
-		}
+	log.SetFlags(0)
+	log.SetPrefix("ERROR: ")
+
+	logFile, err = os.OpenFile(logFilename, os.O_WRONLY|os.O_TRUNC, 0)
+	if err != nil {
+		log.Print(err)
 	} else {
-		if Log, err = syslog.NewLogger(syslog.LOG_NOTICE, log.Lshortfile); err != nil {
-			log.Fatal(err)
-		}
+		Log = log.New(logFile, "", log.Lshortfile)
 	}
+
+	env = []string{"PATH=" + path_} // from file boot
 }
 
-// CloseLogger closes the log file.
-func CloseLogger() error {
-	if BOOT {
-		return logFile.Close()
-	}
-	return nil
+// CloseBootLogger closes the log file.
+func CloseBootLogger() error {
+	return logFile.Close()
 }

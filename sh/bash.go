@@ -4,15 +4,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// Package sh interprets a command line just like it is done in the Bash shell.
-//
-// The main function is Run which lets to call to system commands under a new
-// process. It handles pipes, environment variables, and does pattern expansion.
 package sh
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -22,39 +17,7 @@ import (
 	"strings"
 )
 
-// Debug shows debug messages in functions like Run.
-var Debug bool
-
-// == Errors
-var (
-	errEnvVar      = errors.New("the format of the variable has to be VAR=value")
-	errNoCmdInPipe = errors.New("no command around of pipe")
-)
-
-type extraCmdError string
-
-func (e extraCmdError) Error() string {
-	return "command not added to " + string(e)
-}
-
-type runError struct {
-	cmd     string
-	debug   string
-	errType string
-	err     error
-}
-
-func (e runError) Error() string {
-	if Debug {
-		if e.debug != "" {
-			e.debug = "\n## DEBUG\n" + e.debug + "\n"
-		}
-		return fmt.Sprintf("Command line: `%s`\n%s\n## %s\n%s", e.cmd, e.debug, e.errType, e.err)
-	}
-	return fmt.Sprintf("\n%s", e.err)
-}
-
-// RunWithMatch executes external commands with access to shell features such as
+// ExecAsBashWithMatch executes external commands with access to shell features such as
 // filename wildcards, shell pipes, environment variables, and expansion of the
 // shortcut character "~" to home directory.
 //
@@ -65,8 +28,8 @@ func (e runError) Error() string {
 //
 // The most of commands return a text in output or an error if any.
 // `match` is used in commands like *grep*, *find*, or *cmp* to indicate if the
-// serach is matched.
-func RunWithMatch(command string) (output []byte, match bool, err error) {
+// search is matched.
+func ExecAsBashWithMatch(command string) (output []byte, match bool, err error) {
 	var (
 		cmds           []*exec.Cmd
 		outPipes       []io.ReadCloser
@@ -79,13 +42,18 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 	// Check lonely pipes.
 	for _, cmd := range commands {
 		if strings.TrimSpace(cmd) == "" {
-			err = runError{command, "", "ERR", errNoCmdInPipe}
+			err = execAsBashError{
+				cmd:     command,
+				debug:   "",
+				errType: "ERR",
+				err:     errNoCmdInPipe,
+			}
 			return
 		}
 	}
 
 	for i, cmd := range commands {
-		cmdEnv := env  // evironment variables for each command
+		cmdEnv := env  // environment variables for each command
 		indexArgs := 1 // position where the arguments start
 		fields := strings.Fields(cmd)
 		lastIdxFields := len(fields) - 1
@@ -94,7 +62,12 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 		for j, fCmd := range fields {
 			if fCmd[len(fCmd)-1] == '=' || // VAR= foo
 				(j < lastIdxFields && fields[j+1][0] == '=') { // VAR =foo
-				err = runError{command, "", "ERR", errEnvVar}
+				err = execAsBashError{
+					cmd:     command,
+					debug:   "",
+					errType: "ERR",
+					err:     errEnvVar,
+				}
 				return
 			}
 
@@ -109,7 +82,12 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 
 		cmdPath, e := exec.LookPath(fields[0])
 		if e != nil {
-			err = runError{command, "", "ERR", e}
+			err = execAsBashError{
+				cmd:     command,
+				debug:   "",
+				errType: "ERR",
+				err:     e,
+			}
 			return
 		}
 
@@ -122,13 +100,23 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 			}
 			// It should have an extra command.
 			if j+1 == len(fields) {
-				err = runError{command, "", "ERR", extraCmdError(cmdBase)}
+				err = execAsBashError{
+					cmd:     command,
+					debug:   "",
+					errType: "ERR",
+					err:     extraCmdError(cmdBase),
+				}
 				return
 			}
 
 			nextCmdPath, e := exec.LookPath(fields[j+1])
 			if e != nil {
-				err = runError{command, "", "ERR", e}
+				err = execAsBashError{
+					cmd:     command,
+					debug:   "",
+					errType: "ERR",
+					err:     e,
+				}
 				return
 			}
 
@@ -155,7 +143,12 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 			// File name wildcards
 			names, e := filepath.Glob(fields[j])
 			if e != nil {
-				err = runError{command, "", "ERR", e}
+				err = execAsBashError{
+					cmd:     command,
+					debug:   "",
+					errType: "ERR",
+					err:     e,
+				}
 				return
 			}
 			if names != nil {
@@ -224,7 +217,12 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 		// == Connect pipes
 		outPipe, e := c.StdoutPipe()
 		if e != nil {
-			err = runError{command, "", "ERR", e}
+			err = execAsBashError{
+				cmd:     command,
+				debug:   "",
+				errType: "ERR",
+				err:     e,
+			}
 			return
 		}
 
@@ -244,9 +242,12 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 
 		// == Start command
 		if e := c.Start(); e != nil {
-			err = runError{command,
-				fmt.Sprintf("- Command: %s\n- Args: %s", c.Path, c.Args),
-				"Start", fmt.Errorf("%s", c.Stderr)}
+			err = execAsBashError{
+				cmd:     command,
+				debug:   fmt.Sprintf("- Command: %s\n- Args: %s", c.Path, c.Args),
+				errType: "Start",
+				err:     fmt.Errorf("%s", c.Stderr),
+			}
 			return
 		}
 
@@ -261,18 +262,24 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 
 			// Error type due I/O problems.
 			if !isExitError {
-				err = runError{command,
-					fmt.Sprintf("- Command: %s\n- Args: %s", c.Path, c.Args),
-					"Wait", fmt.Errorf("%s", c.Stderr)}
+				err = execAsBashError{
+					cmd:     command,
+					debug:   fmt.Sprintf("- Command: %s\n- Args: %s", c.Path, c.Args),
+					errType: "Wait",
+					err:     fmt.Errorf("%s", c.Stderr),
+				}
 				return
 			}
 
 			if c.Stderr != nil {
 				if stderr := fmt.Sprintf("%s", c.Stderr); stderr != "" {
 					stderr = strings.TrimRight(stderr, "\n")
-					err = runError{command,
-						fmt.Sprintf("- Command: %s\n- Args: %s", c.Path, c.Args),
-						"Stderr", fmt.Errorf("%s", stderr)}
+					err = execAsBashError{
+						cmd:     command,
+						debug:   fmt.Sprintf("- Command: %s\n- Args: %s", c.Path, c.Args),
+						errType: "Stderr",
+						err:     fmt.Errorf("%s", stderr),
+					}
 					return
 				}
 			}
@@ -285,21 +292,43 @@ func RunWithMatch(command string) (output []byte, match bool, err error) {
 	return stdout.Bytes(), match, nil
 }
 
-// Run executes external commands just like RunWithMatch, but does not return
+// ExecAsBash executes external commands just like ExecAsBashWithMatch, but does not return
 // the boolean `match`.
-func Run(command string) (output []byte, err error) {
-	output, _, err = RunWithMatch(command)
+func ExecAsBash(command string) (output []byte, err error) {
+	output, _, err = ExecAsBashWithMatch(command)
 	return
 }
 
-// Runf is like Run, but formats its arguments according to the format.
+// ExecAsBashf is like ExecAsBash, but formats its arguments according to the format.
 // Analogous to Printf().
-func Runf(format string, args ...interface{}) ([]byte, error) {
-	return Run(fmt.Sprintf(format, args...))
+func ExecAsBashf(format string, args ...interface{}) ([]byte, error) {
+	return ExecAsBash(fmt.Sprintf(format, args...))
 }
 
-// RunWithMatchf is like RunWithMatch, but formats its arguments according to
+// ExecAsBashWithMatchf is like ExecAsBashWithMatch, but formats its arguments according to
 // the format. Analogous to Printf().
-func RunWithMatchf(format string, args ...interface{}) ([]byte, bool, error) {
-	return RunWithMatch(fmt.Sprintf(format, args...))
+func ExecAsBashWithMatchf(format string, args ...interface{}) ([]byte, bool, error) {
+	return ExecAsBashWithMatch(fmt.Sprintf(format, args...))
+}
+
+// == Errors
+
+// DebugExecAsBash shows debug messages at functions related to 'ExecAsBash()'.
+var DebugAsBash bool
+
+type execAsBashError struct {
+	cmd     string
+	debug   string
+	errType string
+	err     error
+}
+
+func (e execAsBashError) Error() string {
+	if DebugAsBash {
+		if e.debug != "" {
+			e.debug = "\n## DEBUG\n" + e.debug + "\n"
+		}
+		return fmt.Sprintf("Command line: `%s`\n%s\n## %s\n%s", e.cmd, e.debug, e.errType, e.err)
+	}
+	return fmt.Sprintf("\n%s", e.err)
 }
