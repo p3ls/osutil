@@ -6,36 +6,36 @@
 
 package pkg
 
-import "github.com/tredoe/osutil"
+import "github.com/tredoe/osutil/sh"
 
 type pacman struct{}
 
 func (p pacman) Install(name ...string) error {
 	args := []string{"-S", "--needed", "--noprogressbar"}
 
-	return osutil.Exec("/usr/bin/pacman", append(args, name...)...)
+	return sh.ExecToStd(nil, "/usr/bin/pacman", append(args, name...)...)
 }
 
 func (p pacman) Remove(name ...string) error {
 	args := []string{"-Rs"}
 
-	return osutil.Exec("/usr/bin/pacman", append(args, name...)...)
+	return sh.ExecToStd(nil, "/usr/bin/pacman", append(args, name...)...)
 }
 
 func (p pacman) Purge(name ...string) error {
 	args := []string{"-Rsn"}
 
-	return osutil.Exec("/usr/bin/pacman", append(args, name...)...)
+	return sh.ExecToStd(nil, "/usr/bin/pacman", append(args, name...)...)
 }
 
 func (p pacman) Update() error {
-	return osutil.Exec("/usr/bin/pacman", "-Syu", "--needed", "--noprogressbar")
+	return sh.ExecToStd(nil, "/usr/bin/pacman", "-Syu", "--needed", "--noprogressbar")
 }
 
 func (p pacman) Upgrade() error {
-	return osutil.Exec("/usr/bin/pacman", "-Syu")
+	return sh.ExecToStd(nil, "/usr/bin/pacman", "-Syu")
 }
 
 func (p pacman) Clean() error {
-	return osutil.Exec("/usr/bin/paccache", "-r")
+	return sh.ExecToStd(nil, "/usr/bin/paccache", "-r")
 }

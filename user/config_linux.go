@@ -21,82 +21,29 @@ import (
 // TODO: Idea: store struct "configData" to run configData.Init() only when
 // the configuration files have been modified.
 
-// == System configuration files.
+var config configData
 
-const fileLogin = "/etc/login.defs"
-
-type confLogin struct {
-	PASS_MIN_DAYS int
-	PASS_MAX_DAYS int
-	PASS_MIN_LEN  int
-	PASS_WARN_AGE int
-
-	SYS_UID_MIN int
-	SYS_UID_MAX int
-	SYS_GID_MIN int
-	SYS_GID_MAX int
-
-	UID_MIN int
-	UID_MAX int
-	GID_MIN int
-	GID_MAX int
-
-	ENCRYPT_METHOD       string // upper
-	SHA_CRYPT_MIN_ROUNDS int
-	SHA_CRYPT_MAX_ROUNDS int
-	// or
-	CRYPT_PREFIX string // $2a$
-	CRYPT_ROUNDS int    // 8
+// loadConfig loads the user configuration.
+// It has to be loaded before of edit some file.
+func loadConfig() {
+	config.Do(func() {
+		//checkRoot()
+		if err := config.init(false); err != nil {
+			panic(err)
+		}
+	})
 }
 
-const fileUseradd = "/etc/default/useradd"
-
-type confUseradd struct {
-	HOME  string // Default to '/home'
-	SHELL string // Default to '/bin/sh'
+// loadConfig loads the user configuration.
+// It also prints the information about the configuration being read.
+func loadConfigWithDebug() {
+	config.Do(func() {
+		//checkRoot()
+		if err := config.init(true); err != nil {
+			panic(err)
+		}
+	})
 }
-
-// == Optional files.
-
-// Used in systems derivated from Debian: Ubuntu, Mint.
-const fileAdduser = "/etc/adduser.conf"
-
-type confAdduser struct {
-	FIRST_SYSTEM_UID int
-	LAST_SYSTEM_UID  int
-	FIRST_SYSTEM_GID int
-	LAST_SYSTEM_GID  int
-
-	FIRST_UID int
-	LAST_UID  int
-	FIRST_GID int
-	LAST_GID  int
-}
-
-// Used in Arch, Manjaro, OpenSUSE.
-// But it is only used by 'pam_unix2.so'.
-const filePasswd = "/etc/default/passwd"
-
-// TODO: to see the other options of that file.
-type confPasswd struct {
-	CRYPT string // lower
-}
-
-// Used in systems derivated from Red Hat: CentOS, Fedora, Mageia, PCLinuxOS.
-const fileLibuser = "/etc/libuser.conf"
-
-type confLibuser struct {
-	login_defs  string
-	crypt_style string // lower
-
-	// For SHA2
-	hash_rounds_min int
-	hash_rounds_max int
-}
-
-// * * *
-
-var debug bool // For testing
 
 // A configData represents the configuration used to add users and groups.
 type configData struct {
@@ -107,10 +54,9 @@ type configData struct {
 	sync.Once
 }
 
-var config configData
-
 // init sets the configuration data.
-func (c *configData) init() error {
+// The argument 'debug' prints information about the configuration being read.
+func (c *configData) init(debug bool) error {
 	_confLogin := &confLogin{}
 
 	cfg, err := shconf.ParseFile(fileLogin)
@@ -267,13 +213,77 @@ func (c *configData) init() error {
 	return nil
 }
 
-// loadConfig loads user configuration.
-// It has to be loaded before of edit some file.
-func loadConfig() {
-	config.Do(func() {
-		//checkRoot()
-		if err := config.init(); err != nil {
-			panic(err)
-		}
-	})
+// == System configuration files
+//
+
+const fileLogin = "/etc/login.defs"
+
+type confLogin struct {
+	PASS_MIN_DAYS int
+	PASS_MAX_DAYS int
+	PASS_MIN_LEN  int
+	PASS_WARN_AGE int
+
+	SYS_UID_MIN int
+	SYS_UID_MAX int
+	SYS_GID_MIN int
+	SYS_GID_MAX int
+
+	UID_MIN int
+	UID_MAX int
+	GID_MIN int
+	GID_MAX int
+
+	ENCRYPT_METHOD       string // upper
+	SHA_CRYPT_MIN_ROUNDS int
+	SHA_CRYPT_MAX_ROUNDS int
+	// or
+	CRYPT_PREFIX string // $2a$
+	CRYPT_ROUNDS int    // 8
+}
+
+const fileUseradd = "/etc/default/useradd"
+
+type confUseradd struct {
+	HOME  string // Default to '/home'
+	SHELL string // Default to '/bin/sh'
+}
+
+// == Optional files
+//
+
+// Used in systems derivated from Debian: Ubuntu, Mint.
+const fileAdduser = "/etc/adduser.conf"
+
+type confAdduser struct {
+	FIRST_SYSTEM_UID int
+	LAST_SYSTEM_UID  int
+	FIRST_SYSTEM_GID int
+	LAST_SYSTEM_GID  int
+
+	FIRST_UID int
+	LAST_UID  int
+	FIRST_GID int
+	LAST_GID  int
+}
+
+// Used in Arch, Manjaro, OpenSUSE.
+// But it is only used by 'pam_unix2.so'.
+const filePasswd = "/etc/default/passwd"
+
+// TODO: to see the other options of that file.
+type confPasswd struct {
+	CRYPT string // lower
+}
+
+// Used in systems derivated from Red Hat: CentOS, Fedora, Mageia, PCLinuxOS.
+const fileLibuser = "/etc/libuser.conf"
+
+type confLibuser struct {
+	login_defs  string
+	crypt_style string // lower
+
+	// For SHA2
+	hash_rounds_min int
+	hash_rounds_max int
 }

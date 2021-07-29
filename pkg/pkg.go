@@ -24,6 +24,8 @@ import (
 	"os/exec"
 )
 
+const sudo = "sudo"
+
 // Packager is the common interface to handle different package systems.
 type Packager interface {
 	// Install installs packages.

@@ -1,7 +1,3 @@
-## pkg
-
-Check the error code returned at testing.
-
 ## file
 
 edit.go: the comment character used by default
@@ -28,9 +24,3 @@ const (
 	       // or when the destination file is missing
 
 )
-
-## sh
-
-doc. about the usage of Installer since it uses a logger into a directory installed
-by such tool.
-

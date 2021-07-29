@@ -6,18 +6,18 @@
 
 package pkg
 
-import "github.com/tredoe/osutil"
+import "github.com/tredoe/osutil/sh"
 
 type ebuild struct{}
 
 func (p ebuild) Install(name ...string) error {
-	return osutil.Exec("/usr/bin/emerge", name...)
+	return sh.ExecToStd(nil, "/usr/bin/emerge", name...)
 }
 
 func (p ebuild) Remove(name ...string) error {
 	args := []string{"--unmerge"}
 
-	return osutil.Exec("/usr/bin/emerge", append(args, name...)...)
+	return sh.ExecToStd(nil, "/usr/bin/emerge", append(args, name...)...)
 }
 
 func (p ebuild) Purge(name ...string) error {
@@ -25,18 +25,18 @@ func (p ebuild) Purge(name ...string) error {
 }
 
 func (p ebuild) Update() error {
-	return osutil.Exec("/usr/bin/emerge", "--sync")
+	return sh.ExecToStd(nil, "/usr/bin/emerge", "--sync")
 }
 
 func (p ebuild) Upgrade() error {
-	return osutil.Exec("/usr/bin/emerge", "--update", "--deep", "--with-bdeps=y", "--newuse @world")
+	return sh.ExecToStd(nil, "/usr/bin/emerge", "--update", "--deep", "--with-bdeps=y", "--newuse @world")
 }
 
 func (p ebuild) Clean() error {
-	err := osutil.Exec("/usr/bin/emerge", "--update", "--deep", "--newuse @world")
+	err := sh.ExecToStd(nil, "/usr/bin/emerge", "--update", "--deep", "--newuse @world")
 	if err != nil {
 		return err
 	}
 
-	return osutil.Exec("/usr/bin/emerge", "--depclean")
+	return sh.ExecToStd(nil, "/usr/bin/emerge", "--depclean")
 }

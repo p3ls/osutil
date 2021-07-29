@@ -11,6 +11,8 @@ import "testing"
 func TestLoadConfig(t *testing.T) {
 	if testing.Verbose() {
 		debug = true
+		loadConfigWithDebug()
 	}
+
 	loadConfig()
 }

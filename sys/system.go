@@ -4,8 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// Package system defines operating systems and detects the Linux distribution.
-package system
+// Package sys defines operating systems and detects the Linux distribution.
+package sys
 
 import (
 	"errors"
@@ -15,29 +15,29 @@ import (
 var errSystem = errors.New("unsopported operating system")
 
 // listSystem is the list of allowed operating systems.
-var listSystem = [...]System{SysLinux, SysFreeBSD, SysMacOS, SysWindows}
+var listSystem = [...]System{Linux, FreeBSD, MacOS, Windows}
 
 // System represents an operating system.
 type System uint8
 
 // The operating systems.
 const (
-	_ System = iota
-	SysLinux
-	SysFreeBSD
-	SysMacOS
-	SysWindows
+	SystemUndefined System = iota
+	Linux
+	FreeBSD
+	MacOS
+	Windows
 )
 
 func (s System) String() string {
 	switch s {
-	case SysLinux:
+	case Linux:
 		return "Linux"
-	case SysFreeBSD:
+	case FreeBSD:
 		return "FreeBSD"
-	case SysMacOS:
+	case MacOS:
 		return "macOS"
-	case SysWindows:
+	case Windows:
 		return "Windows"
 	default:
 		panic("unreachable")
@@ -48,17 +48,17 @@ func (s System) String() string {
 func SystemFromGOOS() (sys System, dist Distro, err error) {
 	switch runtime.GOOS {
 	case "linux":
-		sys = SysLinux
+		sys = Linux
 
 		if dist, err = DetectDistro(); err != nil {
 			return 0, 0, err
 		}
 	case "freebsd":
-		sys = SysFreeBSD
+		sys = FreeBSD
 	case "darwin":
-		sys = SysMacOS
+		sys = MacOS
 	case "windows":
-		sys = SysWindows
+		sys = Windows
 
 	default:
 		return 0, 0, errSystem

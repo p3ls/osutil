@@ -6,20 +6,20 @@
 
 package pkg
 
-import "github.com/tredoe/osutil"
+import "github.com/tredoe/osutil/sh"
 
 type rpm struct{}
 
 func (p rpm) Install(name ...string) error {
 	args := []string{"install"}
 
-	return osutil.Exec("/usr/bin/yum", append(args, name...)...)
+	return sh.ExecToStd(nil, "/usr/bin/yum", append(args, name...)...)
 }
 
 func (p rpm) Remove(name ...string) error {
 	args := []string{"remove"}
 
-	return osutil.Exec("/usr/bin/yum", append(args, name...)...)
+	return sh.ExecToStd(nil, "/usr/bin/yum", append(args, name...)...)
 }
 
 func (p rpm) Purge(name ...string) error {
@@ -27,13 +27,13 @@ func (p rpm) Purge(name ...string) error {
 }
 
 func (p rpm) Update() error {
-	return osutil.Exec("/usr/bin/yum", "update")
+	return sh.ExecToStd(nil, "/usr/bin/yum", "update")
 }
 
 func (p rpm) Upgrade() error {
-	return osutil.Exec("/usr/bin/yum", "update")
+	return sh.ExecToStd(nil, "/usr/bin/yum", "update")
 }
 
 func (p rpm) Clean() error {
-	return osutil.Exec("/usr/bin/yum", "clean", "packages")
+	return sh.ExecToStd(nil, "/usr/bin/yum", "clean", "packages")
 }
