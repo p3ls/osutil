@@ -20,6 +20,7 @@ import (
 // ExecAsBashWithMatch executes external commands with access to shell features such as
 // filename wildcards, shell pipes, environment variables, and expansion of the
 // shortcut character "~" to home directory.
+// It also logs the command.
 //
 // This function avoids to have execute commands through a shell since an
 // unsanitized input from an untrusted source makes a program vulnerable to
@@ -288,6 +289,7 @@ func ExecAsBashWithMatch(command string) (output []byte, match bool, err error) 
 		}
 	}
 
+	Log.Print(command)
 	return stdout.Bytes(), match, nil
 }
 

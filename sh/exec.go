@@ -16,6 +16,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -26,9 +27,11 @@ func Exec(cmd string, args ...string) (stdout, stderr []byte, err error) {
 
 // ExecWithTime executes a command waiting to finish the command before of kill it ('timeKillCmd'),
 // or waits without kill it when the duration is lesser or equal to zero).
-// Returns both standard output and error.
+// Logs the command and returns both standard output and error.
 func ExecWithTime(timeKillCmd time.Duration, cmd string, args ...string,
 ) (stdout, stderr []byte, err error) {
+	Log.Printf("%s %s", cmd, strings.Join(args, " "))
+
 	var outPipe, errPipe io.ReadCloser
 	var ctx context.Context
 	var cancel context.CancelFunc
@@ -116,7 +119,10 @@ _checkErr:
 }
 
 // ExecToStd executes a command setting both standard output and error.
+// Logs the command.
 func ExecToStd(extraEnv []string, cmd string, args ...string) error {
+	Log.Printf("%s %s", cmd, strings.Join(args, " "))
+
 	c := exec.Command(cmd, args...)
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
@@ -135,7 +141,10 @@ func ExecToStd(extraEnv []string, cmd string, args ...string) error {
 }
 
 // ExecNoStdErr executes a command setting only standard output.
+// Logs the command.
 func ExecNoStdErr(extraEnv []string, cmd string, args ...string) error {
+	Log.Printf("%s %s", cmd, strings.Join(args, " "))
+
 	c := exec.Command(cmd, args...)
 	c.Stdout = os.Stdout
 	//c.Stderr = os.Stderr
@@ -154,10 +163,13 @@ func ExecNoStdErr(extraEnv []string, cmd string, args ...string) error {
 }
 
 // ExecToStdButErr executes a command setting the standard output.
+// Logs the command.
 //
 // checkStderr (if any) checks if it is found in the standard error to know whether the standard
 // error is not really an error.
 func ExecToStdButErr(checkStderr []byte, extraEnv []string, cmd string, args ...string) error {
+	Log.Printf("%s %s", cmd, strings.Join(args, " "))
+
 	var bufStderr bytes.Buffer
 	c := exec.Command(cmd, args...)
 	c.Stdout = os.Stdout
