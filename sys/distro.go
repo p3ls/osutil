@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/tredoe/osutil/config/shconf"
+	"github.com/tredoe/osutil/pkg"
 )
 
 // Distro represents a distribution of Linux system.
@@ -18,37 +19,76 @@ type Distro int
 // Most used Linux distributions.
 const (
 	DistroUnknown Distro = iota
-	Arch
-	CentOS
+
 	Debian
-	Fedora
-	Manjaro
-	OpenSUSE
 	Ubuntu
+
+	Fedora
+	CentOS
+
+	OpenSUSE
+
+	Arch
+	Manjaro
 )
 
 var distroNames = [...]string{
 	DistroUnknown: "unknown distribution",
-	Arch:          "Arch",
-	CentOS:        "CentOS",
-	Debian:        "Debian",
-	Fedora:        "Fedora",
-	Manjaro:       "Manjaro",
-	OpenSUSE:      "openSUSE",
-	Ubuntu:        "Ubuntu",
+
+	Debian: "Debian",
+	Ubuntu: "Ubuntu",
+
+	Fedora: "Fedora",
+	CentOS: "CentOS",
+
+	OpenSUSE: "openSUSE",
+
+	Arch:    "Arch",
+	Manjaro: "Manjaro",
 }
 
 func (s Distro) String() string { return distroNames[s] }
 
+// Manager returns the package manager.
+func (d Distro) Manager() pkg.Manager {
+	switch d {
+	case Debian:
+		return pkg.ManagerDeb{}
+	case Ubuntu:
+		return pkg.ManagerDeb{}
+
+	case CentOS:
+		return pkg.ManagerRpm{}
+	case Fedora:
+		return pkg.ManagerRpm{}
+
+	case OpenSUSE:
+		return pkg.ManagerZypp{}
+
+	case Arch:
+		return pkg.ManagerPacman{}
+	case Manjaro:
+		return pkg.ManagerPacman{}
+
+	default:
+		panic("unimplemented")
+	}
+}
+
+// * * *
+
 var idToDistro = map[string]Distro{
-	"arch":                Arch,
-	"manjaro":             Manjaro, // based on Arch
-	"centos":              CentOS,
-	"debian":              Debian,
-	"fedora":              Fedora,
+	"debian": Debian,
+	"ubuntu": Ubuntu,
+
+	"centos": CentOS,
+	"fedora": Fedora,
+
 	"opensuse-leap":       OpenSUSE,
 	"opensuse-tumbleweed": OpenSUSE,
-	"ubuntu":              Ubuntu,
+
+	"arch":    Arch,
+	"manjaro": Manjaro, // based on Arch
 }
 
 // DetectDistro returns the Linux distribution.

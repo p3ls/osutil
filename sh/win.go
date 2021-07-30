@@ -44,8 +44,6 @@ var cmdOut = filepath.Join(os.TempDir(), "cmd_out.txt")
 // ExecWinshell executes a command into a Windows' shell called from Powershell.
 // Returns the command output.
 func ExecWinshell(sh WinShell, closeWindow bool, cmd string) (out []byte, err error) {
-	Log.Print(cmd)
-
 	argClose := ""
 	if closeWindow {
 		argClose = "/C"
@@ -54,8 +52,8 @@ func ExecWinshell(sh WinShell, closeWindow bool, cmd string) (out []byte, err er
 	}
 
 	defer func() {
-		if err2 := os.Remove(cmdOut); err2 != nil {
-			Log.Print(err2)
+		if err2 := os.Remove(cmdOut); err2 != nil && err == nil {
+			err = err2
 		}
 	}()
 	// The command output is saved into a file with the exit status code.

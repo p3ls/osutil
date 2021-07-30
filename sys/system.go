@@ -10,6 +10,8 @@ package sys
 import (
 	"errors"
 	"runtime"
+
+	"github.com/tredoe/osutil/pkg"
 )
 
 var errSystem = errors.New("unsopported operating system")
@@ -43,6 +45,23 @@ func (s System) String() string {
 		panic("unreachable")
 	}
 }
+
+// Manager returns the package manager.
+func (s System) Manager(dis Distro) pkg.Manager {
+	switch s {
+	case Linux:
+		return Distro.Manager(dis)
+	case MacOS:
+		return pkg.ManagerBrew{}
+	case FreeBSD:
+		return pkg.ManagerPkg{}
+
+	default:
+		panic("unimplemented")
+	}
+}
+
+// * * *
 
 // SystemFromGOOS returns the system from 'GOOS', and the distribution at Linux systems.
 func SystemFromGOOS() (sys System, dist Distro, err error) {

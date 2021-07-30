@@ -288,7 +288,6 @@ func ExecAsBashWithMatch(command string) (output []byte, match bool, err error) 
 		}
 	}
 
-	Log.Print(command)
 	return stdout.Bytes(), match, nil
 }
 
@@ -312,6 +311,7 @@ func ExecAsBashWithMatchf(format string, args ...interface{}) ([]byte, bool, err
 }
 
 // == Errors
+//
 
 // DebugExecAsBash shows debug messages at functions related to 'ExecAsBash()'.
 var DebugAsBash bool

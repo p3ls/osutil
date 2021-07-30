@@ -5,29 +5,18 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // Package pkg handles basic operations in the management of packages in
-// operating systems.
-//
-// Important
-//
-// If you are going to use a package manager different to Deb, then you should
-// check the options since I cann't test all.
-//
-// TODO
-//
-// Add managers of BSD systems.
-//
-// Use flag to do not show questions.
+// Linux and FreeBSD operating systems.
 package pkg
 
 import (
-	"errors"
+	"fmt"
 	"os/exec"
 )
 
 const sudo = "sudo"
 
-// Packager is the common interface to handle different package systems.
-type Packager interface {
+// Manager is the common interface to handle different package systems.
+type Manager interface {
 	// Install installs packages.
 	Install(name ...string) error
 
@@ -56,11 +45,16 @@ const (
 	RPM
 	Pacman
 	Ebuild
-	ZYpp
+	Zypp
+
+	// BSD
+	Brew
+	Pkg
 )
 
 func (pkg PackageType) String() string {
 	switch pkg {
+	// Linux
 	case Deb:
 		return "Deb"
 	case RPM:
@@ -69,46 +63,68 @@ func (pkg PackageType) String() string {
 		return "Pacman"
 	case Ebuild:
 		return "Ebuild"
-	case ZYpp:
+	case Zypp:
 		return "ZYpp"
+
+	// BSD
+	case Brew:
+		return "brew"
+	case Pkg:
+		return "pkg"
 	}
 	panic("unreachable")
 }
 
 // New returns the interface to handle the package manager.
-func New(pkg PackageType) Packager {
+func New(pkg PackageType) Manager {
 	switch pkg {
+	// Linux
 	case Deb:
-		return new(deb)
+		return new(ManagerDeb)
 	case RPM:
-		return new(rpm)
+		return new(ManagerRpm)
 	case Pacman:
-		return new(pacman)
+		return new(ManagerPacman)
 	case Ebuild:
-		return new(ebuild)
-	case ZYpp:
-		return new(zypp)
+		return new(ManagerEbuild)
+	case Zypp:
+		return new(ManagerZypp)
+
+	// BSD
+	case Brew:
+		return new(ManagerBrew)
+	case Pkg:
+		return new(ManagerPkg)
 	}
 	panic("unreachable")
 }
 
-// execPackagers is a list of executables of package managers.
-var execPackagers = [...]string{
+// execPackage is a list of executables of package managers.
+var execPackage = [...]string{
+	// Linux
 	Deb:    "apt-get",
 	RPM:    "yum",
 	Pacman: "pacman",
 	Ebuild: "emerge",
-	ZYpp:   "zypper",
+	Zypp:   "zypper",
+
+	// BSD
+	Brew: "brew",
+	Pkg:  "pkg",
 }
 
 // Detect tries to get the package system used in the system, looking for
-// executables in directory "/usr/bin".
+// executables in directories "/usr/bin" and "/usr/local/bin".
 func Detect() (PackageType, error) {
-	for k, v := range execPackagers {
-		_, err := exec.LookPath("/usr/bin/" + v)
-		if err == nil {
-			return PackageType(k), nil
+	for _, p := range []string{"/usr/bin/", "/usr/local/bin/"} {
+		for k, v := range execPackage {
+			_, err := exec.LookPath(p + v)
+			if err == nil {
+				return PackageType(k), nil
+			}
 		}
 	}
-	return -1, errors.New("package manager not found in directory '/usr/bin'")
+	return -1, fmt.Errorf(
+		"package manager not found in directories '/usr/bin' neither '/usr/local/bin'",
+	)
 }

@@ -8,32 +8,35 @@ package pkg
 
 import "github.com/tredoe/osutil/sh"
 
-type rpm struct{}
+const pathYum = "/usr/bin/yum"
 
-func (p rpm) Install(name ...string) error {
+// ManagerRpm is the interface to handle the package manager of Linux systems based at Red Hat.
+type ManagerRpm struct{}
+
+func (p ManagerRpm) Install(name ...string) error {
 	args := []string{"install"}
 
-	return sh.ExecToStd(nil, "/usr/bin/yum", append(args, name...)...)
+	return sh.ExecToStd(nil, pathYum, append(args, name...)...)
 }
 
-func (p rpm) Remove(name ...string) error {
+func (p ManagerRpm) Remove(name ...string) error {
 	args := []string{"remove"}
 
-	return sh.ExecToStd(nil, "/usr/bin/yum", append(args, name...)...)
+	return sh.ExecToStd(nil, pathYum, append(args, name...)...)
 }
 
-func (p rpm) Purge(name ...string) error {
+func (p ManagerRpm) Purge(name ...string) error {
 	return p.Remove(name...)
 }
 
-func (p rpm) Update() error {
-	return sh.ExecToStd(nil, "/usr/bin/yum", "update")
+func (p ManagerRpm) Update() error {
+	return sh.ExecToStd(nil, pathYum, "update")
 }
 
-func (p rpm) Upgrade() error {
-	return sh.ExecToStd(nil, "/usr/bin/yum", "update")
+func (p ManagerRpm) Upgrade() error {
+	return sh.ExecToStd(nil, pathYum, "update")
 }
 
-func (p rpm) Clean() error {
-	return sh.ExecToStd(nil, "/usr/bin/yum", "clean", "packages")
+func (p ManagerRpm) Clean() error {
+	return sh.ExecToStd(nil, pathYum, "clean", "packages")
 }

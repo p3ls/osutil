@@ -8,34 +8,37 @@ package pkg
 
 import "github.com/tredoe/osutil/sh"
 
-type pacman struct{}
+const pathPacman = "/usr/bin/pacman"
 
-func (p pacman) Install(name ...string) error {
+// ManagerPacman is the interface to handle the package manager of Linux systems based at Arch.
+type ManagerPacman struct{}
+
+func (p ManagerPacman) Install(name ...string) error {
 	args := []string{"-S", "--needed", "--noprogressbar"}
 
-	return sh.ExecToStd(nil, "/usr/bin/pacman", append(args, name...)...)
+	return sh.ExecToStd(nil, pathPacman, append(args, name...)...)
 }
 
-func (p pacman) Remove(name ...string) error {
+func (p ManagerPacman) Remove(name ...string) error {
 	args := []string{"-Rs"}
 
-	return sh.ExecToStd(nil, "/usr/bin/pacman", append(args, name...)...)
+	return sh.ExecToStd(nil, pathPacman, append(args, name...)...)
 }
 
-func (p pacman) Purge(name ...string) error {
+func (p ManagerPacman) Purge(name ...string) error {
 	args := []string{"-Rsn"}
 
-	return sh.ExecToStd(nil, "/usr/bin/pacman", append(args, name...)...)
+	return sh.ExecToStd(nil, pathPacman, append(args, name...)...)
 }
 
-func (p pacman) Update() error {
-	return sh.ExecToStd(nil, "/usr/bin/pacman", "-Syu", "--needed", "--noprogressbar")
+func (p ManagerPacman) Update() error {
+	return sh.ExecToStd(nil, pathPacman, "-Syu", "--needed", "--noprogressbar")
 }
 
-func (p pacman) Upgrade() error {
-	return sh.ExecToStd(nil, "/usr/bin/pacman", "-Syu")
+func (p ManagerPacman) Upgrade() error {
+	return sh.ExecToStd(nil, pathPacman, "-Syu")
 }
 
-func (p pacman) Clean() error {
+func (p ManagerPacman) Clean() error {
 	return sh.ExecToStd(nil, "/usr/bin/paccache", "-r")
 }

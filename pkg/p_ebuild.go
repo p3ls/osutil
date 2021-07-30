@@ -8,35 +8,38 @@ package pkg
 
 import "github.com/tredoe/osutil/sh"
 
-type ebuild struct{}
+const pathEbuild = "/usr/bin/emerge"
 
-func (p ebuild) Install(name ...string) error {
-	return sh.ExecToStd(nil, "/usr/bin/emerge", name...)
+// ManagerEbuild is the interface to handle the package manager of Linux systems based at Gentoo.
+type ManagerEbuild struct{}
+
+func (p ManagerEbuild) Install(name ...string) error {
+	return sh.ExecToStd(nil, pathEbuild, name...)
 }
 
-func (p ebuild) Remove(name ...string) error {
+func (p ManagerEbuild) Remove(name ...string) error {
 	args := []string{"--unmerge"}
 
-	return sh.ExecToStd(nil, "/usr/bin/emerge", append(args, name...)...)
+	return sh.ExecToStd(nil, pathEbuild, append(args, name...)...)
 }
 
-func (p ebuild) Purge(name ...string) error {
+func (p ManagerEbuild) Purge(name ...string) error {
 	return p.Remove(name...)
 }
 
-func (p ebuild) Update() error {
-	return sh.ExecToStd(nil, "/usr/bin/emerge", "--sync")
+func (p ManagerEbuild) Update() error {
+	return sh.ExecToStd(nil, pathEbuild, "--sync")
 }
 
-func (p ebuild) Upgrade() error {
-	return sh.ExecToStd(nil, "/usr/bin/emerge", "--update", "--deep", "--with-bdeps=y", "--newuse @world")
+func (p ManagerEbuild) Upgrade() error {
+	return sh.ExecToStd(nil, pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world")
 }
 
-func (p ebuild) Clean() error {
-	err := sh.ExecToStd(nil, "/usr/bin/emerge", "--update", "--deep", "--newuse @world")
+func (p ManagerEbuild) Clean() error {
+	err := sh.ExecToStd(nil, pathEbuild, "--update", "--deep", "--newuse @world")
 	if err != nil {
 		return err
 	}
 
-	return sh.ExecToStd(nil, "/usr/bin/emerge", "--depclean")
+	return sh.ExecToStd(nil, pathEbuild, "--depclean")
 }

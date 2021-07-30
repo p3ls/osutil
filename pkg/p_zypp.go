@@ -8,32 +8,35 @@ package pkg
 
 import "github.com/tredoe/osutil/sh"
 
-type zypp struct{}
+const pathZypp = "/usr/bin/zypper"
 
-func (p zypp) Install(name ...string) error {
+// ManagerZypp is the interface to handle the package manager of Linux systems based at SUSE.
+type ManagerZypp struct{}
+
+func (p ManagerZypp) Install(name ...string) error {
 	args := []string{"install", "--auto-agree-with-licenses"}
 
-	return sh.ExecToStd(nil, "/usr/bin/zypper", append(args, name...)...)
+	return sh.ExecToStd(nil, pathZypp, append(args, name...)...)
 }
 
-func (p zypp) Remove(name ...string) error {
+func (p ManagerZypp) Remove(name ...string) error {
 	args := []string{"remove"}
 
-	return sh.ExecToStd(nil, "/usr/bin/zypper", append(args, name...)...)
+	return sh.ExecToStd(nil, pathZypp, append(args, name...)...)
 }
 
-func (p zypp) Purge(name ...string) error {
+func (p ManagerZypp) Purge(name ...string) error {
 	return p.Remove(name...)
 }
 
-func (p zypp) Update() error {
-	return sh.ExecToStd(nil, "/usr/bin/zypper", "refresh")
+func (p ManagerZypp) Update() error {
+	return sh.ExecToStd(nil, pathZypp, "refresh")
 }
 
-func (p zypp) Upgrade() error {
-	return sh.ExecToStd(nil, "/usr/bin/zypper", "up", "--auto-agree-with-licenses")
+func (p ManagerZypp) Upgrade() error {
+	return sh.ExecToStd(nil, pathZypp, "up", "--auto-agree-with-licenses")
 }
 
-func (p zypp) Clean() error {
-	return sh.ExecToStd(nil, "/usr/bin/zypper", "clean")
+func (p ManagerZypp) Clean() error {
+	return sh.ExecToStd(nil, pathZypp, "clean")
 }
