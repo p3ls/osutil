@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package file
+package fileutil
 
 import (
 	"errors"
@@ -44,6 +44,7 @@ func CreateDir(dir string) error {
 		if err = os.MkdirAll(dir, 0774); err != nil {
 			return err
 		}
+		Log.Printf("Created directory \"%s\"", dir)
 	}
 	return nil
 }

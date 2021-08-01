@@ -5,10 +5,11 @@ utility packages for the Shell.
 
 + config/env: set persistent environment variables
 + config/shconf: parser and scanner for the configuration in format shell-variable
-+ distro: detects the Linux distribution
++ edi: editing of files
++ executil: executes commands in shells
++ fileutil: handles common operations at files
 + pkg: basic operations for the management of packages in operating systems
-+ sh: interprets a command line like it is done in the Bash shell
-+ user: provides access to UNIX users database in local files
++ userutil: provides access to UNIX users database in local files
 + user/crypt: password hashing used in UNIX
 
 [Documentation online](http://godoc.org/github.com/tredoe/osutil)

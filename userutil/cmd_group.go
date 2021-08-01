@@ -16,31 +16,31 @@ import (
 
 // AddGroupFromCmd adds the given group to the original user.
 // Returns an information message, if the command is run.
-func AddGroupFromCmd(sys_ sys.System, group string) (msg string, err error) {
-	switch sys_ {
-	case sys.SysLinux:
+func AddGroupFromCmd(syst sys.System, group string) error {
+	switch syst {
+	case sys.Linux:
 	default:
-		panic("unimplemented: " + sys_.String())
+		panic("unimplemented: " + syst.String())
 	}
 
-	username, err := RealUser(sys_)
+	username, err := RealUser(syst)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	grp, err := user.LookupGroup(group)
 	if err != nil {
-		return "", err
+		return err
 	}
 	gid := grp.Gid
 
 	usr, err := user.Lookup(username)
 	if err != nil {
-		return "", err
+		return err
 	}
 	groups, err := usr.GroupIds()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	found := false
@@ -53,18 +53,18 @@ func AddGroupFromCmd(sys_ sys.System, group string) (msg string, err error) {
 	if !found {
 		_, stderr, err := sh.Exec("usermod", "-aG", group, usr.Username)
 		if stderr != nil {
-			return "", fmt.Errorf("%s", stderr)
+			return fmt.Errorf("%s", stderr)
 		}
 		if err != nil {
-			return "", err
+			return err
 		}
 
-		msg = fmt.Sprintf(
+		Log.Printf(
 			"the user %q has been added to the group %q.\nYou MUST reboot the system.\n",
 			username, group,
 		)
-		return msg, nil
+		return nil
 	}
 
-	return "", nil
+	return nil
 }

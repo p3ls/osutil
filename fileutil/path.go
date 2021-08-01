@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package file
+package fileutil
 
 import (
 	"errors"
@@ -13,14 +13,14 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/tredoe/osutil/sys"
+	"github.com/tredoe/osutil"
 )
 
 // LookDirExec looks up the directory of an executable.
-func LookDirExec(sys_ sys.System, filename string) (string, error) {
+func LookDirExec(syst osutil.System, filename string) (string, error) {
 	homeExec, err := exec.LookPath(filename)
 	if err != nil {
-		if homeExec, err = LookPath(sys_, filename); err != nil {
+		if homeExec, err = LookPath(syst, filename); err != nil {
 			if errors.Is(err, ErrNotFound) {
 				return "", fmt.Errorf("home directory for %s not found", filename)
 			}
@@ -39,17 +39,17 @@ func LookDirExec(sys_ sys.System, filename string) (string, error) {
 
 // LookPath searches for an executable named file in the system directories given one or several
 // executables.
-func LookPath(sys_ sys.System, filename ...string) (string, error) {
+func LookPath(syst osutil.System, filename ...string) (string, error) {
 	dirInit := "/"
 	skipDirs := make([]string, 0)
 
-	switch sys_ {
-	case sys.Windows:
+	switch syst {
+	case osutil.Windows:
 		dirInit = `\`
 		skipDirs = []string{
 			`\$Recycle.Bin`, `\ProgramData`, `\Users`, `\Windows`,
 		}
-	case sys.Linux:
+	case osutil.Linux:
 		skipDirs = []string{
 			"/home", "/bin", "/sbin", "/snap",
 
@@ -64,7 +64,7 @@ func LookPath(sys_ sys.System, filename ...string) (string, error) {
 			// Look at:
 			// "/opt", "/usr/bin", "/usr/sbin", "/usr/local",
 		}
-	case sys.MacOS:
+	case osutil.MacOS:
 		skipDirs = []string{
 			"/Applications",
 			"/System/", "/Users", "/Volumes",
@@ -72,7 +72,7 @@ func LookPath(sys_ sys.System, filename ...string) (string, error) {
 			"/bin", "/dev", "/etc", "/home", "/opt", "/sbin", "/tmp", "/usr", "/var",
 		}
 	default:
-		panic("unimplemented for system " + sys_.String())
+		panic("unimplemented for system " + syst.String())
 	}
 	pathFound := ""
 
@@ -112,7 +112,7 @@ func LookPath(sys_ sys.System, filename ...string) (string, error) {
 	}
 	//fmt.Println("PATH:", pathFound)
 
-	if sys_ == sys.Windows { // Get the volume name
+	if syst == osutil.Windows { // Get the volume name
 		pathWin, err := filepath.Abs(pathFound)
 		if err != nil {
 			return "", err
@@ -135,6 +135,16 @@ func PathAbsDir(dir string) (string, error) {
 	}
 
 	return out, nil
+}
+
+// PathRelative returns the relative path of a file.
+func PathRelative(dir, file string) string {
+	relFile, _ := filepath.Rel(dir, file)
+	if relFile == "" {
+		relFile = file
+	}
+
+	return relFile
 }
 
 // == Errors

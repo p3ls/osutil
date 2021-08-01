@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 
 	"github.com/tredoe/fileutil"
-	"github.com/tredoe/osutil"
+	"github.com/tredoe/osutil/sys"
 )
 
 const (
@@ -24,6 +24,15 @@ const (
 	SYS_GROUP = "gsys_bar"
 )
 
+const (
+	prefixTemp = "test_osutil-"
+
+	FILE_USER    = prefixTemp + "passwd"
+	FILE_GROUP   = prefixTemp + "group"
+	FILE_SHADOW  = prefixTemp + "shadow"
+	FILE_GSHADOW = prefixTemp + "gshadow"
+)
+
 var MEMBERS = []string{USER, SYS_USER}
 
 // Stores the ids at creating the groups.
@@ -32,21 +41,21 @@ var GID, SYS_GID int
 // == Copy the system files before of be edited.
 
 func init() {
-	err := osutil.MustbeRoot()
+	err := MustBeSuperUser(sys.SystemUndefined)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
 
-	if fileUser, err = fileutil.CopytoTemp(fileUser, "test-user_"); err != nil {
+	if fileUser, err = fileutil.CopytoTemp(fileUser, FILE_USER); err != nil {
 		goto _error
 	}
-	if fileGroup, err = fileutil.CopytoTemp(fileGroup, "test-group_"); err != nil {
+	if fileGroup, err = fileutil.CopytoTemp(fileGroup, FILE_GROUP); err != nil {
 		goto _error
 	}
-	if fileShadow, err = fileutil.CopytoTemp(fileShadow, "test-shadow_"); err != nil {
+	if fileShadow, err = fileutil.CopytoTemp(fileShadow, FILE_SHADOW); err != nil {
 		goto _error
 	}
-	if fileGShadow, err = fileutil.CopytoTemp(fileGShadow, "test-gshadow_"); err != nil {
+	if fileGShadow, err = fileutil.CopytoTemp(fileGShadow, FILE_GSHADOW); err != nil {
 		goto _error
 	}
 
@@ -58,7 +67,7 @@ _error:
 }
 
 func removeTempFiles() {
-	files, _ := filepath.Glob(filepath.Join(os.TempDir(), fileutil.PREFIX_TEMP+"*"))
+	files, _ := filepath.Glob(filepath.Join(os.TempDir(), prefixTemp+"*"))
 
 	for _, f := range files {
 		if err := os.Remove(f); err != nil {

@@ -16,8 +16,8 @@ import (
 
 var errSystem = errors.New("unsopported operating system")
 
-// listSystem is the list of allowed operating systems.
-var listSystem = [...]System{Linux, FreeBSD, MacOS, Windows}
+// ListSystem is the list of allowed operating systems.
+var ListSystem = [...]System{FreeBSD, Linux, MacOS, Windows}
 
 // System represents an operating system.
 type System uint8
@@ -47,10 +47,10 @@ func (s System) String() string {
 }
 
 // Manager returns the package manager.
-func (s System) Manager(dis Distro) pkg.Manager {
+func (s System) Manager(dist Distro) pkg.Manager {
 	switch s {
 	case Linux:
-		return Distro.Manager(dis)
+		return Distro.Manager(dist)
 	case MacOS:
 		return pkg.ManagerBrew{}
 	case FreeBSD:

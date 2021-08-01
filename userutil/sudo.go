@@ -23,29 +23,35 @@ var (
 )
 
 // CheckSudo executes command 'sudo' to check that the user has permission.
-func CheckSudo(sys_ sys.System) (err error) {
-	if sys_ == sys.SysUndefined {
-		if sys_, _, err = sys.SystemFromGOOS(); err != nil {
+func CheckSudo(syst sys.System) (err error) {
+	if syst == sys.SystemUndefined {
+		if syst, _, err = sys.SystemFromGOOS(); err != nil {
 			return err
 		}
 	}
 
-	switch sys_ {
-	case sys.SysLinux, sys.SysFreeBSD, sys.SysMacOS:
+	switch syst {
+	case sys.Linux, sys.FreeBSD, sys.MacOS:
 		cmd := exec.Command("sudo", "true")
 
 		return cmd.Run()
-	case sys.SysWindows:
-		return MustBeSuperUser(sys.SysWindows)
+	case sys.Windows:
+		return MustBeSuperUser(sys.Windows)
 	}
-	panic("unimplemented: " + sys_.String())
+	panic("unimplemented: " + syst.String())
 }
 
 // MustBeSuperUser checks if the current user is in the superusers group.
 // Panics if it is not being run as superuser.
-func MustBeSuperUser(sys_ sys.System) error {
-	switch sys_ {
-	case sys.SysLinux, sys.SysFreeBSD, sys.SysMacOS, sys.SysWindows:
+func MustBeSuperUser(syst sys.System) (err error) {
+	if syst == sys.SystemUndefined {
+		if syst, _, err = sys.SystemFromGOOS(); err != nil {
+			return err
+		}
+	}
+
+	switch syst {
+	case sys.Linux, sys.FreeBSD, sys.MacOS, sys.Windows:
 		usr, err := user.Current()
 		if err != nil {
 			return err
@@ -56,12 +62,12 @@ func MustBeSuperUser(sys_ sys.System) error {
 		}
 
 		findGroup := ""
-		switch sys_ {
-		case sys.SysLinux, sys.SysFreeBSD:
+		switch syst {
+		case sys.Linux, sys.FreeBSD:
 			findGroup = "root"
-		case sys.SysMacOS:
+		case sys.MacOS:
 			findGroup = "admin"
-		case sys.SysWindows:
+		case sys.Windows:
 			findGroup = "Administrators"
 		}
 
@@ -78,17 +84,17 @@ func MustBeSuperUser(sys_ sys.System) error {
 		panic(errNoSuperUser)
 
 	default:
-		panic("unimplemented: " + sys_.String())
+		panic("unimplemented: " + syst.String())
 	}
 }
 
 // RealUser returns the original user at Unix systems.
-func RealUser(sys_ sys.System) (string, error) {
-	switch sys_ {
+func RealUser(syst sys.System) (string, error) {
+	switch syst {
 	default:
-		panic("unimplemented: " + sys_.String())
+		panic("unimplemented: " + syst.String())
 
-	case sys.SysLinux:
+	case sys.Linux:
 		username, err := exec.Command("logname").Output()
 		if err != nil {
 			return "", err
