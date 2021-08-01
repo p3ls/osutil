@@ -20,12 +20,12 @@ func TestPackager(t *testing.T) {
 		return
 	}
 
-	if err = pack.Update(); err != nil {
+	/*if err = pack.Update(); err != nil {
 		t.Fatal(err)
 	}
 	if err = pack.Upgrade(); err != nil {
 		t.Fatal(err)
-	}
+	}*/
 
 	if err = pack.Install(cmd); err != nil {
 		t.Errorf("\n%s", err)

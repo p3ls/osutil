@@ -4,21 +4,21 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package user
+package userutil
 
 import (
 	"fmt"
 	"os/user"
 
-	"github.com/tredoe/osutil/sh"
-	"github.com/tredoe/osutil/sys"
+	"github.com/tredoe/osutil"
+	"github.com/tredoe/osutil/executil"
 )
 
 // AddGroupFromCmd adds the given group to the original user.
 // Returns an information message, if the command is run.
-func AddGroupFromCmd(syst sys.System, group string) error {
+func AddGroupFromCmd(syst osutil.System, group string) error {
 	switch syst {
-	case sys.Linux:
+	case osutil.Linux:
 	default:
 		panic("unimplemented: " + syst.String())
 	}
@@ -51,7 +51,7 @@ func AddGroupFromCmd(syst sys.System, group string) error {
 		}
 	}
 	if !found {
-		_, stderr, err := sh.Exec("usermod", "-aG", group, usr.Username)
+		_, stderr, err := executil.Exec("usermod", "-aG", group, usr.Username)
 		if stderr != nil {
 			return fmt.Errorf("%s", stderr)
 		}

@@ -6,7 +6,7 @@
 
 package pkg
 
-import "github.com/tredoe/osutil/sh"
+import "github.com/tredoe/osutil/executil"
 
 const pathZypp = "/usr/bin/zypper"
 
@@ -16,13 +16,13 @@ type ManagerZypp struct{}
 func (p ManagerZypp) Install(name ...string) error {
 	args := []string{"install", "--auto-agree-with-licenses"}
 
-	return sh.ExecToStd(nil, pathZypp, append(args, name...)...)
+	return executil.ExecToStd(nil, pathZypp, append(args, name...)...)
 }
 
 func (p ManagerZypp) Remove(name ...string) error {
 	args := []string{"remove"}
 
-	return sh.ExecToStd(nil, pathZypp, append(args, name...)...)
+	return executil.ExecToStd(nil, pathZypp, append(args, name...)...)
 }
 
 func (p ManagerZypp) Purge(name ...string) error {
@@ -30,13 +30,13 @@ func (p ManagerZypp) Purge(name ...string) error {
 }
 
 func (p ManagerZypp) Update() error {
-	return sh.ExecToStd(nil, pathZypp, "refresh")
+	return executil.ExecToStd(nil, pathZypp, "refresh")
 }
 
 func (p ManagerZypp) Upgrade() error {
-	return sh.ExecToStd(nil, pathZypp, "up", "--auto-agree-with-licenses")
+	return executil.ExecToStd(nil, pathZypp, "up", "--auto-agree-with-licenses")
 }
 
 func (p ManagerZypp) Clean() error {
-	return sh.ExecToStd(nil, pathZypp, "clean")
+	return executil.ExecToStd(nil, pathZypp, "clean")
 }

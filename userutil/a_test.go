@@ -4,15 +4,15 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package user
+package userutil
 
 import (
 	"log"
 	"os"
 	"path/filepath"
 
-	"github.com/tredoe/fileutil"
-	"github.com/tredoe/osutil/sys"
+	"github.com/tredoe/osutil"
+	"github.com/tredoe/osutil/fileutil"
 )
 
 const (
@@ -41,21 +41,21 @@ var GID, SYS_GID int
 // == Copy the system files before of be edited.
 
 func init() {
-	err := MustBeSuperUser(sys.SystemUndefined)
+	err := MustBeSuperUser(osutil.SystemUndefined)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
 
-	if fileUser, err = fileutil.CopytoTemp(fileUser, FILE_USER); err != nil {
+	if fileUser, err = fileutil.TempFile(fileUser, FILE_USER); err != nil {
 		goto _error
 	}
-	if fileGroup, err = fileutil.CopytoTemp(fileGroup, FILE_GROUP); err != nil {
+	if fileGroup, err = fileutil.TempFile(fileGroup, FILE_GROUP); err != nil {
 		goto _error
 	}
-	if fileShadow, err = fileutil.CopytoTemp(fileShadow, FILE_SHADOW); err != nil {
+	if fileShadow, err = fileutil.TempFile(fileShadow, FILE_SHADOW); err != nil {
 		goto _error
 	}
-	if fileGShadow, err = fileutil.CopytoTemp(fileGShadow, FILE_GSHADOW); err != nil {
+	if fileGShadow, err = fileutil.TempFile(fileGShadow, FILE_GSHADOW); err != nil {
 		goto _error
 	}
 

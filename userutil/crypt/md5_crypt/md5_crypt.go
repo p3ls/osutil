@@ -13,8 +13,8 @@ import (
 	"bytes"
 	"crypto/md5"
 
-	"github.com/tredoe/osutil/user/crypt"
-	"github.com/tredoe/osutil/user/crypt/common"
+	"github.com/tredoe/osutil/userutil/crypt"
+	"github.com/tredoe/osutil/userutil/crypt/common"
 )
 
 func init() {

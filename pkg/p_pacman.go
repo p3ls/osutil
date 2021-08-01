@@ -6,7 +6,7 @@
 
 package pkg
 
-import "github.com/tredoe/osutil/sh"
+import "github.com/tredoe/osutil/executil"
 
 const pathPacman = "/usr/bin/pacman"
 
@@ -16,29 +16,29 @@ type ManagerPacman struct{}
 func (p ManagerPacman) Install(name ...string) error {
 	args := []string{"-S", "--needed", "--noprogressbar"}
 
-	return sh.ExecToStd(nil, pathPacman, append(args, name...)...)
+	return executil.ExecToStd(nil, pathPacman, append(args, name...)...)
 }
 
 func (p ManagerPacman) Remove(name ...string) error {
 	args := []string{"-Rs"}
 
-	return sh.ExecToStd(nil, pathPacman, append(args, name...)...)
+	return executil.ExecToStd(nil, pathPacman, append(args, name...)...)
 }
 
 func (p ManagerPacman) Purge(name ...string) error {
 	args := []string{"-Rsn"}
 
-	return sh.ExecToStd(nil, pathPacman, append(args, name...)...)
+	return executil.ExecToStd(nil, pathPacman, append(args, name...)...)
 }
 
 func (p ManagerPacman) Update() error {
-	return sh.ExecToStd(nil, pathPacman, "-Syu", "--needed", "--noprogressbar")
+	return executil.ExecToStd(nil, pathPacman, "-Syu", "--needed", "--noprogressbar")
 }
 
 func (p ManagerPacman) Upgrade() error {
-	return sh.ExecToStd(nil, pathPacman, "-Syu")
+	return executil.ExecToStd(nil, pathPacman, "-Syu")
 }
 
 func (p ManagerPacman) Clean() error {
-	return sh.ExecToStd(nil, "/usr/bin/paccache", "-r")
+	return executil.ExecToStd(nil, "/usr/bin/paccache", "-r")
 }

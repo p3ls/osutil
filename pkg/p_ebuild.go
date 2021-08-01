@@ -6,7 +6,7 @@
 
 package pkg
 
-import "github.com/tredoe/osutil/sh"
+import "github.com/tredoe/osutil/executil"
 
 const pathEbuild = "/usr/bin/emerge"
 
@@ -14,13 +14,13 @@ const pathEbuild = "/usr/bin/emerge"
 type ManagerEbuild struct{}
 
 func (p ManagerEbuild) Install(name ...string) error {
-	return sh.ExecToStd(nil, pathEbuild, name...)
+	return executil.ExecToStd(nil, pathEbuild, name...)
 }
 
 func (p ManagerEbuild) Remove(name ...string) error {
 	args := []string{"--unmerge"}
 
-	return sh.ExecToStd(nil, pathEbuild, append(args, name...)...)
+	return executil.ExecToStd(nil, pathEbuild, append(args, name...)...)
 }
 
 func (p ManagerEbuild) Purge(name ...string) error {
@@ -28,18 +28,18 @@ func (p ManagerEbuild) Purge(name ...string) error {
 }
 
 func (p ManagerEbuild) Update() error {
-	return sh.ExecToStd(nil, pathEbuild, "--sync")
+	return executil.ExecToStd(nil, pathEbuild, "--sync")
 }
 
 func (p ManagerEbuild) Upgrade() error {
-	return sh.ExecToStd(nil, pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world")
+	return executil.ExecToStd(nil, pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world")
 }
 
 func (p ManagerEbuild) Clean() error {
-	err := sh.ExecToStd(nil, pathEbuild, "--update", "--deep", "--newuse @world")
+	err := executil.ExecToStd(nil, pathEbuild, "--update", "--deep", "--newuse @world")
 	if err != nil {
 		return err
 	}
 
-	return sh.ExecToStd(nil, pathEbuild, "--depclean")
+	return executil.ExecToStd(nil, pathEbuild, "--depclean")
 }

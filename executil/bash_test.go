@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package sh
+package executil
 
 import (
 	"errors"
@@ -27,16 +27,16 @@ var testsOutput = []struct {
 	// values in match
 	{"true", "", true},
 	{"false", "", false},
-	{`grep foo not_exist.go`, "", false},         // no found
-	{`grep package sh.go`, "package sh\n", true}, // found
+	{`grep foo not_exist.go`, "", false},                 // no found
+	{`grep package bash.go`, "package executil\n", true}, // found
 
 	// pipes
-	{"ls sh*.go | wc -l", "2\n", true},
+	{"ls bash*.go | wc -l", "2\n", true},
 
 	// quotes
 	{`sh -c 'echo 123'`, "123\n", true},
 	{`sh -c "echo 123"`, "123\n", true},
-	{`find -name 'sh*.go'`, "./sh.go\n./sh_test.go\n", true},
+	{`find -name 'bash*.go'`, "./bash_test.go\n./bash.go\n", true},
 }
 
 var testsError = []struct {

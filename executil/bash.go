@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package sh
+package executil
 
 import (
 	"bytes"
@@ -72,6 +72,8 @@ func ExecAsBashWithMatch(command string) (output []byte, match bool, err error) 
 				return
 			}
 
+			// Note: if the environ already has the environment variable, then it is not going
+			// to be used by the system. Must be replaced by the next variable
 			if strings.ContainsRune(fields[0], '=') {
 				cmdEnv = append([]string{fields[0]}, env...) // Insert the environment variable
 				fields = fields[1:]                          // and it is removed from arguments

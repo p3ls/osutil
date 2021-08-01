@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // Package pkg handles basic operations in the management of packages in
-// Linux and FreeBSD operating systems.
+// FreeBSD, Linux and macOs operating systems.
 package pkg
 
 import (

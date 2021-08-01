@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package user
+package userutil
 
 import (
 	"bufio"
@@ -14,7 +14,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/tredoe/fileutil"
+	"github.com/tredoe/osutil/edi"
 )
 
 // A row represents the structure of a row into a file.
@@ -117,7 +117,7 @@ var filesBackuped = make(map[string]struct{}, 4)
 func backup(filename string) error {
 	if DO_BACKUP {
 		if _, ok := filesBackuped[filename]; !ok {
-			if err := fileutil.Backup(filename); err != nil {
+			if err := edi.Backup(filename); err != nil {
 				return err
 			}
 			filesBackuped[filename] = struct{}{}

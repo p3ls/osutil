@@ -4,16 +4,16 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package user
+package userutil
 
 import (
 	"testing"
 
-	"github.com/tredoe/osutil/sys"
+	"github.com/tredoe/osutil"
 )
 
 func TestSudo(t *testing.T) {
-	if err := MustBeSuperUser(sys.SystemUndefined); err != nil {
+	if err := MustBeSuperUser(osutil.SystemUndefined); err != nil {
 		t.Error(err)
 	}
 }

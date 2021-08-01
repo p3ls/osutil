@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // Package sys defines operating systems and detects the Linux distribution.
-package sys
+package osutil
 
 import (
 	"errors"

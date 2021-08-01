@@ -1,3 +1,3 @@
-/* Package sh lets to call to system commands.
+/* Package executil lets to call to system commands.
  */
-package sh
+package executil

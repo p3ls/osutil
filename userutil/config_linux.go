@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package user
+package userutil
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 
 	"github.com/tredoe/goutil/reflectutil"
 	"github.com/tredoe/osutil/config/shconf"
-	"github.com/tredoe/osutil/user/crypt"
+	"github.com/tredoe/osutil/userutil/crypt"
 )
 
 // TODO: handle des, bcrypt and rounds in SHA2.

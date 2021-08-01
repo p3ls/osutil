@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package user
+package userutil
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ import (
 	"os/exec"
 	"os/user"
 
-	"github.com/tredoe/osutil/sys"
+	"github.com/tredoe/osutil"
 )
 
 var errNoSuperUser = errors.New("you MUST have superuser privileges")
@@ -23,35 +23,35 @@ var (
 )
 
 // CheckSudo executes command 'sudo' to check that the user has permission.
-func CheckSudo(syst sys.System) (err error) {
-	if syst == sys.SystemUndefined {
-		if syst, _, err = sys.SystemFromGOOS(); err != nil {
+func CheckSudo(syst osutil.System) (err error) {
+	if syst == osutil.SystemUndefined {
+		if syst, _, err = osutil.SystemFromGOOS(); err != nil {
 			return err
 		}
 	}
 
 	switch syst {
-	case sys.Linux, sys.FreeBSD, sys.MacOS:
+	case osutil.Linux, osutil.FreeBSD, osutil.MacOS:
 		cmd := exec.Command("sudo", "true")
 
 		return cmd.Run()
-	case sys.Windows:
-		return MustBeSuperUser(sys.Windows)
+	case osutil.Windows:
+		return MustBeSuperUser(osutil.Windows)
 	}
 	panic("unimplemented: " + syst.String())
 }
 
 // MustBeSuperUser checks if the current user is in the superusers group.
 // Panics if it is not being run as superuser.
-func MustBeSuperUser(syst sys.System) (err error) {
-	if syst == sys.SystemUndefined {
-		if syst, _, err = sys.SystemFromGOOS(); err != nil {
+func MustBeSuperUser(syst osutil.System) (err error) {
+	if syst == osutil.SystemUndefined {
+		if syst, _, err = osutil.SystemFromGOOS(); err != nil {
 			return err
 		}
 	}
 
 	switch syst {
-	case sys.Linux, sys.FreeBSD, sys.MacOS, sys.Windows:
+	case osutil.Linux, osutil.FreeBSD, osutil.MacOS, osutil.Windows:
 		usr, err := user.Current()
 		if err != nil {
 			return err
@@ -63,11 +63,11 @@ func MustBeSuperUser(syst sys.System) (err error) {
 
 		findGroup := ""
 		switch syst {
-		case sys.Linux, sys.FreeBSD:
+		case osutil.Linux, osutil.FreeBSD:
 			findGroup = "root"
-		case sys.MacOS:
+		case osutil.MacOS:
 			findGroup = "admin"
-		case sys.Windows:
+		case osutil.Windows:
 			findGroup = "Administrators"
 		}
 
@@ -89,12 +89,12 @@ func MustBeSuperUser(syst sys.System) (err error) {
 }
 
 // RealUser returns the original user at Unix systems.
-func RealUser(syst sys.System) (string, error) {
+func RealUser(syst osutil.System) (string, error) {
 	switch syst {
 	default:
 		panic("unimplemented: " + syst.String())
 
-	case sys.Linux:
+	case osutil.Linux:
 		username, err := exec.Command("logname").Output()
 		if err != nil {
 			return "", err

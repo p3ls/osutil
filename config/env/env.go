@@ -17,10 +17,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/tredoe/fileutil"
-
 	"github.com/tredoe/osutil/config/shconf"
-	"github.com/tredoe/osutil/user"
+	"github.com/tredoe/osutil/edi"
+	"github.com/tredoe/osutil/userutil"
 )
 
 var isRoot bool
@@ -110,7 +109,7 @@ func init() {
 
 // settingsForUID returns the settings files of the given user id.
 func settingsForUID(id int) (settings, error) {
-	u, err := user.LookupUID(id)
+	u, err := userutil.LookupUID(id)
 	if err != nil {
 		return settings{}, err
 	}
@@ -165,7 +164,7 @@ func _Set(filename, key, value string) error {
 		}
 	}
 
-	return fileutil.AppendString(filename, fileutil.ModBackup, key+string(conf.Separator())+value)
+	return edi.Append(filename, edi.ModBackup, []byte(key+string(conf.Separator())+value))
 }
 
 // _MSet sets multiple values named by the keys in the given filename.
@@ -195,7 +194,7 @@ func _MSet(filename string, keys, values []string) error {
 		buf.WriteByte('\n')
 	}
 
-	return fileutil.Append(filename, fileutil.ModBackup, buf.Bytes())
+	return edi.Append(filename, edi.ModBackup, buf.Bytes())
 }
 
 // == Set session-wide variables

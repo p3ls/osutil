@@ -6,7 +6,7 @@
 
 package pkg
 
-import "github.com/tredoe/osutil/sh"
+import "github.com/tredoe/osutil/executil"
 
 const pathDeb = "/usr/bin/apt-get"
 
@@ -16,34 +16,34 @@ type ManagerDeb struct{}
 func (p ManagerDeb) Install(name ...string) error {
 	args := []string{pathDeb, "install", "-y"}
 
-	return sh.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.ExecToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerDeb) Remove(name ...string) error {
 	args := []string{pathDeb, "remove", "-y"}
 
-	return sh.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.ExecToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerDeb) Purge(name ...string) error {
 	args := []string{pathDeb, "purge", "-y"}
 
-	return sh.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.ExecToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerDeb) Update() error {
-	return sh.ExecToStd(nil, sudo, pathDeb, "update", "-qq")
+	return executil.ExecToStd(nil, sudo, pathDeb, "update", "-qq")
 }
 
 func (p ManagerDeb) Upgrade() error {
-	return sh.ExecToStd(nil, sudo, pathDeb, "upgrade", "-y")
+	return executil.ExecToStd(nil, sudo, pathDeb, "upgrade", "-y")
 }
 
 func (p ManagerDeb) Clean() error {
-	err := sh.ExecToStd(nil, sudo, pathDeb, "autoremove", "-y")
+	err := executil.ExecToStd(nil, sudo, pathDeb, "autoremove", "-y")
 	if err != nil {
 		return err
 	}
 
-	return sh.ExecToStd(nil, sudo, pathDeb, "clean")
+	return executil.ExecToStd(nil, sudo, pathDeb, "clean")
 }

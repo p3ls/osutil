@@ -14,7 +14,7 @@
 // locked. The remaining characters on the line represent the passwd field before
 // the passwd was locked.
 
-package user
+package userutil
 
 import (
 	"bufio"
@@ -23,11 +23,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/tredoe/osutil/user/crypt"
-	_ "github.com/tredoe/osutil/user/crypt/md5_crypt"
-	_ "github.com/tredoe/osutil/user/crypt/sha256_crypt"
-	_ "github.com/tredoe/osutil/user/crypt/sha512_crypt"
-	//_ "github.com/tredoe/osutil/user/crypt/bcrypt"
+	"github.com/tredoe/osutil/userutil/crypt"
+	_ "github.com/tredoe/osutil/userutil/crypt/md5_crypt"
+	_ "github.com/tredoe/osutil/userutil/crypt/sha256_crypt"
+	_ "github.com/tredoe/osutil/userutil/crypt/sha512_crypt"
+	//_ "github.com/tredoe/osutil/userutil/crypt/bcrypt"
 )
 
 const lockChar = '!' // Character added at the beginning of the passwd to lock it.

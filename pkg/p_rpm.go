@@ -6,7 +6,7 @@
 
 package pkg
 
-import "github.com/tredoe/osutil/sh"
+import "github.com/tredoe/osutil/executil"
 
 const pathYum = "/usr/bin/yum"
 
@@ -16,13 +16,13 @@ type ManagerRpm struct{}
 func (p ManagerRpm) Install(name ...string) error {
 	args := []string{"install"}
 
-	return sh.ExecToStd(nil, pathYum, append(args, name...)...)
+	return executil.ExecToStd(nil, pathYum, append(args, name...)...)
 }
 
 func (p ManagerRpm) Remove(name ...string) error {
 	args := []string{"remove"}
 
-	return sh.ExecToStd(nil, pathYum, append(args, name...)...)
+	return executil.ExecToStd(nil, pathYum, append(args, name...)...)
 }
 
 func (p ManagerRpm) Purge(name ...string) error {
@@ -30,13 +30,13 @@ func (p ManagerRpm) Purge(name ...string) error {
 }
 
 func (p ManagerRpm) Update() error {
-	return sh.ExecToStd(nil, pathYum, "update")
+	return executil.ExecToStd(nil, pathYum, "update")
 }
 
 func (p ManagerRpm) Upgrade() error {
-	return sh.ExecToStd(nil, pathYum, "update")
+	return executil.ExecToStd(nil, pathYum, "update")
 }
 
 func (p ManagerRpm) Clean() error {
-	return sh.ExecToStd(nil, pathYum, "clean", "packages")
+	return executil.ExecToStd(nil, pathYum, "clean", "packages")
 }

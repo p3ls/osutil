@@ -6,7 +6,7 @@
 
 package pkg
 
-import "github.com/tredoe/osutil/sh"
+import "github.com/tredoe/osutil/executil"
 
 const pathBrew = "/usr/local/bin/brew"
 
@@ -16,13 +16,13 @@ type ManagerBrew struct{}
 func (p ManagerBrew) Install(name ...string) error {
 	args := []string{pathBrew, "install", "-y"}
 
-	return sh.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.ExecToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerBrew) Remove(name ...string) error {
 	args := []string{pathBrew, "uninstall", "-y"}
 
-	return sh.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.ExecToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerBrew) Purge(name ...string) error {
@@ -30,18 +30,18 @@ func (p ManagerBrew) Purge(name ...string) error {
 }
 
 func (p ManagerBrew) Update() error {
-	return sh.ExecToStd(nil, sudo, pathBrew, "update")
+	return executil.ExecToStd(nil, sudo, pathBrew, "update")
 }
 
 func (p ManagerBrew) Upgrade() error {
-	return sh.ExecToStd(nil, sudo, pathBrew, "upgrade")
+	return executil.ExecToStd(nil, sudo, pathBrew, "upgrade")
 }
 
 func (p ManagerBrew) Clean() error {
-	err := sh.ExecToStd(nil, sudo, pathBrew, "autoremove")
+	err := executil.ExecToStd(nil, sudo, pathBrew, "autoremove")
 	if err != nil {
 		return err
 	}
 
-	return sh.ExecToStd(nil, sudo, pathBrew, "cleanup")
+	return executil.ExecToStd(nil, sudo, pathBrew, "cleanup")
 }

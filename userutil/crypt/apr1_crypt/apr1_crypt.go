@@ -13,9 +13,9 @@
 package apr1_crypt
 
 import (
-	"github.com/tredoe/osutil/user/crypt"
-	"github.com/tredoe/osutil/user/crypt/common"
-	"github.com/tredoe/osutil/user/crypt/md5_crypt"
+	"github.com/tredoe/osutil/userutil/crypt"
+	"github.com/tredoe/osutil/userutil/crypt/common"
+	"github.com/tredoe/osutil/userutil/crypt/md5_crypt"
 )
 
 func init() {
