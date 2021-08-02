@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 // CheckDir checks if the path exists and if it is a directory.
@@ -47,4 +48,15 @@ func CreateDir(dir string) error {
 		Log.Printf("Created directory \"%s\"", dir)
 	}
 	return nil
+}
+
+// LastDirNumeric returns the last directory based at numbers.
+func LastDirNumeric(path string) (fullPath string, version string, err error) {
+	dirs, err := filepath.Glob(filepath.Join(path, "*"))
+	if err != nil {
+		return "", "", err
+	}
+
+	lastPath := dirs[len(dirs)-1]
+	return lastPath, filepath.Base(lastPath), nil
 }
