@@ -51,7 +51,7 @@ func AddGroupFromCmd(syst osutil.System, group string) error {
 		}
 	}
 	if !found {
-		_, stderr, err := executil.Exec("usermod", "-aG", group, usr.Username)
+		_, stderr, err := executil.Run("usermod", "-aG", group, usr.Username)
 		if stderr != nil {
 			return fmt.Errorf("%s", stderr)
 		}

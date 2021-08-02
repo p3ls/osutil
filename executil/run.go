@@ -20,15 +20,15 @@ import (
 	"time"
 )
 
-// Exec executes a command. Returns both standard output and error.
-func Exec(cmd string, args ...string) (stdout, stderr []byte, err error) {
-	return ExecWithTime(0, cmd, args...)
+// Run executes a command. Returns both standard output and error.
+func Run(cmd string, args ...string) (stdout, stderr []byte, err error) {
+	return RunWithTime(0, cmd, args...)
 }
 
-// ExecWithTime executes a command waiting to finish the command before of kill it ('timeKillCmd'),
+// RunWithTime executes a command waiting to finish the command before of kill it ('timeKillCmd'),
 // or waits without kill it when the duration is lesser or equal to zero).
 // Logs the command and returns both standard output and error.
-func ExecWithTime(timeKillCmd time.Duration, cmd string, args ...string,
+func RunWithTime(timeKillCmd time.Duration, cmd string, args ...string,
 ) (stdout, stderr []byte, err error) {
 	Log.Printf("%s %s", cmd, strings.Join(args, " "))
 
@@ -118,9 +118,9 @@ _checkErr:
 	return
 }
 
-// ExecToStd executes a command setting both standard output and error.
+// RunToStd executes a command setting both standard output and error.
 // Logs the command.
-func ExecToStd(extraEnv []string, cmd string, args ...string) error {
+func RunToStd(extraEnv []string, cmd string, args ...string) error {
 	Log.Printf("%s %s", cmd, strings.Join(args, " "))
 
 	c := exec.Command(cmd, args...)
@@ -140,9 +140,9 @@ func ExecToStd(extraEnv []string, cmd string, args ...string) error {
 	return c.Wait()
 }
 
-// ExecNoStdErr executes a command setting only standard output.
+// RunNoStdErr executes a command setting only standard output.
 // Logs the command.
-func ExecNoStdErr(extraEnv []string, cmd string, args ...string) error {
+func RunNoStdErr(extraEnv []string, cmd string, args ...string) error {
 	Log.Printf("%s %s", cmd, strings.Join(args, " "))
 
 	c := exec.Command(cmd, args...)
@@ -162,12 +162,12 @@ func ExecNoStdErr(extraEnv []string, cmd string, args ...string) error {
 	return c.Wait()
 }
 
-// ExecToStdButErr executes a command setting the standard output.
+// RunToStdButErr executes a command setting the standard output.
 // Logs the command.
 //
 // checkStderr (if any) checks if it is found in the standard error to know whether the standard
 // error is not really an error.
-func ExecToStdButErr(checkStderr []byte, extraEnv []string, cmd string, args ...string) error {
+func RunToStdButErr(checkStderr []byte, extraEnv []string, cmd string, args ...string) error {
 	Log.Printf("%s %s", cmd, strings.Join(args, " "))
 
 	var bufStderr bytes.Buffer

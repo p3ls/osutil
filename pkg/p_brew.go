@@ -16,13 +16,13 @@ type ManagerBrew struct{}
 func (p ManagerBrew) Install(name ...string) error {
 	args := []string{pathBrew, "install", "-y"}
 
-	return executil.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerBrew) Remove(name ...string) error {
 	args := []string{pathBrew, "uninstall", "-y"}
 
-	return executil.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerBrew) Purge(name ...string) error {
@@ -30,18 +30,18 @@ func (p ManagerBrew) Purge(name ...string) error {
 }
 
 func (p ManagerBrew) Update() error {
-	return executil.ExecToStd(nil, sudo, pathBrew, "update")
+	return executil.RunToStd(nil, sudo, pathBrew, "update")
 }
 
 func (p ManagerBrew) Upgrade() error {
-	return executil.ExecToStd(nil, sudo, pathBrew, "upgrade")
+	return executil.RunToStd(nil, sudo, pathBrew, "upgrade")
 }
 
 func (p ManagerBrew) Clean() error {
-	err := executil.ExecToStd(nil, sudo, pathBrew, "autoremove")
+	err := executil.RunToStd(nil, sudo, pathBrew, "autoremove")
 	if err != nil {
 		return err
 	}
 
-	return executil.ExecToStd(nil, sudo, pathBrew, "cleanup")
+	return executil.RunToStd(nil, sudo, pathBrew, "cleanup")
 }

@@ -41,9 +41,9 @@ func (sh WinShell) String() string {
 
 var cmdOut = filepath.Join(os.TempDir(), "cmd_out.txt")
 
-// ExecWinshell executes a command into a Windows' shell called from Powershell.
+// RunWinshell executes a command into a Windows' shell called from Powershell.
 // Logs the command and returns the command output.
-func ExecWinshell(sh WinShell, closeWindow bool, cmd string) (out []byte, err error) {
+func RunWinshell(sh WinShell, closeWindow bool, cmd string) (out []byte, err error) {
 	Log.Print(cmd)
 
 	argClose := ""

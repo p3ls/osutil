@@ -17,34 +17,34 @@ type ManagerPkg struct{}
 func (p ManagerPkg) Install(name ...string) error {
 	args := []string{pathPkg, "install", "-y"}
 
-	return executil.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerPkg) Remove(name ...string) error {
 	args := []string{pathPkg, "delete", "-y"}
 
-	return executil.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerPkg) Purge(name ...string) error {
 	args := []string{pathPkg, "purge", "-y"}
 
-	return executil.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerPkg) Update() error {
-	return executil.ExecToStd(nil, sudo, pathPkg, "update")
+	return executil.RunToStd(nil, sudo, pathPkg, "update")
 }
 
 func (p ManagerPkg) Upgrade() error {
-	return executil.ExecToStd(nil, sudo, pathPkg, "upgrade")
+	return executil.RunToStd(nil, sudo, pathPkg, "upgrade")
 }
 
 func (p ManagerPkg) Clean() error {
-	err := executil.ExecToStd(nil, sudo, pathPkg, "autoremove")
+	err := executil.RunToStd(nil, sudo, pathPkg, "autoremove")
 	if err != nil {
 		return err
 	}
 
-	return executil.ExecToStd(nil, sudo, pathPkg, "clean")
+	return executil.RunToStd(nil, sudo, pathPkg, "clean")
 }

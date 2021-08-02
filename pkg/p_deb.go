@@ -16,34 +16,34 @@ type ManagerDeb struct{}
 func (p ManagerDeb) Install(name ...string) error {
 	args := []string{pathDeb, "install", "-y"}
 
-	return executil.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerDeb) Remove(name ...string) error {
 	args := []string{pathDeb, "remove", "-y"}
 
-	return executil.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerDeb) Purge(name ...string) error {
 	args := []string{pathDeb, "purge", "-y"}
 
-	return executil.ExecToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (p ManagerDeb) Update() error {
-	return executil.ExecToStd(nil, sudo, pathDeb, "update", "-qq")
+	return executil.RunToStd(nil, sudo, pathDeb, "update", "-qq")
 }
 
 func (p ManagerDeb) Upgrade() error {
-	return executil.ExecToStd(nil, sudo, pathDeb, "upgrade", "-y")
+	return executil.RunToStd(nil, sudo, pathDeb, "upgrade", "-y")
 }
 
 func (p ManagerDeb) Clean() error {
-	err := executil.ExecToStd(nil, sudo, pathDeb, "autoremove", "-y")
+	err := executil.RunToStd(nil, sudo, pathDeb, "autoremove", "-y")
 	if err != nil {
 		return err
 	}
 
-	return executil.ExecToStd(nil, sudo, pathDeb, "clean")
+	return executil.RunToStd(nil, sudo, pathDeb, "clean")
 }

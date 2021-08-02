@@ -16,29 +16,29 @@ type ManagerPacman struct{}
 func (p ManagerPacman) Install(name ...string) error {
 	args := []string{"-S", "--needed", "--noprogressbar"}
 
-	return executil.ExecToStd(nil, pathPacman, append(args, name...)...)
+	return executil.RunToStd(nil, pathPacman, append(args, name...)...)
 }
 
 func (p ManagerPacman) Remove(name ...string) error {
 	args := []string{"-Rs"}
 
-	return executil.ExecToStd(nil, pathPacman, append(args, name...)...)
+	return executil.RunToStd(nil, pathPacman, append(args, name...)...)
 }
 
 func (p ManagerPacman) Purge(name ...string) error {
 	args := []string{"-Rsn"}
 
-	return executil.ExecToStd(nil, pathPacman, append(args, name...)...)
+	return executil.RunToStd(nil, pathPacman, append(args, name...)...)
 }
 
 func (p ManagerPacman) Update() error {
-	return executil.ExecToStd(nil, pathPacman, "-Syu", "--needed", "--noprogressbar")
+	return executil.RunToStd(nil, pathPacman, "-Syu", "--needed", "--noprogressbar")
 }
 
 func (p ManagerPacman) Upgrade() error {
-	return executil.ExecToStd(nil, pathPacman, "-Syu")
+	return executil.RunToStd(nil, pathPacman, "-Syu")
 }
 
 func (p ManagerPacman) Clean() error {
-	return executil.ExecToStd(nil, "/usr/bin/paccache", "-r")
+	return executil.RunToStd(nil, "/usr/bin/paccache", "-r")
 }

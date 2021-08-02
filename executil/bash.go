@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-// ExecAsBashWithMatch executes external commands with access to shell features such as
+// RunAsBashWithMatch executes external commands with access to shell features such as
 // filename wildcards, shell pipes, environment variables, and expansion of the
 // shortcut character "~" to home directory.
 // It also logs the command.
@@ -30,7 +30,7 @@ import (
 // The most of commands return a text in output or an error if any.
 // `match` is used in commands like *grep*, *find*, or *cmp* to indicate if the
 // search is matched.
-func ExecAsBashWithMatch(command string) (output []byte, match bool, err error) {
+func RunAsBashWithMatch(command string) (output []byte, match bool, err error) {
 	var (
 		cmds           []*exec.Cmd
 		outPipes       []io.ReadCloser
@@ -295,29 +295,29 @@ func ExecAsBashWithMatch(command string) (output []byte, match bool, err error) 
 	return stdout.Bytes(), match, nil
 }
 
-// ExecAsBash executes external commands just like ExecAsBashWithMatch, but does not return
+// RunAsBash executes external commands just like RunAsBashWithMatch, but does not return
 // the boolean `match`.
-func ExecAsBash(command string) (output []byte, err error) {
-	output, _, err = ExecAsBashWithMatch(command)
+func RunAsBash(command string) (output []byte, err error) {
+	output, _, err = RunAsBashWithMatch(command)
 	return
 }
 
-// ExecAsBashf is like ExecAsBash, but formats its arguments according to the format.
+// RunAsBashf is like RunAsBash, but formats its arguments according to the format.
 // Analogous to Printf().
-func ExecAsBashf(format string, args ...interface{}) ([]byte, error) {
-	return ExecAsBash(fmt.Sprintf(format, args...))
+func RunAsBashf(format string, args ...interface{}) ([]byte, error) {
+	return RunAsBash(fmt.Sprintf(format, args...))
 }
 
-// ExecAsBashWithMatchf is like ExecAsBashWithMatch, but formats its arguments according to
+// RunAsBashWithMatchf is like RunAsBashWithMatch, but formats its arguments according to
 // the format. Analogous to Printf().
-func ExecAsBashWithMatchf(format string, args ...interface{}) ([]byte, bool, error) {
-	return ExecAsBashWithMatch(fmt.Sprintf(format, args...))
+func RunAsBashWithMatchf(format string, args ...interface{}) ([]byte, bool, error) {
+	return RunAsBashWithMatch(fmt.Sprintf(format, args...))
 }
 
 // == Errors
 //
 
-// DebugExecAsBash shows debug messages at functions related to 'ExecAsBash()'.
+// DebugRunAsBash shows debug messages at functions related to 'RunAsBash()'.
 var DebugAsBash bool
 
 type execAsBashError struct {

@@ -18,7 +18,7 @@ func TestExecWinshell(t *testing.T) {
 		t.SkipNow()
 	}
 	for _, v := range executil.ListWinShell {
-		_, err := executil.ExecWinshell(v, false, `dir C:\`)
+		_, err := executil.RunWinshell(v, false, `dir C:\`)
 		if err != nil {
 			t.Fatal(err)
 		}

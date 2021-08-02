@@ -16,13 +16,13 @@ type ManagerRpm struct{}
 func (p ManagerRpm) Install(name ...string) error {
 	args := []string{"install"}
 
-	return executil.ExecToStd(nil, pathYum, append(args, name...)...)
+	return executil.RunToStd(nil, pathYum, append(args, name...)...)
 }
 
 func (p ManagerRpm) Remove(name ...string) error {
 	args := []string{"remove"}
 
-	return executil.ExecToStd(nil, pathYum, append(args, name...)...)
+	return executil.RunToStd(nil, pathYum, append(args, name...)...)
 }
 
 func (p ManagerRpm) Purge(name ...string) error {
@@ -30,13 +30,13 @@ func (p ManagerRpm) Purge(name ...string) error {
 }
 
 func (p ManagerRpm) Update() error {
-	return executil.ExecToStd(nil, pathYum, "update")
+	return executil.RunToStd(nil, pathYum, "update")
 }
 
 func (p ManagerRpm) Upgrade() error {
-	return executil.ExecToStd(nil, pathYum, "update")
+	return executil.RunToStd(nil, pathYum, "update")
 }
 
 func (p ManagerRpm) Clean() error {
-	return executil.ExecToStd(nil, pathYum, "clean", "packages")
+	return executil.RunToStd(nil, pathYum, "clean", "packages")
 }

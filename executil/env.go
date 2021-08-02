@@ -10,7 +10,7 @@ import "os"
 
 const path_ = "/sbin:/bin:/usr/sbin:/usr/bin"
 
-// To be used at functions related to 'ExecAsBash'.
+// To be used at functions related to 'RunAsBash'.
 var (
 	env  []string
 	home string // to expand symbol "~"

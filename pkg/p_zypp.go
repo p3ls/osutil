@@ -16,13 +16,13 @@ type ManagerZypp struct{}
 func (p ManagerZypp) Install(name ...string) error {
 	args := []string{"install", "--auto-agree-with-licenses"}
 
-	return executil.ExecToStd(nil, pathZypp, append(args, name...)...)
+	return executil.RunToStd(nil, pathZypp, append(args, name...)...)
 }
 
 func (p ManagerZypp) Remove(name ...string) error {
 	args := []string{"remove"}
 
-	return executil.ExecToStd(nil, pathZypp, append(args, name...)...)
+	return executil.RunToStd(nil, pathZypp, append(args, name...)...)
 }
 
 func (p ManagerZypp) Purge(name ...string) error {
@@ -30,13 +30,13 @@ func (p ManagerZypp) Purge(name ...string) error {
 }
 
 func (p ManagerZypp) Update() error {
-	return executil.ExecToStd(nil, pathZypp, "refresh")
+	return executil.RunToStd(nil, pathZypp, "refresh")
 }
 
 func (p ManagerZypp) Upgrade() error {
-	return executil.ExecToStd(nil, pathZypp, "up", "--auto-agree-with-licenses")
+	return executil.RunToStd(nil, pathZypp, "up", "--auto-agree-with-licenses")
 }
 
 func (p ManagerZypp) Clean() error {
-	return executil.ExecToStd(nil, pathZypp, "clean")
+	return executil.RunToStd(nil, pathZypp, "clean")
 }
