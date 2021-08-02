@@ -10,8 +10,6 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -42,25 +40,9 @@ culpa qui officia deserunt mollit anim id est laborum.
 const FILENAME = "doc.go"
 
 func TestTempFile(t *testing.T) {
-	name, err := TempFile(FILENAME, "")
+	filename, err := CopytoTemp(FILENAME)
 	if err != nil {
 		t.Fatal(err)
-	}
-	checkCopytoTemp(name, PrefixTemp, t)
-
-	name, err = TempFile(FILENAME, "foo-")
-	if err != nil {
-		t.Fatal(err)
-	}
-	checkCopytoTemp(name, "foo-", t)
-}
-
-func checkCopytoTemp(filename, prefix string, t *testing.T) {
-	if prefix == "" {
-		prefix = PrefixTemp
-	}
-	if !strings.HasPrefix(filename, filepath.Join(os.TempDir(), prefix)) {
-		t.Error("got wrong prefix")
 	}
 
 	if err := os.Remove(filename); err != nil {

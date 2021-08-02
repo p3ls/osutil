@@ -93,6 +93,11 @@ func Create(filename string, b []byte) (err error) {
 	return nil
 }
 
+// Create creates a new file with the string 's'.
+func CreateString(filename string, s string) error {
+	return Create(filename, []byte(s))
+}
+
 // Overwrite truncates the named file to zero and writes len(b) bytes.
 func Overwrite(filename string, b []byte) (err error) {
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_TRUNC, 0666)
@@ -113,25 +118,17 @@ func Overwrite(filename string, b []byte) (err error) {
 	return nil
 }
 
-// PrefixTemp is the prefix to add to temporary files.
-const PrefixTemp = "tmp-"
-
-// TempFile creates a temporary file from the source file into the default directory
-// temporary files (see os.TempDir), whose name begins with the prefix.
-// If prefix is the empty string, uses the default value PrefixTemp.
+// CopytoTemp copies a file from the filename to the default directory with
+// temporary files (see os.TempDir).
 // Returns the temporary file name.
-func TempFile(src, prefix string) (tmpFile string, err error) {
-	if prefix == "" {
-		prefix = PrefixTemp
-	}
-
-	fsrc, err := os.Open(src)
+func CopytoTemp(filename string) (tmpFile string, err error) {
+	fsrc, err := os.Open(filename)
 	if err != nil {
 		return "", err
 	}
 	defer fsrc.Close()
 
-	fdst, err := ioutil.TempFile("", prefix)
+	fdst, err := ioutil.TempFile("", fsrc.Name()+"-")
 	if err != nil {
 		return "", err
 	}
@@ -148,6 +145,31 @@ func TempFile(src, prefix string) (tmpFile string, err error) {
 		return "", err
 	}
 
-	Log.Printf("File %q copied at %q", src, fdst.Name())
+	Log.Printf("File %q copied at %q", filename, fdst.Name())
 	return fdst.Name(), nil
+}
+
+// WritetoTemp writes bytes to a temporary file and returns its name.
+func WritetoTemp(b []byte, name string) (filename string, err error) {
+	tmpfile, err := os.CreateTemp("", name+"-")
+	if err != nil {
+		return "", err
+	}
+	filename = tmpfile.Name()
+
+	defer func() {
+		if err2 := tmpfile.Close(); err2 != nil && err == nil {
+			err = err2
+		}
+	}()
+
+	if _, err = tmpfile.Write(b); err != nil {
+		return "", err
+	}
+	if err = tmpfile.Sync(); err != nil {
+		return "", err
+	}
+
+	Log.Printf("Created file \"%s\"\n```\n%s```", filename, b)
+	return
 }
