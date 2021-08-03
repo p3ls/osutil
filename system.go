@@ -10,8 +10,6 @@ package osutil
 import (
 	"errors"
 	"runtime"
-
-	"github.com/tredoe/osutil/pkg"
 )
 
 var errSystem = errors.New("unsopported operating system")
@@ -43,21 +41,6 @@ func (s System) String() string {
 		return "Windows"
 	default:
 		panic("unreachable")
-	}
-}
-
-// Manager returns the package manager.
-func (s System) Manager(dist Distro) pkg.Manager {
-	switch s {
-	case Linux:
-		return Distro.Manager(dist)
-	case MacOS:
-		return pkg.ManagerBrew{}
-	case FreeBSD:
-		return pkg.ManagerPkg{}
-
-	default:
-		panic("unimplemented")
 	}
 }
 

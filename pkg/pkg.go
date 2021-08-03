@@ -11,6 +11,8 @@ package pkg
 import (
 	"fmt"
 	"os/exec"
+
+	"github.com/tredoe/osutil"
 )
 
 const sudo = "sudo"
@@ -75,8 +77,8 @@ func (pkg PackageType) String() string {
 	panic("unreachable")
 }
 
-// New returns the interface to handle the package manager.
-func New(pkg PackageType) Manager {
+// NewFromPkg returns the interface to handle the package manager.
+func NewFromPkg(pkg PackageType) Manager {
 	switch pkg {
 	// Linux
 	case Deb:
@@ -97,6 +99,47 @@ func New(pkg PackageType) Manager {
 		return new(ManagerPkg)
 	}
 	panic("unreachable")
+}
+
+// NewFromSystem returns the package manager used by a system.
+func NewFromSystem(sys osutil.System, dis osutil.Distro) Manager {
+	switch sys {
+	case osutil.Linux:
+		return NewFromDistro(dis)
+	case osutil.MacOS:
+		return ManagerBrew{}
+	case osutil.FreeBSD:
+		return ManagerPkg{}
+
+	default:
+		panic("unimplemented")
+	}
+}
+
+// Manager returns the package manager.
+func NewFromDistro(dis osutil.Distro) Manager {
+	switch dis {
+	case osutil.Debian:
+		return ManagerDeb{}
+	case osutil.Ubuntu:
+		return ManagerDeb{}
+
+	case osutil.CentOS:
+		return ManagerRpm{}
+	case osutil.Fedora:
+		return ManagerRpm{}
+
+	case osutil.OpenSUSE:
+		return ManagerZypp{}
+
+	case osutil.Arch:
+		return ManagerPacman{}
+	case osutil.Manjaro:
+		return ManagerPacman{}
+
+	default:
+		panic("unimplemented")
+	}
 }
 
 // execPackage is a list of executables of package managers.

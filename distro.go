@@ -10,7 +10,6 @@ import (
 	"os"
 
 	"github.com/tredoe/osutil/config/shconf"
-	"github.com/tredoe/osutil/pkg"
 )
 
 // Distro represents a distribution of Linux system.
@@ -48,32 +47,6 @@ var distroNames = [...]string{
 }
 
 func (s Distro) String() string { return distroNames[s] }
-
-// Manager returns the package manager.
-func (d Distro) Manager() pkg.Manager {
-	switch d {
-	case Debian:
-		return pkg.ManagerDeb{}
-	case Ubuntu:
-		return pkg.ManagerDeb{}
-
-	case CentOS:
-		return pkg.ManagerRpm{}
-	case Fedora:
-		return pkg.ManagerRpm{}
-
-	case OpenSUSE:
-		return pkg.ManagerZypp{}
-
-	case Arch:
-		return pkg.ManagerPacman{}
-	case Manjaro:
-		return pkg.ManagerPacman{}
-
-	default:
-		panic("unimplemented")
-	}
-}
 
 // * * *
 

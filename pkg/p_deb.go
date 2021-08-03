@@ -8,6 +8,9 @@ package pkg
 
 import "github.com/tredoe/osutil/executil"
 
+// 'apt' is for the terminal and gives beautiful output.
+// 'apt-get' and 'apt-cache' are for scripts and give stable, parsable output.
+
 const pathDeb = "/usr/bin/apt-get"
 
 // ManagerDeb is the interface to handle the package manager of Linux systems based at Debian.

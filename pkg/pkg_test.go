@@ -13,7 +13,7 @@ func TestPackager(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pack := New(pkg)
+	pack := NewFromPkg(pkg)
 	cmd := "mtr-tiny"
 
 	if !testing.Verbose() {
