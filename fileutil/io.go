@@ -97,8 +97,8 @@ func Create(filename string, b []byte) (err error) {
 	return nil
 }
 
-// Create creates a new file with the string 's'.
-func CreateString(filename string, s string) error {
+// CreateFromString creates a new file with the string 's'.
+func CreateFromString(filename string, s string) error {
 	return Create(filename, []byte(s))
 }
 
