@@ -74,8 +74,10 @@ func CopyFile(src, dst string) error {
 }
 
 // Create creates a new file with b bytes.
+// If the file already exists, it is truncated. If the file does not exist,
+// it is created with mode 0666 (before umask).
 func Create(filename string, b []byte) (err error) {
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}
@@ -99,6 +101,7 @@ func CreateString(filename string, s string) error {
 }
 
 // Overwrite truncates the named file to zero and writes len(b) bytes.
+// It is created with mode 0666 (before umask).
 func Overwrite(filename string, b []byte) (err error) {
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_TRUNC, 0666)
 	if err != nil {
