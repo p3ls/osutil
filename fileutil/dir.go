@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/tredoe/osutil/internal"
 )
 
 // CheckDir checks if the path exists and if it is a directory.
@@ -45,7 +47,7 @@ func CreateDir(dir string) error {
 		if err = os.MkdirAll(dir, 0774); err != nil {
 			return err
 		}
-		Log.Printf("Created directory \"%s\"", dir)
+		internal.Log.Printf("Created directory \"%s\"", dir)
 	}
 	return nil
 }

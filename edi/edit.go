@@ -12,6 +12,8 @@ import (
 	"io"
 	"os"
 	"regexp"
+
+	"github.com/tredoe/osutil/internal"
 )
 
 // A ModeEdit value is a set of flags (or 0) to control behavior at edit a file.
@@ -63,7 +65,7 @@ func (ed *Editer) Close() error {
 		return err
 	}
 
-	Log.Printf("File %q edited", ed.file.Name())
+	internal.Log.Printf("File %q edited", ed.file.Name())
 	return nil
 }
 

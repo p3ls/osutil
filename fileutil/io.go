@@ -11,6 +11,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+
+	"github.com/tredoe/osutil/internal"
 )
 
 // CopyFile copies a file from 'src' to 'dst'. If 'src' and 'dst' files exist, and are
@@ -69,7 +71,7 @@ func CopyFile(src, dst string) error {
 		return err
 	}
 
-	Log.Printf("File %q copied at %q", src, dst)
+	internal.Log.Printf("File %q copied at %q", src, dst)
 	return nil
 }
 
@@ -91,7 +93,7 @@ func Create(filename string, b []byte) (err error) {
 		return err
 	}
 
-	Log.Printf("File %q created", filename)
+	internal.Log.Printf("File %q created", filename)
 	return nil
 }
 
@@ -117,7 +119,7 @@ func Overwrite(filename string, b []byte) (err error) {
 		return err
 	}
 
-	Log.Printf("File %q overwritted", filename)
+	internal.Log.Printf("File %q overwritted", filename)
 	return nil
 }
 
@@ -148,7 +150,7 @@ func CopytoTemp(filename string) (tmpFile string, err error) {
 		return "", err
 	}
 
-	Log.Printf("File %q copied at %q", filename, fdst.Name())
+	internal.Log.Printf("File %q copied at %q", filename, fdst.Name())
 	return fdst.Name(), nil
 }
 
@@ -173,6 +175,6 @@ func WritetoTemp(b []byte, name string) (filename string, err error) {
 		return "", err
 	}
 
-	Log.Printf("Created file \"%s\"\n```\n%s```", filename, b)
+	internal.Log.Printf("Created file \"%s\"\n```\n%s```", filename, b)
 	return
 }

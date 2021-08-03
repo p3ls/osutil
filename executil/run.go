@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/tredoe/osutil/internal"
 )
 
 // Run executes a command. Returns both standard output and error.
@@ -30,7 +32,7 @@ func Run(cmd string, args ...string) (stdout, stderr []byte, err error) {
 // Logs the command and returns both standard output and error.
 func RunWithTime(timeKillCmd time.Duration, cmd string, args ...string,
 ) (stdout, stderr []byte, err error) {
-	Log.Printf("%s %s", cmd, strings.Join(args, " "))
+	internal.LogShell.Printf("%s %s", cmd, strings.Join(args, " "))
 
 	var outPipe, errPipe io.ReadCloser
 	var ctx context.Context
@@ -121,7 +123,7 @@ _checkErr:
 // RunToStd executes a command setting both standard output and error.
 // Logs the command.
 func RunToStd(extraEnv []string, cmd string, args ...string) error {
-	Log.Printf("%s %s", cmd, strings.Join(args, " "))
+	internal.LogShell.Printf("%s %s", cmd, strings.Join(args, " "))
 
 	c := exec.Command(cmd, args...)
 	c.Stdout = os.Stdout
@@ -143,7 +145,7 @@ func RunToStd(extraEnv []string, cmd string, args ...string) error {
 // RunNoStdErr executes a command setting only standard output.
 // Logs the command.
 func RunNoStdErr(extraEnv []string, cmd string, args ...string) error {
-	Log.Printf("%s %s", cmd, strings.Join(args, " "))
+	internal.LogShell.Printf("%s %s", cmd, strings.Join(args, " "))
 
 	c := exec.Command(cmd, args...)
 	c.Stdout = os.Stdout
@@ -168,7 +170,7 @@ func RunNoStdErr(extraEnv []string, cmd string, args ...string) error {
 // checkStderr (if any) checks if it is found in the standard error to know whether the standard
 // error is not really an error.
 func RunToStdButErr(checkStderr []byte, extraEnv []string, cmd string, args ...string) error {
-	Log.Printf("%s %s", cmd, strings.Join(args, " "))
+	internal.LogShell.Printf("%s %s", cmd, strings.Join(args, " "))
 
 	var bufStderr bytes.Buffer
 	c := exec.Command(cmd, args...)

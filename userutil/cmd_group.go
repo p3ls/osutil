@@ -12,6 +12,7 @@ import (
 
 	"github.com/tredoe/osutil"
 	"github.com/tredoe/osutil/executil"
+	"github.com/tredoe/osutil/internal"
 )
 
 // AddGroupFromCmd adds the given group to the original user.
@@ -59,7 +60,7 @@ func AddGroupFromCmd(syst osutil.System, group string) error {
 			return err
 		}
 
-		Log.Printf(
+		internal.Log.Printf(
 			"the user %q has been added to the group %q.\nYou MUST reboot the system.\n",
 			username, group,
 		)
