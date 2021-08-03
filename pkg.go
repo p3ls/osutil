@@ -4,15 +4,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// Package pkg handles basic operations in the management of packages in
-// FreeBSD, Linux and macOs operating systems.
-package pkg
+package osutil
 
 import (
 	"fmt"
 	"os/exec"
-
-	"github.com/tredoe/osutil"
 )
 
 const sudo = "sudo"
@@ -77,8 +73,8 @@ func (pkg PackageType) String() string {
 	panic("unreachable")
 }
 
-// NewFromPkg returns the interface to handle the package manager.
-func NewFromPkg(pkg PackageType) Manager {
+// NewPkgFromType returns the interface to handle the package manager.
+func NewPkgFromType(pkg PackageType) Manager {
 	switch pkg {
 	// Linux
 	case Deb:
@@ -101,14 +97,14 @@ func NewFromPkg(pkg PackageType) Manager {
 	panic("unreachable")
 }
 
-// NewFromSystem returns the package manager used by a system.
-func NewFromSystem(sys osutil.System, dis osutil.Distro) Manager {
+// NewPkgFromSystem returns the package manager used by a system.
+func NewPkgFromSystem(sys System, dis Distro) Manager {
 	switch sys {
-	case osutil.Linux:
-		return NewFromDistro(dis)
-	case osutil.MacOS:
+	case Linux:
+		return newPkgFromDistro(dis)
+	case MacOS:
 		return ManagerBrew{}
-	case osutil.FreeBSD:
+	case FreeBSD:
 		return ManagerPkg{}
 
 	default:
@@ -116,31 +112,33 @@ func NewFromSystem(sys osutil.System, dis osutil.Distro) Manager {
 	}
 }
 
-// Manager returns the package manager.
-func NewFromDistro(dis osutil.Distro) Manager {
+// newPkgFromDistro returns the package manager used by a Linux distro.
+func newPkgFromDistro(dis Distro) Manager {
 	switch dis {
-	case osutil.Debian:
+	case Debian:
 		return ManagerDeb{}
-	case osutil.Ubuntu:
+	case Ubuntu:
 		return ManagerDeb{}
 
-	case osutil.CentOS:
+	case CentOS:
 		return ManagerRpm{}
-	case osutil.Fedora:
+	case Fedora:
 		return ManagerRpm{}
 
-	case osutil.OpenSUSE:
+	case OpenSUSE:
 		return ManagerZypp{}
 
-	case osutil.Arch:
+	case Arch:
 		return ManagerPacman{}
-	case osutil.Manjaro:
+	case Manjaro:
 		return ManagerPacman{}
 
 	default:
 		panic("unimplemented")
 	}
 }
+
+// * * *
 
 // execPackage is a list of executables of package managers.
 var execPackage = [...]string{
