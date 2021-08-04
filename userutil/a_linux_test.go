@@ -7,6 +7,7 @@
 package userutil
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,15 +25,6 @@ const (
 	SYS_GROUP = "gsys_bar"
 )
 
-const (
-	prefixTemp = "test_osutil-"
-
-	FILE_USER    = prefixTemp + "passwd"
-	FILE_GROUP   = prefixTemp + "group"
-	FILE_SHADOW  = prefixTemp + "shadow"
-	FILE_GSHADOW = prefixTemp + "gshadow"
-)
-
 var MEMBERS = []string{USER, SYS_USER}
 
 // Stores the ids at creating the groups.
@@ -40,24 +32,33 @@ var GID, SYS_GID int
 
 // == Copy the system files before of be edited.
 
+var removeFiles []string
+
 func init() {
 	err := MustBeSuperUser(osutil.SystemUndefined)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
 
-	if fileUser, err = fileutil.TempFile(fileUser, FILE_USER); err != nil {
+	if fileUser, err = fileutil.CopytoTemp(fileUser); err != nil {
 		goto _error
 	}
-	if fileGroup, err = fileutil.TempFile(fileGroup, FILE_GROUP); err != nil {
+	removeFiles = append(removeFiles, fileUser)
+
+	if fileGroup, err = fileutil.CopytoTemp(fileGroup); err != nil {
 		goto _error
 	}
-	if fileShadow, err = fileutil.TempFile(fileShadow, FILE_SHADOW); err != nil {
+	removeFiles = append(removeFiles, fileGroup)
+
+	if fileShadow, err = fileutil.CopytoTemp(fileShadow); err != nil {
 		goto _error
 	}
-	if fileGShadow, err = fileutil.TempFile(fileGShadow, FILE_GSHADOW); err != nil {
+	removeFiles = append(removeFiles, fileShadow)
+
+	if fileGShadow, err = fileutil.CopytoTemp(fileGShadow); err != nil {
 		goto _error
 	}
+	removeFiles = append(removeFiles, fileGShadow)
 
 	return
 
@@ -67,11 +68,16 @@ _error:
 }
 
 func removeTempFiles() {
-	files, _ := filepath.Glob(filepath.Join(os.TempDir(), prefixTemp+"*"))
+	for _, fname := range removeFiles {
+		if dir := filepath.Dir(fname); dir == "/etc" {
+			fmt.Printf("WARNING! Can not remove file %q", fname)
+			continue
+		}
 
-	for _, f := range files {
-		if err := os.Remove(f); err != nil {
-			log.Printf("%s", err)
+		for _, f := range []string{fname, fname + "+1~"} {
+			if err := os.Remove(f); err != nil {
+				log.Printf("%s", err)
+			}
 		}
 	}
 }

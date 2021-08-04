@@ -9,12 +9,16 @@ package osutil
 import (
 	"fmt"
 	"os/exec"
+	"path/filepath"
 )
 
 const sudo = "sudo"
 
 // Manager is the common interface to handle different package systems.
 type Manager interface {
+	// ExecPath returns the executable path.
+	ExecPath() string
+
 	// Install installs packages.
 	Install(name ...string) error
 
@@ -40,9 +44,11 @@ type PackageType int8
 const (
 	// Linux
 	Deb PackageType = iota + 1
-	RPM
-	Pacman
+	Dnf
 	Ebuild
+	Pacman
+	Rpm
+	Yum
 	Zypp
 
 	// BSD
@@ -55,12 +61,16 @@ func (pkg PackageType) String() string {
 	// Linux
 	case Deb:
 		return "Deb"
-	case RPM:
-		return "RPM"
-	case Pacman:
-		return "Pacman"
+	case Dnf:
+		return "DNF"
 	case Ebuild:
 		return "Ebuild"
+	case Pacman:
+		return "Pacman"
+	case Rpm:
+		return "RPM"
+	case Yum:
+		return "YUM"
 	case Zypp:
 		return "ZYpp"
 
@@ -73,18 +83,50 @@ func (pkg PackageType) String() string {
 	panic("unreachable")
 }
 
+// ExecPath returns the executable path.
+func (pkg PackageType) ExecPath() string {
+	switch pkg {
+	// Linux
+	case Deb:
+		return pathDeb
+	case Dnf:
+		return pathDnf
+	case Ebuild:
+		return pathEbuild
+	case Pacman:
+		return pathPacman
+	case Rpm:
+		return pathRpm
+	case Yum:
+		return pathYum
+	case Zypp:
+		return pathZypp
+
+	// BSD
+	case Brew:
+		return pathBrew
+	case Pkg:
+		return pathPkg
+	}
+	panic("unreachable")
+}
+
 // NewPkgFromType returns the interface to handle the package manager.
 func NewPkgFromType(pkg PackageType) Manager {
 	switch pkg {
 	// Linux
 	case Deb:
 		return new(ManagerDeb)
-	case RPM:
-		return new(ManagerRpm)
-	case Pacman:
-		return new(ManagerPacman)
+	case Dnf:
+		return new(ManagerDnf)
 	case Ebuild:
 		return new(ManagerEbuild)
+	case Pacman:
+		return new(ManagerPacman)
+	case Rpm:
+		return new(ManagerRpm)
+	case Yum:
+		return new(ManagerYum)
 	case Zypp:
 		return new(ManagerZypp)
 
@@ -97,15 +139,38 @@ func NewPkgFromType(pkg PackageType) Manager {
 	panic("unreachable")
 }
 
+// * * *
+
+type pkgMngNotfoundError struct {
+	Distro
+}
+
+func (e pkgMngNotfoundError) Error() string {
+	return fmt.Sprintf(
+		"package manager not found at Linux distro %s", e.Distro.String(),
+	)
+}
+
 // NewPkgFromSystem returns the package manager used by a system.
-func NewPkgFromSystem(sys System, dis Distro) Manager {
+func NewPkgFromSystem(sys System, dis Distro) (Manager, error) {
 	switch sys {
 	case Linux:
-		return newPkgFromDistro(dis)
+		pkg := newPkgFromDistro(dis)
+		if len(pkg) == 1 {
+			return pkg[0], nil
+		}
+		for _, v := range pkg {
+			_, err := exec.LookPath(v.ExecPath())
+			if err == nil {
+				return v, nil
+			}
+		}
+		return ManagerVoid{}, pkgMngNotfoundError{dis}
+
 	case MacOS:
-		return ManagerBrew{}
+		return ManagerBrew{}, nil
 	case FreeBSD:
-		return ManagerPkg{}
+		return ManagerPkg{}, nil
 
 	default:
 		panic("unimplemented")
@@ -113,25 +178,25 @@ func NewPkgFromSystem(sys System, dis Distro) Manager {
 }
 
 // newPkgFromDistro returns the package manager used by a Linux distro.
-func newPkgFromDistro(dis Distro) Manager {
+func newPkgFromDistro(dis Distro) []Manager {
 	switch dis {
 	case Debian:
-		return ManagerDeb{}
+		return []Manager{ManagerDeb{}}
 	case Ubuntu:
-		return ManagerDeb{}
+		return []Manager{ManagerDeb{}}
 
 	case CentOS:
-		return ManagerRpm{}
+		return []Manager{ManagerDnf{}, ManagerYum{}} // ManagerRpm{}
 	case Fedora:
-		return ManagerRpm{}
+		return []Manager{ManagerDnf{}, ManagerYum{}} // ManagerRpm{}
 
 	case OpenSUSE:
-		return ManagerZypp{}
+		return []Manager{ManagerZypp{}}
 
 	case Arch:
-		return ManagerPacman{}
+		return []Manager{ManagerPacman{}}
 	case Manjaro:
-		return ManagerPacman{}
+		return []Manager{ManagerPacman{}}
 
 	default:
 		panic("unimplemented")
@@ -140,18 +205,20 @@ func newPkgFromDistro(dis Distro) Manager {
 
 // * * *
 
-// execPackage is a list of executables of package managers.
+// execPackage is a list of package managers executables.
 var execPackage = [...]string{
 	// Linux
-	Deb:    "apt-get",
-	RPM:    "yum",
-	Pacman: "pacman",
-	Ebuild: "emerge",
-	Zypp:   "zypper",
+	filepath.Base(Deb.ExecPath()),
+	filepath.Base(Dnf.ExecPath()),
+	filepath.Base(Yum.ExecPath()),
+	filepath.Base(Zypp.ExecPath()),
+	filepath.Base(Pacman.ExecPath()),
+	filepath.Base(Ebuild.ExecPath()),
+	//filepath.Base(Rpm.ExecPath()),
 
 	// BSD
-	Brew: "brew",
-	Pkg:  "pkg",
+	filepath.Base(Brew.ExecPath()),
+	filepath.Base(Pkg.ExecPath()),
 }
 
 // Detect tries to get the package system used in the system, looking for

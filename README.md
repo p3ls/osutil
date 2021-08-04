@@ -8,7 +8,6 @@ utility packages for the Shell.
 + edi: editing of files
 + executil: executes commands in shells
 + fileutil: handles common operations at files
-+ pkg: basic operations for the management of packages in operating systems
 + userutil: provides access to UNIX users database in local files
 + user/crypt: password hashing used in UNIX
 

@@ -15,33 +15,36 @@ const pathEbuild = "/usr/bin/emerge"
 // ManagerEbuild is the interface to handle the package manager of Linux systems based at Gentoo.
 type ManagerEbuild struct{}
 
-func (p ManagerEbuild) Install(name ...string) error {
+func (m ManagerEbuild) ExecPath() string {
+	return pathEbuild
+}
+
+func (m ManagerEbuild) Install(name ...string) error {
 	return executil.RunToStd(nil, pathEbuild, name...)
 }
 
-func (p ManagerEbuild) Remove(name ...string) error {
+func (m ManagerEbuild) Remove(name ...string) error {
 	args := []string{"--unmerge"}
 
 	return executil.RunToStd(nil, pathEbuild, append(args, name...)...)
 }
 
-func (p ManagerEbuild) Purge(name ...string) error {
-	return p.Remove(name...)
+func (m ManagerEbuild) Purge(name ...string) error {
+	return m.Remove(name...)
 }
 
-func (p ManagerEbuild) Update() error {
+func (m ManagerEbuild) Update() error {
 	return executil.RunToStd(nil, pathEbuild, "--sync")
 }
 
-func (p ManagerEbuild) Upgrade() error {
+func (m ManagerEbuild) Upgrade() error {
 	return executil.RunToStd(nil, pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world")
 }
 
-func (p ManagerEbuild) Clean() error {
+func (m ManagerEbuild) Clean() error {
 	err := executil.RunToStd(nil, pathEbuild, "--update", "--deep", "--newuse @world")
 	if err != nil {
 		return err
 	}
-
 	return executil.RunToStd(nil, pathEbuild, "--depclean")
 }

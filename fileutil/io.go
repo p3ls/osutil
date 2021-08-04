@@ -11,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/tredoe/osutil/internal"
 )
@@ -133,7 +134,7 @@ func CopytoTemp(filename string) (tmpFile string, err error) {
 	}
 	defer fsrc.Close()
 
-	fdst, err := ioutil.TempFile("", fsrc.Name()+"-")
+	fdst, err := ioutil.TempFile("", filepath.Base(fsrc.Name())+"_")
 	if err != nil {
 		return "", err
 	}
@@ -156,7 +157,7 @@ func CopytoTemp(filename string) (tmpFile string, err error) {
 
 // WritetoTemp writes bytes to a temporary file and returns its name.
 func WritetoTemp(b []byte, name string) (filename string, err error) {
-	tmpfile, err := os.CreateTemp("", name+"-")
+	tmpfile, err := os.CreateTemp("", name+"_")
 	if err != nil {
 		return "", err
 	}

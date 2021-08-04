@@ -15,32 +15,36 @@ const pathPacman = "/usr/bin/pacman"
 // ManagerPacman is the interface to handle the package manager of Linux systems based at Arch.
 type ManagerPacman struct{}
 
-func (p ManagerPacman) Install(name ...string) error {
+func (m ManagerPacman) ExecPath() string {
+	return pathPacman
+}
+
+func (m ManagerPacman) Install(name ...string) error {
 	args := []string{"-S", "--needed", "--noprogressbar"}
 
 	return executil.RunToStd(nil, pathPacman, append(args, name...)...)
 }
 
-func (p ManagerPacman) Remove(name ...string) error {
+func (m ManagerPacman) Remove(name ...string) error {
 	args := []string{"-Rs"}
 
 	return executil.RunToStd(nil, pathPacman, append(args, name...)...)
 }
 
-func (p ManagerPacman) Purge(name ...string) error {
+func (m ManagerPacman) Purge(name ...string) error {
 	args := []string{"-Rsn"}
 
 	return executil.RunToStd(nil, pathPacman, append(args, name...)...)
 }
 
-func (p ManagerPacman) Update() error {
+func (m ManagerPacman) Update() error {
 	return executil.RunToStd(nil, pathPacman, "-Syu", "--needed", "--noprogressbar")
 }
 
-func (p ManagerPacman) Upgrade() error {
+func (m ManagerPacman) Upgrade() error {
 	return executil.RunToStd(nil, pathPacman, "-Syu")
 }
 
-func (p ManagerPacman) Clean() error {
+func (m ManagerPacman) Clean() error {
 	return executil.RunToStd(nil, "/usr/bin/paccache", "-r")
 }
