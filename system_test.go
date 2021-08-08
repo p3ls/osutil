@@ -7,6 +7,7 @@
 package osutil
 
 import (
+	"fmt"
 	"runtime"
 	"testing"
 
@@ -18,9 +19,23 @@ func TestExecWinshell(t *testing.T) {
 		t.SkipNow()
 	}
 	for _, v := range executil.ListWinShell {
-		_, err := executil.RunWinshell(v, false, `dir C:\`)
+		out, err := executil.RunWinshell(v, false, `dir C:\`)
+		fmt.Println(string(out))
 		if err != nil {
-			t.Fatal(err)
+			t.Error("error:", err)
 		}
 	}
+}
+
+func TestDetectSystem(t *testing.T) {
+	sys, _, err := SystemFromGOOS()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ver, err := DetectSystemVer(sys)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("System version: %q", ver)
 }

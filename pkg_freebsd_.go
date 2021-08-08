@@ -10,15 +10,27 @@ package osutil
 
 import "github.com/tredoe/osutil/executil"
 
-const pathPkg = "/usr/bin/pkg"
+const (
+	filePkg = "pkg"
+	pathPkg = "/usr/bin/pkg"
+)
 
 // ManagerPkg is the interface to handle the FreeBSD package manager,
 // called 'package' or 'pkg'.
-type ManagerPkg struct{}
-
-func (m ManagerPkg) ExecPath() string {
-	return pathPkg
+type ManagerPkg struct {
+	pathExec string
 }
+
+// NewManagerPkg returns the Pkg package manager.
+func NewManagerPkg() ManagerPkg {
+	return ManagerPkg{pathExec: pathPkg}
+}
+
+func (m ManagerPkg) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerPkg) ExecPath() string { return m.pathExec }
+
+func (m ManagerPkg) PackageType() string { return Pkg.String() }
 
 func (m ManagerPkg) Install(name ...string) error {
 	args := []string{pathPkg, "install", "-y"}

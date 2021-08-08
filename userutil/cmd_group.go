@@ -7,7 +7,6 @@
 package userutil
 
 import (
-	"fmt"
 	"os/user"
 
 	"github.com/tredoe/osutil"
@@ -53,10 +52,7 @@ func AddGroupFromCmd(syst osutil.System, group string) error {
 	}
 	if !found {
 		_, stderr, err := executil.Run("usermod", "-aG", group, usr.Username)
-		if stderr != nil {
-			return fmt.Errorf("%s", stderr)
-		}
-		if err != nil {
+		if err = executil.CheckStderr(stderr, err); err != nil {
 			return err
 		}
 

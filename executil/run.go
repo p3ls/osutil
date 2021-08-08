@@ -198,7 +198,7 @@ func RunToStdButErr(checkStderr []byte, extraEnv []string, cmd string, args ...s
 		return nil
 	}
 	if checkStderr == nil {
-		return errorFromStderr(stderr)
+		return errFromStderr(stderr)
 	}
 
 	s := bufio.NewScanner(bytes.NewReader(stderr))
@@ -211,7 +211,7 @@ func RunToStdButErr(checkStderr []byte, extraEnv []string, cmd string, args ...s
 		}
 	}
 	if !found {
-		return errorFromStderr(stderr)
+		return errFromStderr(stderr)
 	}
 
 	fmt.Printf("%s", stderr)

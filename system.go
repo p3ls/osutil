@@ -7,8 +7,13 @@
 package osutil
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
+	"fmt"
 	"runtime"
+
+	"github.com/tredoe/osutil/executil"
 )
 
 var errSystem = errors.New("unsopported operating system")
@@ -43,8 +48,6 @@ func (s System) String() string {
 	}
 }
 
-// * * *
-
 // SystemFromGOOS returns the system from 'GOOS', and the distribution at Linux systems.
 func SystemFromGOOS() (sys System, dist Distro, err error) {
 	switch runtime.GOOS {
@@ -66,4 +69,66 @@ func SystemFromGOOS() (sys System, dist Distro, err error) {
 	}
 
 	return
+}
+
+// * * *
+
+var (
+	signColon = []byte{':'}
+	osVersion = []byte("os version")
+)
+
+// DetectSystemVer returns the operating system version.
+func DetectSystemVer(sys System) (string, error) {
+	switch sys {
+	case Linux:
+		return DetectDistroVer()
+	case MacOS:
+		// /usr/bin/sw_vers
+		stdout, stderr, err := executil.Run("sw_vers", "-productVersion")
+		if err = executil.CheckStderr(stderr, err); err != nil {
+			return "", err
+		}
+
+		return string(bytes.TrimSpace(stdout)), nil
+	case FreeBSD:
+		// The freebsd-version command appeared in FreeBSD 10.0 and above.
+		stdout, _, err := executil.Run("freebsd-version", "-k")
+		if err != nil {
+			var stderr []byte
+
+			stdout, stderr, err = executil.Run("uname", "-r")
+			if err = executil.CheckStderr(stderr, err); err != nil {
+				return "", err
+			}
+		}
+
+		return string(bytes.TrimSpace(stdout)), nil
+	case Windows:
+		stdout, stderr, err := executil.Run("systeminfo")
+		if err = executil.CheckStderr(stderr, err); err != nil {
+			return "", err
+		}
+
+		// The output format is:
+		// KEY: VALUE
+		scanner := bufio.NewScanner(bytes.NewReader(stdout))
+
+		for scanner.Scan() {
+			ln := scanner.Bytes()
+			lnSplit := bytes.Split(ln, signColon)
+			key := bytes.ToLower(lnSplit[0])
+
+			if bytes.Equal(key, osVersion) {
+				return string(bytes.TrimSpace(lnSplit[1])), nil
+			}
+		}
+		if err = scanner.Err(); err != nil {
+			return "", err
+		}
+		return "", fmt.Errorf("key %q not found at:\n\n%q", osVersion, stdout)
+
+	default:
+		panic("unreachable")
+	}
 }

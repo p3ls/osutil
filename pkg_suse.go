@@ -10,14 +10,25 @@ package osutil
 
 import "github.com/tredoe/osutil/executil"
 
-const pathZypp = "/usr/bin/zypper"
+const fileZypp = "zypper"
+
+var pathZypp = "/usr/bin/zypper"
 
 // ManagerZypp is the interface to handle the package manager of Linux systems based at SUSE.
-type ManagerZypp struct{}
-
-func (m ManagerZypp) ExecPath() string {
-	return pathZypp
+type ManagerZypp struct {
+	pathExec string
 }
+
+// NewManagerZypp returns the Zypp package manager.
+func NewManagerZypp() ManagerZypp {
+	return ManagerZypp{pathExec: pathZypp}
+}
+
+func (m ManagerZypp) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerZypp) ExecPath() string { return m.pathExec }
+
+func (m ManagerZypp) PackageType() string { return Zypp.String() }
 
 func (m ManagerZypp) Install(name ...string) error {
 	args := []string{"install", "--auto-agree-with-licenses"}

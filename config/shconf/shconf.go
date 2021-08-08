@@ -202,7 +202,7 @@ func (c *Config) Set(key, value string) error {
 
 	separator := string(c.Separator())
 	replAt := []edi.ReplacerAtLine{
-		{key + separator, separator + ".*", separator + value},
+		{Line: key + separator, Search: separator + ".*", Replace: separator + value},
 	}
 
 	if err := edi.ReplaceAtLine(c.filename, nil, replAt); err != nil {

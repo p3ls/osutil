@@ -10,7 +10,11 @@ package osutil
 // avoiding to have to use a pointer.
 type ManagerVoid struct{}
 
+func (m ManagerVoid) setExecPath(string) {}
+
 func (m ManagerVoid) ExecPath() string { return "" }
+
+func (m ManagerVoid) PackageType() string { return "" }
 
 func (m ManagerVoid) Install(name ...string) error { return nil }
 

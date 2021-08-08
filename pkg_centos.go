@@ -9,20 +9,33 @@ package osutil
 import "github.com/tredoe/osutil/executil"
 
 const (
-	pathDnf = "/usr/bin/dnf" // Preferable to YUM
+	fileDnf = "dnf" // Preferable to YUM
+	pathDnf = "/usr/bin/dnf"
+
+	fileYum = "yum"
 	pathYum = "/usr/bin/yum"
 
 	// RPM is used to install/uninstall local packages.
+	fileRpm = "rpm"
 	pathRpm = "/usr/bin/rpm"
 )
 
 // ManagerDnf is the interface to handle the package manager DNG of Linux systems
 // based at Red Hat.
-type ManagerDnf struct{}
-
-func (m ManagerDnf) ExecPath() string {
-	return pathDnf
+type ManagerDnf struct {
+	pathExec string
 }
+
+// NewManagerDnf returns the DNF package manager.
+func NewManagerDnf() ManagerDnf {
+	return ManagerDnf{pathExec: pathDnf}
+}
+
+func (m ManagerDnf) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerDnf) ExecPath() string { return m.pathExec }
+
+func (m ManagerDnf) PackageType() string { return Dnf.String() }
 
 func (m ManagerDnf) Install(name ...string) error {
 	args := []string{"install"}
@@ -59,11 +72,20 @@ func (m ManagerDnf) Clean() error {
 
 // ManagerYum is the interface to handle the package manager YUM of Linux systems
 // based at Red Hat.
-type ManagerYum struct{}
-
-func (m ManagerYum) ExecPath() string {
-	return pathYum
+type ManagerYum struct {
+	pathExec string
 }
+
+// NewManagerYum returns the YUM package manager.
+func NewManagerYum() ManagerYum {
+	return ManagerYum{pathExec: pathYum}
+}
+
+func (m ManagerYum) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerYum) ExecPath() string { return m.pathExec }
+
+func (m ManagerYum) PackageType() string { return Yum.String() }
 
 func (m ManagerYum) Install(name ...string) error {
 	args := []string{"install", "-y"}
@@ -97,11 +119,20 @@ func (m ManagerYum) Clean() error {
 
 // ManagerRpm is the interface to handle the package manager RPM of Linux systems
 // based at Red Hat.
-type ManagerRpm struct{}
-
-func (m ManagerRpm) ExecPath() string {
-	return pathRpm
+type ManagerRpm struct {
+	pathExec string
 }
+
+// NewManagerRpm returns the RPM package manager.
+func NewManagerRpm() ManagerRpm {
+	return ManagerRpm{pathExec: pathRpm}
+}
+
+func (m ManagerRpm) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerRpm) ExecPath() string { return m.pathExec }
+
+func (m ManagerRpm) PackageType() string { return Rpm.String() }
 
 func (m ManagerRpm) Install(name ...string) error {
 	args := []string{"-i"}

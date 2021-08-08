@@ -9,15 +9,22 @@ package osutil
 import (
 	"fmt"
 	"os/exec"
-	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 const sudo = "sudo"
 
-// Manager is the common interface to handle different package systems.
-type Manager interface {
+// PkgManager is the common interface to handle different package systems.
+type PkgManager interface {
+	// setExecPath sets the executable path.
+	setExecPath(p string)
+
 	// ExecPath returns the executable path.
 	ExecPath() string
+
+	// PackageType returns the package type.
+	PackageType() string
 
 	// Install installs packages.
 	Install(name ...string) error
@@ -83,79 +90,76 @@ func (pkg PackageType) String() string {
 	panic("unreachable")
 }
 
-// ExecPath returns the executable path.
-func (pkg PackageType) ExecPath() string {
-	switch pkg {
-	// Linux
-	case Deb:
-		return pathDeb
-	case Dnf:
-		return pathDnf
-	case Ebuild:
-		return pathEbuild
-	case Pacman:
-		return pathPacman
-	case Rpm:
-		return pathRpm
-	case Yum:
-		return pathYum
-	case Zypp:
-		return pathZypp
+// NewPkgTypeFromstr returns a package management system from the string.
+func NewPkgTypeFromstr(s string) (PackageType, error) {
+	switch strings.ToLower(s) {
+	case fileDeb:
+		return Deb, nil
+	case fileDnf:
+		return Dnf, nil
+	case fileEbuild:
+		return Ebuild, nil
+	case filePacman:
+		return Pacman, nil
+	case fileRpm:
+		return Rpm, nil
+	case fileYum:
+		return Yum, nil
+	case fileZypp:
+		return Zypp, nil
 
-	// BSD
-	case Brew:
-		return pathBrew
-	case Pkg:
-		return pathPkg
+	case fileBrew:
+		return Brew, nil
+	case filePkg:
+		return Pkg, nil
+
+	default:
+		return -1, pkgTypeError(s)
 	}
-	panic("unreachable")
 }
 
-// NewPkgFromType returns the interface to handle the package manager.
-func NewPkgFromType(pkg PackageType) Manager {
+// * * *
+
+// NewPkgManagerFromType returns the interface to handle the package manager.
+func NewPkgManagerFromType(pkg PackageType) PkgManager {
 	switch pkg {
 	// Linux
 	case Deb:
-		return new(ManagerDeb)
+		return NewManagerDeb()
 	case Dnf:
-		return new(ManagerDnf)
+		return NewManagerDnf()
 	case Ebuild:
-		return new(ManagerEbuild)
+		return NewManagerEbuild()
 	case Pacman:
-		return new(ManagerPacman)
+		return NewManagerPacman()
 	case Rpm:
-		return new(ManagerRpm)
+		return NewManagerRpm()
 	case Yum:
-		return new(ManagerYum)
+		return NewManagerYum()
 	case Zypp:
-		return new(ManagerZypp)
+		return NewManagerZypp()
 
 	// BSD
 	case Brew:
-		return new(ManagerBrew)
+		return NewManagerBrew()
 	case Pkg:
-		return new(ManagerPkg)
+		return NewManagerPkg()
 	}
 	panic("unreachable")
 }
 
 // * * *
 
-type pkgMngNotfoundError struct {
-	Distro
-}
-
-func (e pkgMngNotfoundError) Error() string {
-	return fmt.Sprintf(
-		"package manager not found at Linux distro %s", e.Distro.String(),
-	)
-}
-
-// NewPkgFromSystem returns the package manager used by a system.
-func NewPkgFromSystem(sys System, dis Distro) (Manager, error) {
+// NewPkgManagerFromSystem returns the package manager used by a system.
+func NewPkgManagerFromSystem(sys System, dis Distro) (PkgManager, error) {
 	switch sys {
 	case Linux:
-		pkg := newPkgFromDistro(dis)
+		return newPkgManagerFromDistro(dis)
+		/*pkg, err := newPkgManagerFromDistro(dis)
+		if err != nil {
+			return ManagerVoid{}, err
+		}
+
 		if len(pkg) == 1 {
 			return pkg[0], nil
 		}
@@ -165,38 +169,57 @@ func NewPkgFromSystem(sys System, dis Distro) (Manager, error) {
 				return v, nil
 			}
 		}
-		return ManagerVoid{}, pkgMngNotfoundError{dis}
+		return ManagerVoid{}, pkgMngNotfoundError{dis}*/
 
 	case MacOS:
-		return ManagerBrew{}, nil
+		return NewManagerBrew(), nil
 	case FreeBSD:
-		return ManagerPkg{}, nil
+		return NewManagerPkg(), nil
 
 	default:
 		panic("unimplemented")
 	}
 }
 
-// newPkgFromDistro returns the package manager used by a Linux distro.
-func newPkgFromDistro(dis Distro) []Manager {
+// newPkgManagerFromDistro returns the package manager used by a Linux distro.
+func newPkgManagerFromDistro(dis Distro) (PkgManager, error) {
 	switch dis {
-	case Debian:
-		return []Manager{ManagerDeb{}}
-	case Ubuntu:
-		return []Manager{ManagerDeb{}}
-
-	case CentOS:
-		return []Manager{ManagerDnf{}, ManagerYum{}} // ManagerRpm{}
-	case Fedora:
-		return []Manager{ManagerDnf{}, ManagerYum{}} // ManagerRpm{}
+	case Debian, Ubuntu:
+		return NewManagerDeb(), nil
 
 	case OpenSUSE:
-		return []Manager{ManagerZypp{}}
+		return NewManagerZypp(), nil
 
-	case Arch:
-		return []Manager{ManagerPacman{}}
-	case Manjaro:
-		return []Manager{ManagerPacman{}}
+	case Arch, Manjaro:
+		return NewManagerPacman(), nil
+
+	// DNF is the default package manager of Fedora 22, CentOS8, and RHEL8.
+	case CentOS, Fedora:
+		verStr, err := DetectSystemVer(Linux)
+		if err != nil {
+			return ManagerVoid{}, err
+		}
+		ver, err := strconv.Atoi(verStr)
+		if err != nil {
+			return ManagerVoid{}, err
+		}
+
+		useDnf := true
+		switch dis {
+		case CentOS:
+			if ver < 8 {
+				useDnf = false
+			}
+		case Fedora:
+			if ver < 22 {
+				useDnf = false
+			}
+		}
+
+		if useDnf {
+			return NewManagerDnf(), nil
+		}
+		return NewManagerYum(), nil
 
 	default:
 		panic("unimplemented")
@@ -208,31 +231,56 @@ func newPkgFromDistro(dis Distro) []Manager {
 // execPackage is a list of package managers executables.
 var execPackage = [...]string{
 	// Linux
-	filepath.Base(Deb.ExecPath()),
-	filepath.Base(Dnf.ExecPath()),
-	filepath.Base(Yum.ExecPath()),
-	filepath.Base(Zypp.ExecPath()),
-	filepath.Base(Pacman.ExecPath()),
-	filepath.Base(Ebuild.ExecPath()),
-	//filepath.Base(Rpm.ExecPath()),
+	fileDeb,
+	fileDnf,
+	fileYum,
+	fileZypp,
+	filePacman,
+	fileEbuild,
+	fileRpm,
 
 	// BSD
-	filepath.Base(Brew.ExecPath()),
-	filepath.Base(Pkg.ExecPath()),
+	fileBrew,
+	filePkg,
 }
 
-// Detect tries to get the package system used in the system, looking for
-// executables in directories "/usr/bin" and "/usr/local/bin".
-func Detect() (PackageType, error) {
-	for _, p := range []string{"/usr/bin/", "/usr/local/bin/"} {
-		for k, v := range execPackage {
-			_, err := exec.LookPath(p + v)
-			if err == nil {
-				return PackageType(k), nil
+// DetectPkgManager tries to get the package manager used in the system, looking for
+// executables at directories in $PATH.
+func DetectPkgManager() (PkgManager, error) {
+	for _, p := range execPackage {
+		pathExec, err := exec.LookPath(p)
+		if err == nil {
+			pkg, err := NewPkgTypeFromstr(p)
+			if err != nil {
+				return ManagerVoid{}, err
 			}
+			mng := NewPkgManagerFromType(pkg)
+
+			if mng.ExecPath() != pathExec {
+				mng.setExecPath(pathExec)
+			}
+
+			return mng, nil
 		}
 	}
-	return -1, fmt.Errorf(
-		"package manager not found in directories '/usr/bin' neither '/usr/local/bin'",
+
+	return ManagerVoid{}, fmt.Errorf("package manager not found in $PATH")
+}
+
+// == Errors
+
+type pkgMngNotfoundError struct {
+	Distro
+}
+
+func (e pkgMngNotfoundError) Error() string {
+	return fmt.Sprintf(
+		"package manager not found at Linux distro %s", e.Distro.String(),
 	)
+}
+
+type pkgTypeError string
+
+func (e pkgTypeError) Error() string {
+	return "invalid package type: " + string(e)
 }

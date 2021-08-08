@@ -7,6 +7,7 @@
 package osutil
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/tredoe/osutil/config/shconf"
@@ -66,22 +67,39 @@ var idToDistro = map[string]Distro{
 
 // DetectDistro returns the Linux distribution.
 func DetectDistro() (Distro, error) {
-	var id string
-	var err error
-
-	if _, err = os.Stat("/etc/os-release"); !os.IsNotExist(err) {
-		cfg, err := shconf.ParseFile("/etc/os-release")
-		if err != nil {
-			return 0, err
-		}
-		if id, err = cfg.Get("ID"); err != nil {
-			return 0, err
-		}
-
-		if v, found := idToDistro[id]; found {
-			return v, nil
-		}
+	_, err := os.Stat("/etc/os-release")
+	if os.IsNotExist(err) {
+		return DistroUnknown, nil
+	}
+	cfg, err := shconf.ParseFile("/etc/os-release")
+	if err != nil {
+		return 0, err
+	}
+	id, err := cfg.Get("ID")
+	if err != nil {
+		return 0, err
 	}
 
+	if v, found := idToDistro[id]; found {
+		return v, nil
+	}
 	return DistroUnknown, nil
+}
+
+// DetectDistroVer returns the Linux distro version.
+func DetectDistroVer() (string, error) {
+	_, err := os.Stat("/etc/os-release")
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("%s", DistroUnknown)
+	}
+	cfg, err := shconf.ParseFile("/etc/os-release")
+	if err != nil {
+		return "", err
+	}
+	ver, err := cfg.Get("VERSION_ID")
+	if err != nil {
+		return "", err
+	}
+
+	return ver, nil
 }

@@ -10,14 +10,26 @@ package osutil
 
 import "github.com/tredoe/osutil/executil"
 
-const pathPacman = "/usr/bin/pacman"
+const (
+	filePacman = "pacman"
+	pathPacman = "/usr/bin/pacman"
+)
 
 // ManagerPacman is the interface to handle the package manager of Linux systems based at Arch.
-type ManagerPacman struct{}
-
-func (m ManagerPacman) ExecPath() string {
-	return pathPacman
+type ManagerPacman struct {
+	pathExec string
 }
+
+// NewManagerPacman returns the Pacman package manager.
+func NewManagerPacman() ManagerPacman {
+	return ManagerPacman{pathExec: pathPacman}
+}
+
+func (m ManagerPacman) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerPacman) ExecPath() string { return m.pathExec }
+
+func (m ManagerPacman) PackageType() string { return Pacman.String() }
 
 func (m ManagerPacman) Install(name ...string) error {
 	args := []string{"-S", "--needed", "--noprogressbar"}

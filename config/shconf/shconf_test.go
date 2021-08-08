@@ -10,7 +10,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -34,30 +33,19 @@ type conf struct {
 }
 
 func TestParseFile(t *testing.T) {
-	// == Create temporary file
-	file, _ := os.CreateTemp("", "test")
+	testParseFile('=', t)
+	//testParseFile(':', t)
+}
 
-	buf := bufio.NewWriter(file)
-	buf.WriteString("# main comment\n\n")
-	buf.WriteString(fmt.Sprintf("%s=%s\n", testdata[0].k, testdata[0].v))
-	buf.WriteString(fmt.Sprintf("%s=%s\n\n", testdata[1].k, testdata[1].v))
-	buf.WriteString(fmt.Sprintf("%s=%s\n\n", testdata[2].k, testdata[2].v))
-	buf.WriteString("# Another comment\n")
-	buf.WriteString(fmt.Sprintf("%s=%s\n", testdata[3].k, testdata[3].v))
-	buf.WriteString(fmt.Sprintf("%s=%s\n", testdata[4].k, testdata[4].v))
-	buf.Flush()
-	file.Close()
-
+func testParseFile(separator_ rune, t *testing.T) {
+	// Create temporary file
+	fname, err := createTempFile(separator_)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer func() {
-		files, err := filepath.Glob(file.Name() + "*")
-		if err != nil {
+		if err = os.Remove(fname); err != nil {
 			t.Error(err)
-			return
-		}
-		for _, v := range files {
-			if err = os.Remove(v); err != nil {
-				t.Error(err)
-			}
 		}
 	}()
 
@@ -65,7 +53,7 @@ func TestParseFile(t *testing.T) {
 	conf_ok := &conf{}
 	conf_bad := conf{}
 
-	cfg, err := ParseFile(file.Name())
+	cfg, err := ParseFile(fname)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -118,4 +106,27 @@ func TestParseFile(t *testing.T) {
 	if testing.Verbose() {
 		cfg.Print()
 	}
+}
+
+// * * *
+
+// createTempFile creates a temporary file.
+func createTempFile(separator rune) (fname string, err error) {
+	file, err := os.CreateTemp("", "test")
+	if err != nil {
+		return "", err
+	}
+
+	buf := bufio.NewWriter(file)
+	buf.WriteString("# main comment\n\n")
+	buf.WriteString(fmt.Sprintf("%s%c%s\n", testdata[0].k, separator, testdata[0].v))
+	buf.WriteString(fmt.Sprintf("%s%c%s\n\n", testdata[1].k, separator, testdata[1].v))
+	buf.WriteString(fmt.Sprintf("%s%c%s\n\n", testdata[2].k, separator, testdata[2].v))
+	buf.WriteString("# Another comment\n")
+	buf.WriteString(fmt.Sprintf("%s%c%s\n", testdata[3].k, separator, testdata[3].v))
+	buf.WriteString(fmt.Sprintf("%s%c%s\n", testdata[4].k, separator, testdata[4].v))
+	buf.Flush()
+	file.Close()
+
+	return file.Name(), nil
 }

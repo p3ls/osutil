@@ -19,9 +19,21 @@ var (
 // ErrProcKilled reports an error by a process killed.
 var ErrProcKilled = errors.New("the process hasn't exited or was terminated by a signal")
 
-// errorFromStderr returns the standard error like a Go error.
-func errorFromStderr(e []byte) error {
-	return fmt.Errorf("\n[stderr]\n%s", e)
+// errFromStderr returns the standard error like a Go error.
+func errFromStderr(e []byte) error {
+	return fmt.Errorf("[stderr]\n%s", e)
+}
+
+// CheckStderr returns an error whether 'stderr' is not empty or there is any error.
+func CheckStderr(stderr []byte, err error) error {
+	if stderr != nil {
+		return errFromStderr(stderr)
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // * * *

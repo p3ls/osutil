@@ -8,10 +8,10 @@ package osutil
 
 import "testing"
 
-func TestDetect(t *testing.T) {
+func TestDetectDistro(t *testing.T) {
 	if distro, err := DetectDistro(); err != nil {
 		t.Fatal(err)
 	} else {
-		t.Log(distro)
+		t.Logf("Linux distribution: %s", distro)
 	}
 }

@@ -11,14 +11,26 @@ package osutil
 
 import "github.com/tredoe/osutil/executil"
 
-const pathBrew = "/usr/local/bin/brew"
+const (
+	fileBrew = "brew"
+	pathBrew = "/usr/local/bin/brew"
+)
 
 // ManagerBrew is the interface to handle the macOS package manager.
-type ManagerBrew struct{}
-
-func (m ManagerBrew) ExecPath() string {
-	return pathBrew
+type ManagerBrew struct {
+	pathExec string
 }
+
+// NewManagerBrew returns the Homebrew package manager.
+func NewManagerBrew() ManagerBrew {
+	return ManagerBrew{pathExec: pathBrew}
+}
+
+func (m ManagerBrew) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerBrew) ExecPath() string { return m.pathExec }
+
+func (m ManagerBrew) PackageType() string { return Brew.String() }
 
 func (m ManagerBrew) Install(name ...string) error {
 	args := []string{"install", "-y"}

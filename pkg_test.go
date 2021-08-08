@@ -6,38 +6,41 @@
 
 package osutil
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestPackager(t *testing.T) {
-	pkg, err := Detect()
+	pkg, err := DetectPkgManager()
 	if err != nil {
 		t.Fatal(err)
 	}
-	pack := NewPkgFromType(pkg)
-	cmd := "mtr-tiny"
+
+	t.Logf("Package type: %s", pkg.PackageType())
 
 	if !testing.Verbose() {
 		return
 	}
+	//cmd := "mtr-tiny"
 
-	/*if err = pack.Update(); err != nil {
+	/*if err = pkg.Update(); err != nil {
 		t.Fatal(err)
 	}
-	if err = pack.Upgrade(); err != nil {
+	if err = pkg.Upgrade(); err != nil {
 		t.Fatal(err)
 	}*/
 
-	if err = pack.Install(cmd); err != nil {
+	/*if err = pkg.Install(cmd); err != nil {
 		t.Errorf("\n%s", err)
 	}
-	if err = pack.Remove(cmd); err != nil {
+	if err = pkg.Remove(cmd); err != nil {
 		t.Errorf("\n%s", err)
 	}
-	if err = pack.Purge(cmd); err != nil {
+	if err = pkg.Purge(cmd); err != nil {
 		t.Errorf("\n%s", err)
 	}
 
-	if err = pack.Clean(); err != nil {
+	if err = pkg.Clean(); err != nil {
 		t.Errorf("\n%s", err)
-	}
+	}*/
 }

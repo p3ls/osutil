@@ -10,14 +10,26 @@ package osutil
 
 import "github.com/tredoe/osutil/executil"
 
-const pathEbuild = "/usr/bin/emerge"
+const (
+	fileEbuild = "emerge"
+	pathEbuild = "/usr/bin/emerge"
+)
 
 // ManagerEbuild is the interface to handle the package manager of Linux systems based at Gentoo.
-type ManagerEbuild struct{}
-
-func (m ManagerEbuild) ExecPath() string {
-	return pathEbuild
+type ManagerEbuild struct {
+	pathExec string
 }
+
+// NewManagerEbuild returns the Ebuild package manager.
+func NewManagerEbuild() ManagerEbuild {
+	return ManagerEbuild{pathExec: pathEbuild}
+}
+
+func (m ManagerEbuild) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerEbuild) ExecPath() string { return m.pathExec }
+
+func (m ManagerEbuild) PackageType() string { return Ebuild.String() }
 
 func (m ManagerEbuild) Install(name ...string) error {
 	return executil.RunToStd(nil, pathEbuild, name...)
