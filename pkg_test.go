@@ -19,7 +19,7 @@ func TestPackager(t *testing.T) {
 	internal.LogShell.SetFlags(0)
 	internal.LogShell.SetPrefix("cmd: ")
 
-	mng, err := DetectPkgManager()
+	mng, err := DetectPkgManag()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,7 +29,7 @@ func TestPackager(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if mng, err = NewPkgManagerFromSystem(sys, dis); err != nil {
+	if mng, err = NewPkgManagFromSystem(sys, dis); err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("Package type to use: %s", mng.PackageType())

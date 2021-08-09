@@ -90,8 +90,8 @@ func (pkg PackageType) String() string {
 	panic("unreachable")
 }
 
-// NewPkgTypeFromstr returns a package management system from the string.
-func NewPkgTypeFromstr(s string) (PackageType, error) {
+// NewPkgTypeFromStr returns a package management system from the string.
+func NewPkgTypeFromStr(s string) (PackageType, error) {
 	switch strings.ToLower(s) {
 	case fileDeb:
 		return Deb, nil
@@ -120,8 +120,8 @@ func NewPkgTypeFromstr(s string) (PackageType, error) {
 
 // * * *
 
-// NewPkgManagerFromType returns the interface to handle the package manager.
-func NewPkgManagerFromType(pkg PackageType) PkgManager {
+// NewPkgManagFromType returns the interface to handle the package manager.
+func NewPkgManagFromType(pkg PackageType) PkgManager {
 	switch pkg {
 	// Linux
 	case Deb:
@@ -150,12 +150,12 @@ func NewPkgManagerFromType(pkg PackageType) PkgManager {
 
 // * * *
 
-// NewPkgManagerFromSystem returns the package manager used by a system.
-func NewPkgManagerFromSystem(sys System, dis Distro) (PkgManager, error) {
+// NewPkgManagFromSystem returns the package manager used by a system.
+func NewPkgManagFromSystem(sys System, dis Distro) (PkgManager, error) {
 	switch sys {
 	case Linux:
-		return newPkgManagerFromDistro(dis)
-		/*pkg, err := newPkgManagerFromDistro(dis)
+		return NewPkgManagFromDistro(dis)
+		/*pkg, err := NewPkgManagFromDistro(dis)
 		if err != nil {
 			return ManagerVoid{}, err
 		}
@@ -169,7 +169,7 @@ func NewPkgManagerFromSystem(sys System, dis Distro) (PkgManager, error) {
 				return v, nil
 			}
 		}
-		return ManagerVoid{}, pkgMngNotfoundError{dis}*/
+		return ManagerVoid{}, pkgManagNotfoundError{dis}*/
 
 	case MacOS:
 		return NewManagerBrew(), nil
@@ -181,8 +181,8 @@ func NewPkgManagerFromSystem(sys System, dis Distro) (PkgManager, error) {
 	}
 }
 
-// newPkgManagerFromDistro returns the package manager used by a Linux distro.
-func newPkgManagerFromDistro(dis Distro) (PkgManager, error) {
+// NewPkgManagFromDistro returns the package manager used by a Linux distro.
+func NewPkgManagFromDistro(dis Distro) (PkgManager, error) {
 	switch dis {
 	case Debian, Ubuntu:
 		return NewManagerDeb(), nil
@@ -244,17 +244,17 @@ var execPackage = [...]string{
 	filePkg,
 }
 
-// DetectPkgManager tries to get the package manager used in the system, looking for
+// DetectPkgManag tries to get the package manager used in the system, looking for
 // executables at directories in $PATH.
-func DetectPkgManager() (PkgManager, error) {
+func DetectPkgManag() (PkgManager, error) {
 	for _, p := range execPackage {
 		pathExec, err := exec.LookPath(p)
 		if err == nil {
-			pkg, err := NewPkgTypeFromstr(p)
+			pkg, err := NewPkgTypeFromStr(p)
 			if err != nil {
 				return ManagerVoid{}, err
 			}
-			mng := NewPkgManagerFromType(pkg)
+			mng := NewPkgManagFromType(pkg)
 
 			if mng.ExecPath() != pathExec {
 				mng.setExecPath(pathExec)
@@ -269,11 +269,11 @@ func DetectPkgManager() (PkgManager, error) {
 
 // == Errors
 
-type pkgMngNotfoundError struct {
+type pkgManagNotfoundError struct {
 	Distro
 }
 
-func (e pkgMngNotfoundError) Error() string {
+func (e pkgManagNotfoundError) Error() string {
 	return fmt.Sprintf(
 		"package manager not found at Linux distro %s", e.Distro.String(),
 	)
