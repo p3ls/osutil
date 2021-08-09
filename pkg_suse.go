@@ -31,7 +31,9 @@ func (m ManagerZypp) ExecPath() string { return m.pathExec }
 func (m ManagerZypp) PackageType() string { return Zypp.String() }
 
 func (m ManagerZypp) Install(name ...string) error {
-	args := []string{pathZypp, "install", "--auto-agree-with-licenses", "-y"}
+	args := []string{
+		pathZypp, "install", "--non-interactive", "--auto-agree-with-licenses", "-y",
+	}
 
 	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }

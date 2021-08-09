@@ -37,7 +37,10 @@ func (m ManagerDeb) PackageType() string { return Deb.String() }
 func (m ManagerDeb) Install(name ...string) error {
 	args := []string{pathDeb, "install", "-y"}
 
-	return executil.RunToStd(nil, sudo, append(args, name...)...)
+	return executil.RunToStd(
+		[]string{"DEBIAN_FRONTEND=noninteractive"},
+		sudo, append(args, name...)...,
+	)
 }
 
 func (m ManagerDeb) Remove(name ...string) error {
