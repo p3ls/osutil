@@ -12,7 +12,7 @@ import "github.com/tredoe/osutil/executil"
 
 const (
 	filePkg = "pkg"
-	pathPkg = "/usr/bin/pkg"
+	pathPkg = "/usr/sbin/pkg"
 )
 
 // ManagerPkg is the interface to handle the FreeBSD package manager,
@@ -45,9 +45,7 @@ func (m ManagerPkg) Remove(name ...string) error {
 }
 
 func (m ManagerPkg) Purge(name ...string) error {
-	args := []string{pathPkg, "purge", "-y"}
-
-	return executil.RunToStd(nil, sudo, append(args, name...)...)
+	return m.Remove(name...)
 }
 
 func (m ManagerPkg) Update() error {
@@ -55,12 +53,12 @@ func (m ManagerPkg) Update() error {
 }
 
 func (m ManagerPkg) Upgrade() error {
-	return executil.RunToStd(nil, sudo, pathPkg, "upgrade")
+	return executil.RunToStd(nil, sudo, pathPkg, "upgrade", "-y")
 }
 
 func (m ManagerPkg) Clean() error {
-	if err := executil.RunToStd(nil, sudo, pathPkg, "autoremove"); err != nil {
+	if err := executil.RunToStd(nil, sudo, pathPkg, "autoremove", "-y"); err != nil {
 		return err
 	}
-	return executil.RunToStd(nil, sudo, pathPkg, "clean")
+	return executil.RunToStd(nil, sudo, pathPkg, "clean", "-y")
 }

@@ -6,7 +6,9 @@
 
 package osutil
 
-import "github.com/tredoe/osutil/executil"
+import (
+	"github.com/tredoe/osutil/executil"
+)
 
 const (
 	fileDnf = "dnf" // Preferable to YUM
@@ -38,15 +40,15 @@ func (m ManagerDnf) ExecPath() string { return m.pathExec }
 func (m ManagerDnf) PackageType() string { return Dnf.String() }
 
 func (m ManagerDnf) Install(name ...string) error {
-	args := []string{"install"}
+	args := []string{pathDnf, "install", "-y"}
 
-	return executil.RunToStd(nil, pathDnf, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (m ManagerDnf) Remove(name ...string) error {
-	args := []string{"remove"}
+	args := []string{pathDnf, "remove", "-y"}
 
-	return executil.RunToStd(nil, pathDnf, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (m ManagerDnf) Purge(name ...string) error {
@@ -54,18 +56,29 @@ func (m ManagerDnf) Purge(name ...string) error {
 }
 
 func (m ManagerDnf) Update() error {
-	return executil.RunToStd(nil, pathDnf, "check-update")
+	// check-update does not update else it checks the updating.
+	return nil
+
+	// check-update returns exit value of 100 if there are packages available for an update.
+	// Also returns a list of the packages to be updated in list format.
+	// Returns 0 if no packages are available for update.
+	// Returns 1 if an error occurred.
+	/*err := executil.RunToStd(nil, sudo, pathDnf, "check-update")
+	if err != nil {
+		// Check the exit code
+	}
+	return err*/
 }
 
 func (m ManagerDnf) Upgrade() error {
-	return executil.RunToStd(nil, pathDnf, "update")
+	return executil.RunToStd(nil, sudo, pathDnf, "update", "-y")
 }
 
 func (m ManagerDnf) Clean() error {
-	if err := executil.RunToStd(nil, pathDnf, "autoremove"); err != nil {
+	if err := executil.RunToStd(nil, sudo, pathDnf, "autoremove"); err != nil {
 		return err
 	}
-	return executil.RunToStd(nil, pathDnf, "clean", "all")
+	return executil.RunToStd(nil, sudo, pathDnf, "clean", "all")
 }
 
 // * * *
@@ -88,15 +101,15 @@ func (m ManagerYum) ExecPath() string { return m.pathExec }
 func (m ManagerYum) PackageType() string { return Yum.String() }
 
 func (m ManagerYum) Install(name ...string) error {
-	args := []string{"install", "-y"}
+	args := []string{pathYum, "install", "-y"}
 
-	return executil.RunToStd(nil, pathYum, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (m ManagerYum) Remove(name ...string) error {
-	args := []string{"remove", "-y"}
+	args := []string{pathYum, "remove", "-y"}
 
-	return executil.RunToStd(nil, pathYum, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (m ManagerYum) Purge(name ...string) error {
@@ -104,15 +117,15 @@ func (m ManagerYum) Purge(name ...string) error {
 }
 
 func (m ManagerYum) Update() error {
-	return executil.RunToStd(nil, pathYum, "check-update")
+	return executil.RunToStd(nil, sudo, pathYum, "check-update")
 }
 
 func (m ManagerYum) Upgrade() error {
-	return executil.RunToStd(nil, pathYum, "update")
+	return executil.RunToStd(nil, sudo, pathYum, "update")
 }
 
 func (m ManagerYum) Clean() error {
-	return executil.RunToStd(nil, pathYum, "clean", "packages")
+	return executil.RunToStd(nil, sudo, pathYum, "clean", "packages")
 }
 
 // * * *

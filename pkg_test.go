@@ -7,40 +7,76 @@
 package osutil
 
 import (
+	"fmt"
+	"os"
 	"testing"
+
+	"github.com/tredoe/osutil/internal"
 )
 
 func TestPackager(t *testing.T) {
-	pkg, err := DetectPkgManager()
+	internal.LogShell.SetOutput(os.Stdout)
+	internal.LogShell.SetFlags(0)
+	internal.LogShell.SetPrefix("cmd: ")
+
+	mng, err := DetectPkgManager()
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("Package type detected: %s", mng.PackageType())
 
-	t.Logf("Package type: %s", pkg.PackageType())
+	sys, dis, err := SystemFromGOOS()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if mng, err = NewPkgManagerFromSystem(sys, dis); err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("Package type to use: %s", mng.PackageType())
 
 	if !testing.Verbose() {
 		return
 	}
-	//cmd := "mtr-tiny"
+	//testUpdate(mng, t)
+	//testInstall(mng, t)
+}
 
-	/*if err = pkg.Update(); err != nil {
+func testUpdate(mng PkgManager, t *testing.T) {
+	var err error
+
+	fmt.Printf("\n+ Update\n")
+	if err = mng.Update(); err != nil {
 		t.Fatal(err)
 	}
-	if err = pkg.Upgrade(); err != nil {
+	fmt.Printf("\n+ Upgrade\n")
+	if err = mng.Upgrade(); err != nil {
 		t.Fatal(err)
-	}*/
+	}
+}
 
-	/*if err = pkg.Install(cmd); err != nil {
+func testInstall(mng PkgManager, t *testing.T) {
+	var err error
+	pkg := "nano" // vim
+
+	fmt.Printf("\n+ Remove\n")
+	if err = mng.Remove(pkg); err != nil {
 		t.Errorf("\n%s", err)
 	}
-	if err = pkg.Remove(cmd); err != nil {
+	fmt.Printf("\n+ Install\n")
+	if err = mng.Install(pkg); err != nil {
 		t.Errorf("\n%s", err)
 	}
-	if err = pkg.Purge(cmd); err != nil {
+	fmt.Printf("\n+ Purge\n")
+	if err = mng.Purge(pkg); err != nil {
+		t.Errorf("\n%s", err)
+	}
+	fmt.Printf("\n+ Install\n")
+	if err = mng.Install(pkg); err != nil {
 		t.Errorf("\n%s", err)
 	}
 
-	if err = pkg.Clean(); err != nil {
+	fmt.Printf("\n+ Clean\n")
+	if err = mng.Clean(); err != nil {
 		t.Errorf("\n%s", err)
-	}*/
+	}
 }

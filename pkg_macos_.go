@@ -33,13 +33,13 @@ func (m ManagerBrew) ExecPath() string { return m.pathExec }
 func (m ManagerBrew) PackageType() string { return Brew.String() }
 
 func (m ManagerBrew) Install(name ...string) error {
-	args := []string{"install", "-y"}
+	args := []string{"install"}
 
 	return executil.RunToStd(nil, pathBrew, append(args, name...)...)
 }
 
 func (m ManagerBrew) Remove(name ...string) error {
-	args := []string{"uninstall", "-y"}
+	args := []string{"uninstall"}
 
 	return executil.RunToStd(nil, pathBrew, append(args, name...)...)
 }
@@ -56,9 +56,12 @@ func (m ManagerBrew) Upgrade() error {
 	return executil.RunToStd(nil, pathBrew, "upgrade")
 }
 
+var msgWarning = []byte("Warning:")
+
 func (m ManagerBrew) Clean() error {
 	if err := executil.RunToStd(nil, pathBrew, "autoremove"); err != nil {
 		return err
 	}
-	return executil.RunToStd(nil, pathBrew, "cleanup")
+
+	return executil.RunToStdButErr(msgWarning, nil, pathBrew, "cleanup")
 }

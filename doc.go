@@ -8,5 +8,11 @@
 Package osutil defines operating systems and detects the Linux distribution.
 Also, it handles basic operations in the management of packages in
 FreeBSD, Linux and macOs operating systems.
+
+NOTE: Package management systems untested:
+
+ + Packman (Arch)
+ + ebuild  (Gentoo)
+ + RPM     (CentOS)
 */
 package osutil

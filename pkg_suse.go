@@ -31,15 +31,15 @@ func (m ManagerZypp) ExecPath() string { return m.pathExec }
 func (m ManagerZypp) PackageType() string { return Zypp.String() }
 
 func (m ManagerZypp) Install(name ...string) error {
-	args := []string{"install", "--auto-agree-with-licenses"}
+	args := []string{pathZypp, "install", "--auto-agree-with-licenses", "-y"}
 
-	return executil.RunToStd(nil, pathZypp, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (m ManagerZypp) Remove(name ...string) error {
-	args := []string{"remove"}
+	args := []string{pathZypp, "remove", "-y"}
 
-	return executil.RunToStd(nil, pathZypp, append(args, name...)...)
+	return executil.RunToStd(nil, sudo, append(args, name...)...)
 }
 
 func (m ManagerZypp) Purge(name ...string) error {
@@ -47,13 +47,13 @@ func (m ManagerZypp) Purge(name ...string) error {
 }
 
 func (m ManagerZypp) Update() error {
-	return executil.RunToStd(nil, pathZypp, "refresh")
+	return executil.RunToStd(nil, sudo, pathZypp, "refresh")
 }
 
 func (m ManagerZypp) Upgrade() error {
-	return executil.RunToStd(nil, pathZypp, "up", "--auto-agree-with-licenses")
+	return executil.RunToStd(nil, sudo, pathZypp, "up", "--auto-agree-with-licenses", "-y")
 }
 
 func (m ManagerZypp) Clean() error {
-	return executil.RunToStd(nil, pathZypp, "clean")
+	return executil.RunToStd(nil, sudo, pathZypp, "clean")
 }

@@ -32,7 +32,7 @@ type PkgManager interface {
 	// Remove removes packages.
 	Remove(name ...string) error
 
-	// Purge removes packages and its configuration files.
+	// Purge removes packages and its configuration files (if the package system does it).
 	Purge(name ...string) error
 
 	// Update resynchronizes the package index files from their sources.
