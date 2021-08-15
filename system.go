@@ -82,22 +82,28 @@ var (
 func DetectSystemVer(sys System) (string, error) {
 	switch sys {
 	case Linux:
-		return DetectDistroVer()
+		ver, _, err := DetectDistroVer()
+
+		return ver, err
 	case MacOS:
 		// /usr/bin/sw_vers
-		stdout, stderr, err := executil.Run("sw_vers", "-productVersion")
+		stdout, stderr, err := executil.NewCommand("sw_vers", "-productVersion").
+			OutputCombined()
+
 		if err = executil.CheckStderr(stderr, err); err != nil {
 			return "", err
 		}
-
 		return string(bytes.TrimSpace(stdout)), nil
 	case FreeBSD:
 		// The freebsd-version command appeared in FreeBSD 10.0 and above.
-		stdout, _, err := executil.Run("freebsd-version", "-k")
+		stdout, err := executil.NewCommand("freebsd-version", "-k").
+			OutputStdout()
 		if err != nil {
 			var stderr []byte
 
-			stdout, stderr, err = executil.Run("uname", "-r")
+			stdout, stderr, err = executil.NewCommand("uname", "-r").
+				OutputCombined()
+
 			if err = executil.CheckStderr(stderr, err); err != nil {
 				return "", err
 			}
@@ -105,7 +111,8 @@ func DetectSystemVer(sys System) (string, error) {
 
 		return string(bytes.TrimSpace(stdout)), nil
 	case Windows:
-		stdout, stderr, err := executil.Run("systeminfo")
+		stdout, stderr, err := executil.NewCommand("systeminfo").
+			OutputCombined()
 		if err = executil.CheckStderr(stderr, err); err != nil {
 			return "", err
 		}

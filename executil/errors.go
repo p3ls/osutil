@@ -26,11 +26,11 @@ func errFromStderr(e []byte) error {
 
 // CheckStderr returns an error whether 'stderr' is not empty or there is any error.
 func CheckStderr(stderr []byte, err error) error {
-	if stderr != nil {
-		return errFromStderr(stderr)
-	}
 	if err != nil {
 		return err
+	}
+	if stderr != nil {
+		return errFromStderr(stderr)
 	}
 
 	return nil

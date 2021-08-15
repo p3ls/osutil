@@ -17,7 +17,7 @@ import (
 func TestPackager(t *testing.T) {
 	internal.LogShell.SetOutput(os.Stdout)
 	internal.LogShell.SetFlags(0)
-	internal.LogShell.SetPrefix("cmd: ")
+	internal.LogShell.SetPrefix("  >> ")
 
 	mng, err := DetectPkgManag()
 	if err != nil {
@@ -34,11 +34,15 @@ func TestPackager(t *testing.T) {
 	}
 	t.Logf("Package type to use: %s", mng.PackageType())
 
+	if err = mng.Install("foo"); err == nil {
+		t.Errorf("\n%v", err)
+	}
+
 	if !testing.Verbose() {
 		return
 	}
-	//testUpdate(mng, t)
-	//testInstall(mng, t)
+	testUpdate(mng, t)
+	testInstall(mng, t)
 }
 
 func testUpdate(mng PkgManager, t *testing.T) {

@@ -11,7 +11,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -22,224 +21,327 @@ import (
 	"github.com/tredoe/osutil/internal"
 )
 
-// Run executes a command. Returns both standard output and error.
-func Run(cmd string, args ...string) (stdout, stderr []byte, err error) {
-	return RunWithTime(0, cmd, args...)
+// Command represents a command to execute.
+type Command struct {
+	cmd  string
+	args []string
+	env  []string
+
+	stdout     io.Writer
+	stderr     io.Writer
+	saveStdout bool
+	saveStderr bool
+	bufStdout  []byte
+	bufStderr  []byte
+
+	exitCode     int
+	badExitCodes []int
+
+	ctx        context.Context
+	cancelFunc context.CancelFunc
 }
 
-// RunWithTime executes a command waiting to finish the command before of kill it ('timeKillCmd'),
-// or waits without kill it when the duration is lesser or equal to zero).
-// Logs the command and returns both standard output and error.
-func RunWithTime(timeKillCmd time.Duration, cmd string, args ...string,
-) (stdout, stderr []byte, err error) {
-	internal.LogShell.Printf("%s %s", cmd, strings.Join(args, " "))
-
-	var outPipe, errPipe io.ReadCloser
-	var ctx context.Context
-	var cancel context.CancelFunc
-
-	if timeKillCmd > 0 {
-		ctx, cancel = context.WithTimeout(context.Background(), timeKillCmd)
-		defer cancel()
-	} else {
-		ctx = context.Background()
+// NewCommand sets the basic arguments to execute a command.
+func NewCommand(cmd string, args ...string) *Command {
+	return &Command{
+		cmd:      cmd,
+		args:     args,
+		exitCode: -1,
 	}
+}
 
-	c := exec.CommandContext(ctx, cmd, args...)
+// Command sets the arguments to run other command.
+func (c *Command) Command(cmd string, args ...string) *Command {
+	return &Command{
+		cmd:  cmd,
+		args: args,
+		env:  c.env,
 
-	// Using 'bytes.Buffer' to get stdout and stderr gives error:
-	// https://github.com/golang/go/issues/23019
-	//
-	// var bufOut, bufStderr bytes.Buffer
-	//c.Stdout = &bufOut
-	//c.Stderr = &bufStderr
+		stdout: c.stdout,
+		stderr: c.stderr,
 
-	if outPipe, err = c.StdoutPipe(); err != nil {
+		exitCode:     -1,
+		badExitCodes: c.badExitCodes,
+
+		ctx:        c.ctx,
+		cancelFunc: c.cancelFunc,
+	}
+}
+
+// TimeTokillCmd sets the time of waiting to finish the command before of kill it.
+func (c *Command) TimeTokillCmd(tm time.Duration) *Command {
+	c.ctx, c.cancelFunc = context.WithTimeout(context.Background(), tm)
+	return c
+}
+
+// BadExitCodes sets the exit codes with errors for the command.
+func (c *Command) BadExitCodes(codes []int) *Command {
+	c.badExitCodes = codes
+	return c
+}
+
+// TODO: remove
+func (c *Command) GetEnv() []string {
+	return c.env
+}
+
+// Env sets the environment variables.
+func (c *Command) Env(e []string) *Command {
+	c.env = e
+	return c
+}
+
+// AddEnv adds environment variables.
+func (c *Command) AddEnv(e []string) *Command {
+	c.env = append(c.env, e...)
+	return c
+}
+
+// Stdout sets the standard out.
+func (c *Command) Stdout(out io.Writer) *Command {
+	c.stdout = out
+	return c
+}
+
+// Stderr sets the standard error.
+func (c *Command) Stderr(err io.Writer) *Command {
+	c.stderr = err
+	return c
+}
+
+// * * *
+
+// ExitCode returns the exit status code which is returned after of call to Run().
+func (c *Command) ExitCode() int { return c.exitCode }
+
+// OutputStdout runs the command and returns the standard output.
+func (c *Command) OutputStdout() (stdout []byte, err error) {
+	c.saveStdout = true
+
+	if _, err = c.Run(); err != nil {
 		return
 	}
-	if errPipe, err = c.StderrPipe(); err != nil {
-		return
-	}
-	if err = c.Start(); err != nil {
-		goto _checkErr
-	}
-
-	// Std out
-	go func() {
-		var bufOut bytes.Buffer
-		buf := bufio.NewReader(outPipe)
-		for {
-			line, err2 := buf.ReadBytes('\n')
-			if len(line) > 0 {
-				bufOut.Write(line)
-			}
-			if err2 != nil {
-				stdout = bufOut.Bytes()
-				if err2 != io.EOF && !errors.Is(err2, os.ErrClosed) && err == nil {
-					err = err2
-				}
-
-				return
-			}
-		}
-	}()
-	// Std error
-	go func() {
-		var bufStderr bytes.Buffer
-		buf := bufio.NewReader(errPipe)
-		for {
-			line, err2 := buf.ReadBytes('\n')
-			if len(line) > 0 {
-				bufStderr.Write(line)
-			}
-			if err2 != nil {
-				stderr = bufStderr.Bytes()
-				if err2 != io.EOF && !errors.Is(err2, os.ErrClosed) && err == nil {
-					err = err2
-				}
-
-				return
-			}
-		}
-	}()
-
-	if err = c.Wait(); err == nil {
-		return
-	}
-
-_checkErr:
-	switch errType := err.(type) {
-	case *exec.ExitError:
-		exitCode := errType.ExitCode()
-
-		if exitCode == -1 {
-			err = ErrProcKilled
-		}
-	}
+	stdout = c.bufStdout
 
 	return
 }
 
-// RunToStd executes a command setting both standard output and error.
-// Logs the command.
-func RunToStd(extraEnv []string, cmd string, args ...string) error {
-	internal.LogShell.Printf("%s %s", cmd, strings.Join(args, " "))
+// OutputStderr runs the command and returns the standard error.
+func (c *Command) OutputStderr() (stderr []byte, err error) {
+	c.saveStderr = true
 
-	c := exec.Command(cmd, args...)
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	c.Env = os.Environ()
-	c.Env = append(c.Env, "LANG=C")
-
-	if extraEnv != nil {
-		//fmt.Printf("%s", strings.Join(extraEnv, " "))
-		c.Env = append(c.Env, extraEnv...)
+	if _, err = c.Run(); err != nil {
+		return
 	}
+	stderr = c.bufStderr
 
-	if err := c.Start(); err != nil {
-		return err
-	}
-	return c.Wait()
+	return
 }
 
-// RunNoStdErr executes a command setting only standard output.
-// Logs the command.
-func RunNoStdErr(extraEnv []string, cmd string, args ...string) error {
-	internal.LogShell.Printf("%s %s", cmd, strings.Join(args, " "))
+// OutputCombined runs the command and returns both standard output and error.
+func (c *Command) OutputCombined() (stdout, stderr []byte, err error) {
+	c.saveStdout = true
+	c.saveStderr = true
 
-	c := exec.Command(cmd, args...)
-	c.Stdout = os.Stdout
-	//c.Stderr = os.Stderr
-	c.Env = os.Environ()
-	c.Env = append(c.Env, "LANG=C")
-
-	if extraEnv != nil {
-		//fmt.Printf("%s", strings.Join(extraEnv, " "))
-		c.Env = append(c.Env, extraEnv...)
+	if _, err = c.Run(); err != nil {
+		return
 	}
+	stdout = c.bufStdout
+	stderr = c.bufStderr
 
-	if err := c.Start(); err != nil {
-		return err
-	}
-	return c.Wait()
+	return
 }
 
-// RunToStdButErr executes a command setting the standard output.
-// Logs the command.
-//
-// checkStderr (if any) checks if it is found in the standard error to know whether the standard
-// error is not really an error.
-func RunToStdButErr(checkStderr []byte, extraEnv []string, cmd string, args ...string) error {
-	internal.LogShell.Printf("%s %s", cmd, strings.Join(args, " "))
+// StdoutTofile runs the command and saves the standard output into a file.
+// The full name is formed with the value of 'filename' plus "_stdout.log".
+func (c *Command) StdoutTofile(dir, filename string) error {
+	c.saveStdout = true
 
-	var bufStderr bytes.Buffer
-	c := exec.Command(cmd, args...)
-	c.Stdout = os.Stdout
-	c.Stderr = &bufStderr
-	c.Env = os.Environ()
-	c.Env = append(c.Env, "LANG=C")
-
-	if extraEnv != nil {
-		//fmt.Printf("%s", strings.Join(extraEnv, " "))
-		c.Env = append(c.Env, extraEnv...)
-	}
-
-	err := c.Start()
+	_, err := c.Run()
 	if err != nil {
 		return err
 	}
-	if err = c.Wait(); err != nil {
-		return err
-	}
 
-	stderr := bufStderr.Bytes()
-
-	if len(stderr) == 0 {
-		return nil
-	}
-	if checkStderr == nil {
-		return errFromStderr(stderr)
-	}
-
-	s := bufio.NewScanner(bytes.NewReader(stderr))
-	found := false
-	for s.Scan() {
-		line := s.Bytes()
-		if bytes.Contains(line, checkStderr) {
-			found = true
-			break
+	if c.bufStdout != nil {
+		//fmt.Println(string(c.bufStdout))
+		err = os.WriteFile(filepath.Join(dir, filename+"_stdout.log"), c.bufStdout, 0600)
+		if err != nil {
+			return err
 		}
 	}
-	if !found {
-		return errFromStderr(stderr)
-	}
 
-	fmt.Printf("%s", stderr)
 	return nil
 }
 
-// SaveCmdOut saves both standard out and error to files, and print the standard out (if any).
+// StderrTofile runs the command and saves the standard error into a file.
+// The full name is formed with the value of 'filename' plus "_stderr.log".
 // fnCheckStderr is a function to check the standard error.
-func SaveCmdOut(dir, filename string, stdout, stderr []byte, fnCheckStderr func([]byte) error,
-) (err error) {
-	if stderr != nil {
+func (c *Command) StderrTofile(dir, filename string, fnCheckStderr func([]byte) error) error {
+	c.saveStderr = true
+
+	_, err := c.Run()
+	if err != nil {
+		return err
+	}
+
+	if c.bufStderr != nil {
 		if fnCheckStderr != nil {
-			if err = fnCheckStderr(stderr); err != nil {
+			if err = fnCheckStderr(c.bufStderr); err != nil {
 				return err
 			}
 		}
-		err = os.WriteFile(filepath.Join(dir, filename+"_stderr.log"), stderr, 0600)
-		if err != nil {
-			return err
-		}
-	}
-	if stdout != nil {
-		fmt.Println(string(stdout))
-		err = os.WriteFile(filepath.Join(dir, filename+"_stdout.log"), stdout, 0600)
+		err = os.WriteFile(filepath.Join(dir, filename+"_stderr.log"), c.bufStderr, 0600)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// StdCombinedTofile runs the command and saves both standard output and error into files.
+// The full names are formed with the values of 'filename' plus "_stdout.log"
+// and 'filename' plus "_stderr.log".
+func (c *Command) StdCombinedTofile(
+	dir, filename string, fnCheckStderr func([]byte) error,
+) error {
+	c.saveStdout = true
+	c.saveStderr = true
+
+	_, err := c.Run()
+	if err != nil {
+		return err
+	}
+
+	if c.bufStderr != nil {
+		if fnCheckStderr != nil {
+			if err = fnCheckStderr(c.bufStderr); err != nil {
+				return err
+			}
+		}
+		err = os.WriteFile(filepath.Join(dir, filename+"_stderr.log"), c.bufStderr, 0600)
+		if err != nil {
+			return err
+		}
+	}
+	if c.bufStdout != nil {
+		//fmt.Println(string(c.bufStdout))
+		err = os.WriteFile(filepath.Join(dir, filename+"_stdout.log"), c.bufStdout, 0600)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Run executes the command.
+// Logs the command and the exit code.
+func (c *Command) Run() (exitCode int, err error) {
+	var cmd *exec.Cmd
+
+	if c.ctx == nil {
+		cmd = exec.Command(c.cmd, c.args...)
+	} else {
+		cmd = exec.CommandContext(c.ctx, c.cmd, c.args...)
+		defer c.cancelFunc()
+	}
+	internal.LogShell.Printf("%s", strings.Join(cmd.Args, " "))
+
+	if len(c.env) != 0 {
+		cmd.Env = c.env
+	}
+
+	var outPipe, errPipe io.ReadCloser
+
+	if c.saveStdout {
+		if outPipe, err = cmd.StdoutPipe(); err != nil {
+			return -1, err
+		}
+	} else if c.stdout != nil {
+		cmd.Stdout = c.stdout
+	}
+
+	if c.saveStderr {
+		if errPipe, err = cmd.StderrPipe(); err != nil {
+			return -1, err
+		}
+	} else if c.stderr != nil {
+		cmd.Stderr = c.stderr
+	}
+
+	if err = cmd.Start(); err != nil {
+		return -1, err
+	}
+
+	// Using 'bytes.Buffer' to get stdout and stderr gives error:
+	// https://github.com/golang/go/issues/23019
+	//
+	// var bufStdOut, bufStderr bytes.Buffer
+	//c.bufStdout = &bufStdOut
+	//c.bufStderr = &bufStderr
+
+	if c.saveStdout {
+		// Std out
+		go func() {
+			var bufOut bytes.Buffer
+			buf := bufio.NewReader(outPipe)
+			for {
+				line, err2 := buf.ReadBytes('\n')
+				if len(line) > 0 {
+					bufOut.Write(line)
+				}
+				if err2 != nil {
+					c.bufStdout = bufOut.Bytes()
+					if err2 != io.EOF && !errors.Is(err2, os.ErrClosed) && err == nil {
+						err = err2
+					}
+
+					return
+				}
+			}
+		}()
+	}
+	if c.saveStderr {
+		// Std error
+		go func() {
+			var bufStderr bytes.Buffer
+			buf := bufio.NewReader(errPipe)
+			for {
+				line, err2 := buf.ReadBytes('\n')
+				if len(line) > 0 {
+					bufStderr.Write(line)
+				}
+				if err2 != nil {
+					c.bufStderr = bufStderr.Bytes()
+					if err2 != io.EOF && !errors.Is(err2, os.ErrClosed) && err == nil {
+						err = err2
+					}
+
+					return
+				}
+			}
+		}()
+	}
+
+	err = cmd.Wait()
+	var exitErr *exec.ExitError
+
+	if errors.As(err, &exitErr) {
+		exitCode = exitErr.ExitCode()
+		internal.LogShell.Printf("Exit code: %d", exitCode)
+
+		if c.ctx != nil && exitCode == -1 {
+			return -1, ErrProcKilled
+		}
+
+		for _, v := range c.badExitCodes {
+			if v == exitCode {
+				return exitCode, err
+			}
+		}
+		c.exitCode = exitCode
+		return exitCode, nil
+	}
+	return -1, err
 }

@@ -19,11 +19,16 @@ const (
 // ManagerBrew is the interface to handle the macOS package manager.
 type ManagerBrew struct {
 	pathExec string
+	cmd      *executil.Command
 }
 
 // NewManagerBrew returns the Homebrew package manager.
 func NewManagerBrew() ManagerBrew {
-	return ManagerBrew{pathExec: pathBrew}
+	return ManagerBrew{
+		pathExec: pathBrew,
+		cmd: excmd.Command("", "").
+			BadExitCodes([]int{1}),
+	}
 }
 
 func (m ManagerBrew) setExecPath(p string) { m.pathExec = p }
@@ -35,13 +40,15 @@ func (m ManagerBrew) PackageType() string { return Brew.String() }
 func (m ManagerBrew) Install(name ...string) error {
 	args := []string{"install"}
 
-	return executil.RunToStd(nil, pathBrew, append(args, name...)...)
+	_, err := m.cmd.Command(pathBrew, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerBrew) Remove(name ...string) error {
 	args := []string{"uninstall"}
 
-	return executil.RunToStd(nil, pathBrew, append(args, name...)...)
+	_, err := m.cmd.Command(pathBrew, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerBrew) Purge(name ...string) error {
@@ -49,19 +56,25 @@ func (m ManagerBrew) Purge(name ...string) error {
 }
 
 func (m ManagerBrew) Update() error {
-	return executil.RunToStd(nil, pathBrew, "update")
+	_, err := m.cmd.Command(pathBrew, "update").Run()
+	return err
 }
 
 func (m ManagerBrew) Upgrade() error {
-	return executil.RunToStd(nil, pathBrew, "upgrade")
+	_, err := m.cmd.Command(pathBrew, "upgrade").Run()
+	return err
 }
 
-var msgWarning = []byte("Warning:")
+//var msgWarning = []byte("Warning:")
 
 func (m ManagerBrew) Clean() error {
-	if err := executil.RunToStd(nil, pathBrew, "autoremove"); err != nil {
+	_, err := m.cmd.Command(pathBrew, "autoremove").Run()
+	if err != nil {
 		return err
 	}
 
-	return executil.RunToStdButErr(msgWarning, nil, pathBrew, "cleanup")
+	// TODO: check exit code
+	//return executil.RunToStdButErr(msgWarning, nil, pathBrew, "cleanup")
+	_, err = m.cmd.Command(pathBrew, "cleanup").Run()
+	return err
 }

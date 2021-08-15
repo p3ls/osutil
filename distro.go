@@ -9,6 +9,7 @@ package osutil
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/tredoe/osutil/config/shconf"
 )
@@ -87,19 +88,24 @@ func DetectDistro() (Distro, error) {
 }
 
 // DetectDistroVer returns the Linux distro version.
-func DetectDistroVer() (string, error) {
-	_, err := os.Stat("/etc/os-release")
+// The 'verNum' is different to -1 when it can be converted to a numeric value.
+func DetectDistroVer() (verStr string, verNum float32, err error) {
+	_, err = os.Stat("/etc/os-release")
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("%s", DistroUnknown)
+		return "", -1, fmt.Errorf("%s", DistroUnknown)
 	}
 	cfg, err := shconf.ParseFile("/etc/os-release")
 	if err != nil {
-		return "", err
+		return "", -1, err
 	}
-	ver, err := cfg.Get("VERSION_ID")
+	verStr, err = cfg.Get("VERSION_ID")
 	if err != nil {
-		return "", err
+		return "", -1, err
 	}
 
-	return ver, nil
+	ver, err := strconv.ParseFloat(verStr, 32)
+	if err != nil {
+		return verStr, float32(ver), nil
+	}
+	return verStr, -1, nil
 }

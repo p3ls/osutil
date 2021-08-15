@@ -17,11 +17,17 @@ var pathZypp = "/usr/bin/zypper"
 // ManagerZypp is the interface to handle the package manager of Linux systems based at SUSE.
 type ManagerZypp struct {
 	pathExec string
+	cmd      *executil.Command
 }
 
 // NewManagerZypp returns the Zypp package manager.
 func NewManagerZypp() ManagerZypp {
-	return ManagerZypp{pathExec: pathZypp}
+	return ManagerZypp{
+		pathExec: pathZypp,
+		cmd: excmd.Command("", "").
+			// https://www.unix.com/man-page/suse/8/zypper/
+			BadExitCodes([]int{1, 2, 3, 4, 5, 104}),
+	}
 }
 
 func (m ManagerZypp) setExecPath(p string) { m.pathExec = p }
@@ -32,16 +38,20 @@ func (m ManagerZypp) PackageType() string { return Zypp.String() }
 
 func (m ManagerZypp) Install(name ...string) error {
 	args := []string{
-		pathZypp, "install", "--non-interactive", "--auto-agree-with-licenses", "-y",
+		pathZypp,
+		"--non-interactive",
+		"install", "--auto-agree-with-licenses", "-y",
 	}
 
-	return executil.RunToStd(nil, sudo, append(args, name...)...)
+	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerZypp) Remove(name ...string) error {
 	args := []string{pathZypp, "remove", "-y"}
 
-	return executil.RunToStd(nil, sudo, append(args, name...)...)
+	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerZypp) Purge(name ...string) error {
@@ -49,13 +59,18 @@ func (m ManagerZypp) Purge(name ...string) error {
 }
 
 func (m ManagerZypp) Update() error {
-	return executil.RunToStd(nil, sudo, pathZypp, "refresh")
+	_, err := m.cmd.Command(sudo, pathZypp, "refresh").Run()
+	return err
 }
 
 func (m ManagerZypp) Upgrade() error {
-	return executil.RunToStd(nil, sudo, pathZypp, "up", "--auto-agree-with-licenses", "-y")
+	_, err := m.cmd.Command(
+		sudo, pathZypp, "up", "--auto-agree-with-licenses", "-y",
+	).Run()
+	return err
 }
 
 func (m ManagerZypp) Clean() error {
-	return executil.RunToStd(nil, sudo, pathZypp, "clean")
+	_, err := m.cmd.Command(sudo, pathZypp, "clean").Run()
+	return err
 }

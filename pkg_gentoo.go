@@ -18,11 +18,16 @@ const (
 // ManagerEbuild is the interface to handle the package manager of Linux systems based at Gentoo.
 type ManagerEbuild struct {
 	pathExec string
+	cmd      *executil.Command
 }
 
 // NewManagerEbuild returns the Ebuild package manager.
 func NewManagerEbuild() ManagerEbuild {
-	return ManagerEbuild{pathExec: pathEbuild}
+	return ManagerEbuild{
+		pathExec: pathEbuild,
+		cmd:      excmd.Command("", ""),
+		//BadExitCodes([]int{1}),
+	}
 }
 
 func (m ManagerEbuild) setExecPath(p string) { m.pathExec = p }
@@ -32,13 +37,15 @@ func (m ManagerEbuild) ExecPath() string { return m.pathExec }
 func (m ManagerEbuild) PackageType() string { return Ebuild.String() }
 
 func (m ManagerEbuild) Install(name ...string) error {
-	return executil.RunToStd(nil, pathEbuild, name...)
+	_, err := m.cmd.Command(pathEbuild, name...).Run()
+	return err
 }
 
 func (m ManagerEbuild) Remove(name ...string) error {
 	args := []string{"--unmerge"}
 
-	return executil.RunToStd(nil, pathEbuild, append(args, name...)...)
+	_, err := m.cmd.Command(pathEbuild, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerEbuild) Purge(name ...string) error {
@@ -46,17 +53,20 @@ func (m ManagerEbuild) Purge(name ...string) error {
 }
 
 func (m ManagerEbuild) Update() error {
-	return executil.RunToStd(nil, pathEbuild, "--sync")
+	_, err := m.cmd.Command(pathEbuild, "--sync").Run()
+	return err
 }
 
 func (m ManagerEbuild) Upgrade() error {
-	return executil.RunToStd(nil, pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world")
+	_, err := m.cmd.Command(pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world").Run()
+	return err
 }
 
 func (m ManagerEbuild) Clean() error {
-	err := executil.RunToStd(nil, pathEbuild, "--update", "--deep", "--newuse @world")
+	_, err := m.cmd.Command(pathEbuild, "--update", "--deep", "--newuse @world").Run()
 	if err != nil {
 		return err
 	}
-	return executil.RunToStd(nil, pathEbuild, "--depclean")
+	_, err = m.cmd.Command(pathEbuild, "--depclean").Run()
+	return err
 }

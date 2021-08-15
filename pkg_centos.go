@@ -6,9 +6,7 @@
 
 package osutil
 
-import (
-	"github.com/tredoe/osutil/executil"
-)
+import "github.com/tredoe/osutil/executil"
 
 const (
 	fileDnf = "dnf" // Preferable to YUM
@@ -26,11 +24,17 @@ const (
 // based at Red Hat.
 type ManagerDnf struct {
 	pathExec string
+	cmd      *executil.Command
 }
 
 // NewManagerDnf returns the DNF package manager.
 func NewManagerDnf() ManagerDnf {
-	return ManagerDnf{pathExec: pathDnf}
+	return ManagerDnf{
+		pathExec: pathDnf,
+		cmd: excmd.Command("", "").
+			// https://dnf.readthedocs.io/en/latest/command_ref.html
+			BadExitCodes([]int{1, 3, 200}),
+	}
 }
 
 func (m ManagerDnf) setExecPath(p string) { m.pathExec = p }
@@ -42,13 +46,15 @@ func (m ManagerDnf) PackageType() string { return Dnf.String() }
 func (m ManagerDnf) Install(name ...string) error {
 	args := []string{pathDnf, "install", "-y"}
 
-	return executil.RunToStd(nil, sudo, append(args, name...)...)
+	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerDnf) Remove(name ...string) error {
 	args := []string{pathDnf, "remove", "-y"}
 
-	return executil.RunToStd(nil, sudo, append(args, name...)...)
+	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerDnf) Purge(name ...string) error {
@@ -63,7 +69,7 @@ func (m ManagerDnf) Update() error {
 	// Also returns a list of the packages to be updated in list format.
 	// Returns 0 if no packages are available for update.
 	// Returns 1 if an error occurred.
-	/*err := executil.RunToStd(nil, sudo, pathDnf, "check-update")
+	/*err := m.cmd.Command(sudo, pathDnf, "check-update")
 	if err != nil {
 		// Check the exit code
 	}
@@ -71,14 +77,17 @@ func (m ManagerDnf) Update() error {
 }
 
 func (m ManagerDnf) Upgrade() error {
-	return executil.RunToStd(nil, sudo, pathDnf, "update", "-y")
+	_, err := m.cmd.Command(sudo, pathDnf, "update", "-y").Run()
+	return err
 }
 
 func (m ManagerDnf) Clean() error {
-	if err := executil.RunToStd(nil, sudo, pathDnf, "autoremove"); err != nil {
+	_, err := m.cmd.Command(sudo, pathDnf, "autoremove", "-y").Run()
+	if err != nil {
 		return err
 	}
-	return executil.RunToStd(nil, sudo, pathDnf, "clean", "all")
+	_, err = m.cmd.Command(sudo, pathDnf, "clean", "all").Run()
+	return err
 }
 
 // * * *
@@ -87,11 +96,16 @@ func (m ManagerDnf) Clean() error {
 // based at Red Hat.
 type ManagerYum struct {
 	pathExec string
+	cmd      *executil.Command
 }
 
 // NewManagerYum returns the YUM package manager.
 func NewManagerYum() ManagerYum {
-	return ManagerYum{pathExec: pathYum}
+	return ManagerYum{
+		pathExec: pathYum,
+		cmd: excmd.Command("", "").
+			BadExitCodes([]int{1, 2, 3, 16}),
+	}
 }
 
 func (m ManagerYum) setExecPath(p string) { m.pathExec = p }
@@ -103,13 +117,15 @@ func (m ManagerYum) PackageType() string { return Yum.String() }
 func (m ManagerYum) Install(name ...string) error {
 	args := []string{pathYum, "install", "-y"}
 
-	return executil.RunToStd(nil, sudo, append(args, name...)...)
+	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerYum) Remove(name ...string) error {
 	args := []string{pathYum, "remove", "-y"}
 
-	return executil.RunToStd(nil, sudo, append(args, name...)...)
+	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerYum) Purge(name ...string) error {
@@ -117,15 +133,18 @@ func (m ManagerYum) Purge(name ...string) error {
 }
 
 func (m ManagerYum) Update() error {
-	return executil.RunToStd(nil, sudo, pathYum, "check-update")
+	// check-update does not update else it checks the updating.
+	return nil
 }
 
 func (m ManagerYum) Upgrade() error {
-	return executil.RunToStd(nil, sudo, pathYum, "update")
+	_, err := m.cmd.Command(sudo, pathYum, "update", "-y").Run()
+	return err
 }
 
 func (m ManagerYum) Clean() error {
-	return executil.RunToStd(nil, sudo, pathYum, "clean", "packages")
+	_, err := m.cmd.Command(sudo, pathYum, "clean", "packages").Run()
+	return err
 }
 
 // * * *
@@ -134,11 +153,16 @@ func (m ManagerYum) Clean() error {
 // based at Red Hat.
 type ManagerRpm struct {
 	pathExec string
+	cmd      *executil.Command
 }
 
 // NewManagerRpm returns the RPM package manager.
 func NewManagerRpm() ManagerRpm {
-	return ManagerRpm{pathExec: pathRpm}
+	return ManagerRpm{
+		pathExec: pathRpm,
+		cmd:      excmd.Command("", ""),
+		//BadExitCodes([]int{}),
+	}
 }
 
 func (m ManagerRpm) setExecPath(p string) { m.pathExec = p }
@@ -150,13 +174,15 @@ func (m ManagerRpm) PackageType() string { return Rpm.String() }
 func (m ManagerRpm) Install(name ...string) error {
 	args := []string{"-i"}
 
-	return executil.RunToStd(nil, pathRpm, append(args, name...)...)
+	_, err := m.cmd.Command(pathRpm, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerRpm) Remove(name ...string) error {
 	args := []string{"-e"}
 
-	return executil.RunToStd(nil, pathRpm, append(args, name...)...)
+	_, err := m.cmd.Command(pathRpm, append(args, name...)...).Run()
+	return err
 }
 
 func (m ManagerRpm) Purge(name ...string) error {
