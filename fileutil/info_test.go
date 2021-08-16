@@ -26,7 +26,7 @@ func TestInfo(t *testing.T) {
 	if !fi.OwnerHas(R, W) {
 		t.Error("OwnerHas(R,W) got false")
 	}
-	if fi.OwnerHas(X) {
-		t.Error("OwnerHas(X) got true")
+	if fi.OthersHave(X) {
+		t.Error("OthersHave(X) got true")
 	}
 }
