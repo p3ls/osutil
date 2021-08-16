@@ -36,7 +36,7 @@ var testsOutput = []struct {
 	// quotes
 	{`sh -c 'echo 123'`, "123\n", true},
 	{`sh -c "echo 123"`, "123\n", true},
-	{`find -name 'bash*.go'`, "./bash_test.go\n./bash.go\n", true},
+	{`find -name 'bash_*.go'`, "./bash_test.go\n", true},
 }
 
 var testsError = []struct {
