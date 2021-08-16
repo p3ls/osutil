@@ -299,18 +299,29 @@ func (g *Group) Add() (gid int, err error) {
 	}
 
 	var db *dbfile
+
 	if g.GID < 0 {
 		db, gid, err = nextGUID(g.addSystemGroup)
 		if err != nil {
-			db.close()
 			return 0, err
 		}
+		defer func() {
+			if e := db.close(); e != nil && err == nil {
+				err = e
+			}
+		}()
+
 		g.GID = gid
 	} else {
 		db, err = openDBFile(fileGroup, os.O_WRONLY|os.O_APPEND)
 		if err != nil {
-			return
+			return 0, err
 		}
+		defer func() {
+			if e := db.close(); e != nil && err == nil {
+				err = e
+			}
+		}()
 
 		// Check if Id is unique.
 		_, err = LookupGID(g.GID)
@@ -324,10 +335,6 @@ func (g *Group) Add() (gid int, err error) {
 	g.password = "x"
 
 	_, err = db.file.WriteString(g.String())
-	err2 := db.close()
-	if err2 != nil && err == nil {
-		err = err2
-	}
 	return
 }
 

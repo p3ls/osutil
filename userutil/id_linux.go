@@ -9,6 +9,7 @@ package userutil
 import (
 	"io"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -21,29 +22,33 @@ func nextUID(isSystem bool) (db *dbfile, uid int, err error) {
 	if err != nil {
 		return
 	}
+	defer func() {
+		if err != nil {
+			db.close()
+		}
+	}()
 
 	// Seek to file half size.
 
 	info, err := db.file.Stat()
 	if err != nil {
-		db.close()
-		return nil, 0, err
+		return db, 0, err
 	}
 	if _, err = db.file.Seek(info.Size()/2, io.SeekStart); err != nil {
-		db.close()
-		return nil, 0, err
+		return db, 0, err
 	}
 	// To starting to read from a new line
 	if _, _, err = db.rd.ReadLine(); err != nil {
-		db.close()
-		return nil, 0, err
+		return db, 0, err
 	}
 
-	var minUid, maxUid int
+	var minId, maxId int
+	var listId []int
+
 	if isSystem {
-		minUid, maxUid = config.login.SYS_UID_MIN, config.login.SYS_UID_MAX
+		minId, maxId = config.login.SYS_UID_MIN, config.login.SYS_UID_MAX
 	} else {
-		minUid, maxUid = config.login.UID_MIN, config.login.UID_MAX
+		minId, maxId = config.login.UID_MIN, config.login.UID_MAX
 	}
 
 	for {
@@ -54,17 +59,36 @@ func nextUID(isSystem bool) (db *dbfile, uid int, err error) {
 
 		u, err := parseUser(string(line))
 		if err != nil {
-			db.close()
-			return nil, 0, err
+			return db, 0, err
 		}
-		if u.UID >= minUid && u.UID <= maxUid {
-			uid = u.UID
+		if u.UID >= minId && u.UID <= maxId {
+			listId = append(listId, u.UID)
 		}
 	}
+	sort.Ints(listId)
+	//fmt.Println(listId)
 
-	uid++
-	if uid == maxUid {
-		return nil, 0, &IdRangeError{maxUid, isSystem, true}
+	found := false
+	if len(listId) != 1 {
+		// May have ids unused
+		nextId := listId[0]
+
+		for _, v := range listId {
+			if v != nextId {
+				uid = nextId
+				found = true
+				break
+			}
+			nextId++
+		}
+	}
+	if !found { // Sum 1 to the last value
+		uid = listId[len(listId)-1]
+		uid++
+	}
+
+	if uid == maxId {
+		return db, 0, &IdRangeError{maxId, isSystem, true}
 	}
 	return
 }
@@ -78,29 +102,33 @@ func nextGUID(isSystem bool) (db *dbfile, gid int, err error) {
 	if err != nil {
 		return
 	}
+	defer func() {
+		if err != nil {
+			db.close()
+		}
+	}()
 
 	// Seek to file half size.
 
 	info, err := db.file.Stat()
 	if err != nil {
-		db.close()
-		return nil, 0, err
+		return db, 0, err
 	}
 	if _, err = db.file.Seek(info.Size()/2, io.SeekStart); err != nil {
-		db.close()
-		return nil, 0, err
+		return db, 0, err
 	}
 	// To starting to read from a new line
 	if _, _, err = db.rd.ReadLine(); err != nil {
-		db.close()
-		return nil, 0, err
+		return db, 0, err
 	}
 
-	var minGid, maxGid int
+	var minId, maxId int
+	var listId []int
+
 	if isSystem {
-		minGid, maxGid = config.login.SYS_GID_MIN, config.login.SYS_GID_MAX
+		minId, maxId = config.login.SYS_GID_MIN, config.login.SYS_GID_MAX
 	} else {
-		minGid, maxGid = config.login.GID_MIN, config.login.GID_MAX
+		minId, maxId = config.login.GID_MIN, config.login.GID_MAX
 	}
 
 	for {
@@ -111,17 +139,36 @@ func nextGUID(isSystem bool) (db *dbfile, gid int, err error) {
 
 		gr, err := parseGroup(string(line))
 		if err != nil {
-			db.close()
-			return nil, 0, err
+			return db, 0, err
 		}
-		if gr.GID >= minGid && gr.GID <= maxGid {
-			gid = gr.GID
+		if gr.GID >= minId && gr.GID <= maxId {
+			listId = append(listId, gr.GID)
 		}
 	}
+	sort.Ints(listId)
+	//fmt.Println(listId)
 
-	gid++
-	if gid == maxGid {
-		return nil, 0, &IdRangeError{maxGid, isSystem, false}
+	found := false
+	if len(listId) != 1 {
+		// May have ids unused
+		nextId := listId[0]
+
+		for _, v := range listId {
+			if v != nextId {
+				gid = nextId
+				found = true
+				break
+			}
+			nextId++
+		}
+	}
+	if !found { // Sum 1 to the last value
+		gid = listId[len(listId)-1]
+		gid++
+	}
+
+	if gid == maxId {
+		return db, 0, &IdRangeError{maxId, isSystem, false}
 	}
 	return
 }
@@ -129,28 +176,44 @@ func nextGUID(isSystem bool) (db *dbfile, gid int, err error) {
 // NextSystemUID returns the next free system user id to use.
 func NextSystemUID() (int, error) {
 	db, uid, err := nextUID(true)
-	db.close()
+	if err != nil {
+		return uid, err
+	}
+
+	err = db.close()
 	return uid, err
 }
 
 // NextSystemGID returns the next free system group id to use.
 func NextSystemGID() (int, error) {
 	db, gid, err := nextGUID(true)
-	db.close()
+	if err != nil {
+		return gid, err
+	}
+
+	err = db.close()
 	return gid, err
 }
 
 // NextUID returns the next free user id to use.
 func NextUID() (int, error) {
 	db, uid, err := nextUID(false)
-	db.close()
+	if err != nil {
+		return uid, err
+	}
+
+	err = db.close()
 	return uid, err
 }
 
 // NextGID returns the next free group id to use.
 func NextGID() (int, error) {
 	db, gid, err := nextGUID(false)
-	db.close()
+	if err != nil {
+		return gid, err
+	}
+
+	err = db.close()
 	return gid, err
 }
 

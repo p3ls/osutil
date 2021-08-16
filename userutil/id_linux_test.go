@@ -15,8 +15,10 @@ import (
 // in the systems file.
 
 func TestID(t *testing.T) {
-	id, err := NextSystemUID()
-	if err != nil {
+	var id int
+	var err error
+
+	if id, err = NextSystemUID(); err != nil {
 		t.Error(err)
 	}
 	if testing.Verbose() {

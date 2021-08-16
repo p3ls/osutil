@@ -343,18 +343,29 @@ func (u *User) Add() (uid int, err error) {
 	}
 
 	var db *dbfile
+
 	if u.UID < 0 {
 		db, uid, err = nextUID(u.addSystemUser)
 		if err != nil {
-			db.close()
 			return 0, err
 		}
+		defer func() {
+			if e := db.close(); e != nil && err == nil {
+				err = e
+			}
+		}()
+
 		u.UID = uid
 	} else {
 		db, err = openDBFile(fileUser, os.O_WRONLY|os.O_APPEND)
 		if err != nil {
 			return 0, err
 		}
+		defer func() {
+			if e := db.close(); e != nil && err == nil {
+				err = e
+			}
+		}()
 
 		// Check if Id is unique.
 		_, err = LookupUID(u.UID)
@@ -368,10 +379,6 @@ func (u *User) Add() (uid int, err error) {
 	u.password = "x"
 
 	_, err = db.file.WriteString(u.String())
-	err2 := db.close()
-	if err2 != nil && err == nil {
-		err = err2
-	}
 	return
 }
 

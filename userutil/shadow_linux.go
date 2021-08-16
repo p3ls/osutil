@@ -475,8 +475,7 @@ func (s *Shadow) Add(key []byte) (err error) {
 		return
 	}
 	defer func() {
-		e := db.close()
-		if e != nil && err == nil {
+		if e := db.close(); e != nil && err == nil {
 			err = e
 		}
 	}()
