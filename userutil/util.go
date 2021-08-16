@@ -6,7 +6,9 @@
 
 package userutil
 
-import "os"
+import (
+	"os"
+)
 
 var isRoot bool
 
@@ -26,9 +28,8 @@ func checkRoot() {
 
 // exist checks if the file exists.
 func exist(file string) (bool, error) {
-	_, err := os.Stat(file)
-	if err != nil {
-		if err == os.ErrNotExist {
+	if _, err := os.Stat(file); err != nil {
+		if os.IsNotExist(err) {
 			return false, nil
 		}
 		return false, err

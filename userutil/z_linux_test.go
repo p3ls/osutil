@@ -18,9 +18,11 @@ func TestDelUser(t *testing.T) {
 	if _, ok := err.(NoFoundError); !ok {
 		t.Error("expected to get error NoFoundError")
 	}
-	_, err = LookupShadow(USER)
-	if _, ok := err.(NoFoundError); !ok {
-		t.Error("expected to get error NoFoundError")
+	if useGshadow {
+		_, err = LookupShadow(USER)
+		if _, ok := err.(NoFoundError); !ok {
+			t.Error("expected to get error NoFoundError")
+		}
 	}
 }
 
@@ -34,9 +36,11 @@ func TestDelGroup(t *testing.T) {
 	if _, ok := err.(NoFoundError); !ok {
 		t.Error("expected to get error NoFoundError")
 	}
-	_, err = LookupGShadow(GROUP)
-	if _, ok := err.(NoFoundError); !ok {
-		t.Error("expected to get error NoFoundError")
+	if useGshadow {
+		_, err = LookupGShadow(GROUP)
+		if _, ok := err.(NoFoundError); !ok {
+			t.Error("expected to get error NoFoundError")
+		}
 	}
 }
 

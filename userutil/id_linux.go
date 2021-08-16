@@ -68,10 +68,17 @@ func nextUID(isSystem bool) (db *dbfile, uid int, err error) {
 	sort.Ints(listId)
 	//fmt.Println(listId)
 
-	found := false
-	if len(listId) != 1 {
+	switch len(listId) {
+	case 0:
+		uid = minId
+	case 1:
+		// Sum 1 to the last value
+		uid = listId[0]
+		uid++
+	default:
 		// May have ids unused
 		nextId := listId[0]
+		found := false
 
 		for _, v := range listId {
 			if v != nextId {
@@ -81,10 +88,10 @@ func nextUID(isSystem bool) (db *dbfile, uid int, err error) {
 			}
 			nextId++
 		}
-	}
-	if !found { // Sum 1 to the last value
-		uid = listId[len(listId)-1]
-		uid++
+		if !found {
+			uid = listId[len(listId)-1]
+			uid++
+		}
 	}
 
 	if uid == maxId {
@@ -148,10 +155,17 @@ func nextGUID(isSystem bool) (db *dbfile, gid int, err error) {
 	sort.Ints(listId)
 	//fmt.Println(listId)
 
-	found := false
-	if len(listId) != 1 {
+	switch len(listId) {
+	case 0:
+		gid = minId
+	case 1:
+		// Sum 1 to the last value
+		gid = listId[0]
+		gid++
+	default:
 		// May have ids unused
 		nextId := listId[0]
+		found := false
 
 		for _, v := range listId {
 			if v != nextId {
@@ -161,10 +175,10 @@ func nextGUID(isSystem bool) (db *dbfile, gid int, err error) {
 			}
 			nextId++
 		}
-	}
-	if !found { // Sum 1 to the last value
-		gid = listId[len(listId)-1]
-		gid++
+		if !found {
+			gid = listId[len(listId)-1]
+			gid++
+		}
 	}
 
 	if gid == maxId {

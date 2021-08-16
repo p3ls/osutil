@@ -55,10 +55,12 @@ func init() {
 	}
 	removeFiles = append(removeFiles, fileShadow)
 
-	if fileGShadow, err = fileutil.CopytoTemp(fileGShadow); err != nil {
-		goto _error
+	if useGshadow {
+		if fileGShadow, err = fileutil.CopytoTemp(fileGShadow); err != nil {
+			goto _error
+		}
+		removeFiles = append(removeFiles, fileGShadow)
 	}
-	removeFiles = append(removeFiles, fileGShadow)
 
 	return
 

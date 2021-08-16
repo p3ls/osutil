@@ -14,6 +14,10 @@ import (
 )
 
 func TestGShadowParser(t *testing.T) {
+	if !useGshadow {
+		t.Skip()
+	}
+
 	f, err := os.Open(fileGShadow)
 	if err != nil {
 		t.Fatal(err)
@@ -39,6 +43,10 @@ func TestGShadowParser(t *testing.T) {
 }
 
 func TestGShadowFull(t *testing.T) {
+	if !useGshadow {
+		t.Skip()
+	}
+
 	entry, err := LookupGShadow("root")
 	if err != nil || entry == nil {
 		t.Error(err)
@@ -56,6 +64,10 @@ func TestGShadowFull(t *testing.T) {
 }
 
 func TestGShadowCount(t *testing.T) {
+	if !useGshadow {
+		t.Skip()
+	}
+
 	count := 5
 	entries, err := LookupInGShadow(GS_ALL, "", count)
 	if err != nil || len(entries) != count {
@@ -64,6 +76,10 @@ func TestGShadowCount(t *testing.T) {
 }
 
 func TestGShadowError(t *testing.T) {
+	if !useGshadow {
+		t.Skip()
+	}
+
 	_, err := LookupGShadow("!!!???")
 	if _, ok := err.(NoFoundError); !ok {
 		t.Error("expected to report NoFoundError")
@@ -80,9 +96,15 @@ func TestGShadowError(t *testing.T) {
 }
 
 func TestGShadow_Add(t *testing.T) {
-	shadow := NewGShadow(GROUP, MEMBERS...)
-	err := shadow.Add(nil)
+	if !useGshadow {
+		t.Skip()
+	}
+
+	shadow, err := NewGShadow(GROUP, MEMBERS...)
 	if err != nil {
+		t.Fatal(err)
+	}
+	if err = shadow.Add(nil); err != nil {
 		t.Fatal(err)
 	}
 
@@ -110,6 +132,10 @@ var (
 )
 
 func TestGShadowCrypt(t *testing.T) {
+	if !useGshadow {
+		t.Skip()
+	}
+
 	gs, err := LookupGShadow(GROUP)
 	if err != nil {
 		t.Fatal(err)

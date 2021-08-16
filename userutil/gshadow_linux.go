@@ -83,11 +83,15 @@ type GShadow struct {
 }
 
 // NewGShadow returns a new GShadow.
-func NewGShadow(username string, members ...string) *GShadow {
+func NewGShadow(username string, members ...string) (*GShadow, error) {
+	if !useGshadow {
+		return nil, ErrGshadow
+	}
+
 	return &GShadow{
 		Name:     username,
 		UserList: members,
-	}
+	}, nil
 }
 
 func (gs *GShadow) filename() string { return fileGShadow }
@@ -153,6 +157,10 @@ func (*GShadow) lookUp(line string, f field, value interface{}) interface{} {
 
 // LookupGShadow looks up a shadowed group by name.
 func LookupGShadow(name string) (*GShadow, error) {
+	if !useGshadow {
+		return nil, ErrGshadow
+	}
+
 	entries, err := LookupInGShadow(GS_NAME, name, 1)
 	if err != nil {
 		return nil, err
@@ -168,6 +176,9 @@ func LookupGShadow(name string) (*GShadow, error) {
 //   n == 0: the result is nil (zero fields)
 //   n < 0: all fields
 func LookupInGShadow(field gshadowField, value string, n int) ([]*GShadow, error) {
+	if !useGshadow {
+		return nil, ErrGshadow
+	}
 	checkRoot()
 
 	iEntries, err := lookUp(&GShadow{}, field, value, n)

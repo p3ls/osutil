@@ -259,20 +259,26 @@ func GetgroupsName() []string {
 //
 
 // AddGroup adds a group.
+// modGshadow indicates if the file gshadow has been also changed.
 func AddGroup(name string, members ...string) (gid int, err error) {
-	s := NewGShadow(name, members...)
-	if err = s.Add(nil); err != nil {
-		return
+	s, err := NewGShadow(name, members...)
+	if !errors.Is(err, ErrGshadow) {
+		if err = s.Add(nil); err != nil {
+			return
+		}
 	}
 
 	return NewGroup(name, members...).Add()
 }
 
 // AddSystemGroup adds a system group.
+// modGshadow indicates if the file gshadow has been also changed.
 func AddSystemGroup(name string, members ...string) (gid int, err error) {
-	s := NewGShadow(name, members...)
-	if err = s.Add(nil); err != nil {
-		return
+	s, err := NewGShadow(name, members...)
+	if !errors.Is(err, ErrGshadow) {
+		if err = s.Add(nil); err != nil {
+			return
+		}
 	}
 
 	return NewSystemGroup(name, members...).Add()
@@ -341,7 +347,7 @@ func (g *Group) Add() (gid int, err error) {
 // DelGroup removes a group from the system.
 func DelGroup(name string) (err error) {
 	err = del(name, &Group{})
-	if err == nil {
+	if err == nil && useGshadow {
 		err = del(name, &GShadow{})
 	}
 	return
@@ -366,22 +372,22 @@ func AddUsersToGroup(name string, members ...string) error {
 	if err = _addMembers(&gr.UserList, members...); err != nil {
 		return err
 	}
-
-	// Shadow group
-	sg, err := LookupGShadow(name)
-	if err != nil {
-		return err
-	}
-	if err = _addMembers(&sg.UserList, members...); err != nil {
-		return err
-	}
-
-	// Editing
 	if err = edit(name, gr); err != nil {
 		return err
 	}
-	if err = edit(name, sg); err != nil {
-		return err
+
+	// Shadow group
+	if useGshadow {
+		sg, err := LookupGShadow(name)
+		if err != nil {
+			return err
+		}
+		if err = _addMembers(&sg.UserList, members...); err != nil {
+			return err
+		}
+		if err = edit(name, sg); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -425,22 +431,22 @@ func DelUsersInGroup(name string, members ...string) error {
 	if err = _delMembers(&gr.UserList, members...); err != nil {
 		return err
 	}
-
-	// Shadow group
-	sg, err := LookupGShadow(name)
-	if err != nil {
-		return err
-	}
-	if err = _delMembers(&sg.UserList, members...); err != nil {
-		return err
-	}
-
-	// Editing
 	if err = edit(name, gr); err != nil {
 		return err
 	}
-	if err = edit(name, sg); err != nil {
-		return err
+
+	// Shadow group
+	if useGshadow {
+		sg, err := LookupGShadow(name)
+		if err != nil {
+			return err
+		}
+		if err = _delMembers(&sg.UserList, members...); err != nil {
+			return err
+		}
+		if err = edit(name, sg); err != nil {
+			return err
+		}
 	}
 
 	return nil

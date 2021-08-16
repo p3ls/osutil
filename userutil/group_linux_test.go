@@ -175,10 +175,6 @@ func TestGroup_Members(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sg_first, err := LookupGShadow(group)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	err = AddUsersToGroup(group, member)
 	if err != nil {
@@ -189,10 +185,6 @@ func TestGroup_Members(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sg_last, err := LookupGShadow(group)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	if len(g_first.UserList) == len(g_last.UserList) ||
 		g_last.UserList[0] != USER ||
@@ -200,14 +192,8 @@ func TestGroup_Members(t *testing.T) {
 		g_last.UserList[2] != member {
 		t.Error("group file: expected to add users into a group")
 	}
-	if len(sg_first.UserList) == len(sg_last.UserList) ||
-		sg_last.UserList[0] != USER ||
-		sg_last.UserList[1] != SYS_USER ||
-		sg_last.UserList[2] != member {
-		t.Error("gshadow file: expected to add users into a group")
-	}
 
-	// == Delete
+	// Delete
 
 	err = DelUsersInGroup(group, member, USER)
 	if err != nil {
@@ -218,17 +204,42 @@ func TestGroup_Members(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	sg_del, err := LookupGShadow(group)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	if len(g_del.UserList) == len(g_last.UserList) ||
 		g_del.UserList[0] != SYS_USER {
 		t.Error("group file: expected to remove members of a group")
 	}
-	if len(sg_del.UserList) == len(sg_last.UserList) ||
-		sg_del.UserList[0] != SYS_USER {
-		t.Error("gshadow file: expected to remove members of a group")
+
+	// * * *
+
+	if useGshadow {
+		sg_first, err := LookupGShadow(group)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		sg_last, err := LookupGShadow(group)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(sg_first.UserList) == len(sg_last.UserList) ||
+			sg_last.UserList[0] != USER ||
+			sg_last.UserList[1] != SYS_USER ||
+			sg_last.UserList[2] != member {
+			t.Error("gshadow file: expected to add users into a group")
+		}
+
+		// Delete
+
+		sg_del, err := LookupGShadow(group)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(sg_del.UserList) == len(sg_last.UserList) ||
+			sg_del.UserList[0] != SYS_USER {
+			t.Error("gshadow file: expected to remove members of a group")
+		}
 	}
 }
