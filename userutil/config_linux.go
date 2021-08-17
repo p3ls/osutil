@@ -99,9 +99,13 @@ func (c *configData) init(debug bool) error {
 	}
 	config.useradd = *_confUseradd
 
-	// Optional files
+	// == Optional files
 
 	found, err := exist(fileAdduser) // Based in Debian.
+	if err != nil {
+		return err
+	}
+
 	if found {
 		cfg, err := shconf.ParseFile(fileAdduser)
 		if err != nil {
@@ -131,32 +135,39 @@ func (c *configData) init(debug bool) error {
 			_confLogin.GID_MIN = _confAdduser.FIRST_GID
 			_confLogin.GID_MAX = _confAdduser.LAST_GID
 		}
-	} else if err != nil {
-		return err
-
-	} else if found, err = exist(fileLibuser); found { // Based in Red Hat.
-		cfg, err := shconf.ParseFile(fileLibuser)
+	} else {
+		found, err = exist(fileLibuser) // Based in Red Hat.
 		if err != nil {
 			return err
 		}
-		_confLibuser := &confLibuser{}
-		if err = cfg.Unmarshal(_confLibuser); err != nil {
-			return err
-		}
-		if debug {
-			fmt.Printf("\n* %s\n", fileLibuser)
-			reflectutil.PrintStruct(_confLibuser)
-		}
 
-		if _confLibuser.login_defs != fileLogin {
-			_confLogin.ENCRYPT_METHOD = _confLibuser.crypt_style
-			_confLogin.SHA_CRYPT_MIN_ROUNDS = _confLibuser.hash_rounds_min
-			_confLogin.SHA_CRYPT_MAX_ROUNDS = _confLibuser.hash_rounds_max
+		if found {
+			cfg, err := shconf.ParseFile(fileLibuser)
+			if err != nil {
+				return err
+			}
+			_confLibuser := &confLibuser{}
+			if err = cfg.Unmarshal(_confLibuser); err != nil {
+				return err
+			}
+			if debug {
+				fmt.Printf("\n* %s\n", fileLibuser)
+				reflectutil.PrintStruct(_confLibuser)
+			}
+
+			if _confLibuser.login_defs != fileLogin {
+				_confLogin.ENCRYPT_METHOD = _confLibuser.crypt_style
+				_confLogin.SHA_CRYPT_MIN_ROUNDS = _confLibuser.hash_rounds_min
+				_confLogin.SHA_CRYPT_MAX_ROUNDS = _confLibuser.hash_rounds_max
+			}
 		}
-	} else if err != nil {
+	}
+
+	/*found, err = exist(filePasswd)
+	if err != nil {
 		return err
-
-	} /*else if found, err = exist(filePasswd); found {
+	}
+	if found {
 		cfg, err := shconf.ParseFile(filePasswd)
 		if err != nil {
 			return err
@@ -173,9 +184,9 @@ func (c *configData) init(debug bool) error {
 		if _confPasswd.CRYPT != "" {
 			_confLogin.ENCRYPT_METHOD = _confPasswd.CRYPT
 		}
-	} else if err != nil {
-		return err
 	}*/
+
+	// * * *
 
 	switch strings.ToUpper(_confLogin.ENCRYPT_METHOD) {
 	case "MD5":

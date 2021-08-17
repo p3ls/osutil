@@ -80,11 +80,6 @@ func (c *Command) BadExitCodes(codes []int) *Command {
 	return c
 }
 
-// TODO: remove
-func (c *Command) GetEnv() []string {
-	return c.env
-}
-
 // Env sets the environment variables.
 func (c *Command) Env(e []string) *Command {
 	c.env = e
