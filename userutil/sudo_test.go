@@ -9,11 +9,11 @@ package userutil
 import (
 	"testing"
 
-	"github.com/tredoe/osutil"
+	"github.com/tredoe/osutil/sysutil"
 )
 
 func TestSudo(t *testing.T) {
-	if err := MustBeSuperUser(osutil.SystemUndefined); err != nil {
+	if err := MustBeSuperUser(sysutil.SystemUndefined); err != nil {
 		t.Error(err)
 	}
 }

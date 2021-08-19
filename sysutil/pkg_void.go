@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package osutil
+package sysutil
 
 // ManagerVoid is the interface to pass a Manager with an error,
 // avoiding to have to use a pointer.

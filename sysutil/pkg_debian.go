@@ -6,7 +6,7 @@
 
 // Distro: Debian
 
-package osutil
+package sysutil
 
 import "github.com/tredoe/osutil/executil"
 

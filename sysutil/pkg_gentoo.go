@@ -6,7 +6,7 @@
 
 // Distro: Gentoo
 
-package osutil
+package sysutil
 
 import "github.com/tredoe/osutil/executil"
 

@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 /*
-Package osutil defines operating systems and detects the Linux distribution.
+Package sysutil defines operating systems and detects the Linux distribution.
 Also, it handles basic operations in the management of packages in
 FreeBSD, Linux and macOs operating systems.
 
@@ -15,4 +15,4 @@ NOTE: Package management systems untested:
  + ebuild  (Gentoo)
  + RPM     (CentOS)
 */
-package osutil
+package sysutil

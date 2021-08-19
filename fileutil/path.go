@@ -13,14 +13,14 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/tredoe/osutil"
+	"github.com/tredoe/osutil/sysutil"
 )
 
 // LookDirExec looks up the directory of an executable.
-func LookDirExec(syst osutil.System, filename string) (string, error) {
+func LookDirExec(sys sysutil.System, filename string) (string, error) {
 	homeExec, err := exec.LookPath(filename)
 	if err != nil {
-		if homeExec, err = LookPath(syst, filename); err != nil {
+		if homeExec, err = LookPath(sys, filename); err != nil {
 			if errors.Is(err, ErrNotFound) {
 				return "", fmt.Errorf("home directory for %s not found", filename)
 			}
@@ -39,17 +39,17 @@ func LookDirExec(syst osutil.System, filename string) (string, error) {
 
 // LookPath searches for an executable named file in the system directories given one or several
 // executables.
-func LookPath(syst osutil.System, filename ...string) (string, error) {
+func LookPath(sys sysutil.System, filename ...string) (string, error) {
 	dirInit := "/"
 	skipDirs := make([]string, 0)
 
-	switch syst {
-	case osutil.Windows:
+	switch sys {
+	case sysutil.Windows:
 		dirInit = `\`
 		skipDirs = []string{
 			`\$Recycle.Bin`, `\ProgramData`, `\Users`, `\Windows`,
 		}
-	case osutil.Linux:
+	case sysutil.Linux:
 		skipDirs = []string{
 			"/home", "/bin", "/sbin", "/snap",
 
@@ -64,7 +64,7 @@ func LookPath(syst osutil.System, filename ...string) (string, error) {
 			// Look at:
 			// "/opt", "/usr/bin", "/usr/sbin", "/usr/local",
 		}
-	case osutil.MacOS:
+	case sysutil.MacOS:
 		skipDirs = []string{
 			"/Applications",
 			"/System/", "/Users", "/Volumes",
@@ -72,7 +72,7 @@ func LookPath(syst osutil.System, filename ...string) (string, error) {
 			"/bin", "/dev", "/etc", "/home", "/opt", "/sbin", "/tmp", "/usr", "/var",
 		}
 	default:
-		panic("unimplemented for system " + syst.String())
+		panic("unimplemented for system " + sys.String())
 	}
 	pathFound := ""
 
@@ -112,7 +112,7 @@ func LookPath(syst osutil.System, filename ...string) (string, error) {
 	}
 	//fmt.Println("PATH:", pathFound)
 
-	if syst == osutil.Windows { // Get the volume name
+	if sys == sysutil.Windows { // Get the volume name
 		pathWin, err := filepath.Abs(pathFound)
 		if err != nil {
 			return "", err

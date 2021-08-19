@@ -1,13 +1,13 @@
 # osutil
 
-Access to operating system functionality dependent of every platform and
-utility packages for the Shell.
+Access to operating system functionality dependent of every platform.
 
 + config/env: set persistent environment variables
 + config/shconf: parser and scanner for the configuration in format shell-variable
 + edi: editing of files
 + executil: executes commands in shells
 + fileutil: handles common operations at files
++ sysutil: defines operating systems, detects Linux distributions and handles different package systems
 + userutil: provides access to UNIX users database in local files
 + user/crypt: password hashing used in UNIX
 
@@ -20,7 +20,7 @@ utility packages for the Shell.
 `sudo env PATH=$PATH go test -v ./...`
 
 'sudo' command is necessary to copy the files '/etc/{passwd,group,shadow,gshadow}' to the temporary directory, where the tests are run.
-Also, it uses 'sudo' to check the package manager, at installing and removing the package 'mtr-tiny'.
+Also, it uses 'sudo' to check the package manager, at installing and removing the package 'nano'.
 
 
 ## License

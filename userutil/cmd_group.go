@@ -9,21 +9,21 @@ package userutil
 import (
 	"os/user"
 
-	"github.com/tredoe/osutil"
 	"github.com/tredoe/osutil/executil"
 	"github.com/tredoe/osutil/internal"
+	"github.com/tredoe/osutil/sysutil"
 )
 
 // AddGroupFromCmd adds the given group to the original user.
 // Returns an information message, if the command is run.
-func AddGroupFromCmd(syst osutil.System, group string) error {
-	switch syst {
-	case osutil.Linux:
+func AddGroupFromCmd(sys sysutil.System, group string) error {
+	switch sys {
+	case sysutil.Linux:
 	default:
-		panic("unimplemented: " + syst.String())
+		panic("unimplemented: " + sys.String())
 	}
 
-	username, err := RealUser(syst)
+	username, err := RealUser(sys)
 	if err != nil {
 		return err
 	}
