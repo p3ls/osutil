@@ -34,8 +34,9 @@ type Command struct {
 	bufStdout  []byte
 	bufStderr  []byte
 
-	exitCode     int
+	//exitCode     int
 	badExitCodes []int
+	okExitCodes  []int
 
 	ctx        context.Context
 	cancelFunc context.CancelFunc
@@ -44,9 +45,9 @@ type Command struct {
 // NewCommand sets the basic arguments to execute a command.
 func NewCommand(cmd string, args ...string) *Command {
 	return &Command{
-		cmd:      cmd,
-		args:     args,
-		exitCode: -1,
+		cmd:  cmd,
+		args: args,
+		//exitCode: -1,
 	}
 }
 
@@ -60,7 +61,7 @@ func (c *Command) Command(cmd string, args ...string) *Command {
 		stdout: c.stdout,
 		stderr: c.stderr,
 
-		exitCode:     -1,
+		//exitCode:     -1,
 		badExitCodes: c.badExitCodes,
 
 		ctx:        c.ctx,
@@ -77,6 +78,12 @@ func (c *Command) TimeTokillCmd(tm time.Duration) *Command {
 // BadExitCodes sets the exit codes with errors for the command.
 func (c *Command) BadExitCodes(codes []int) *Command {
 	c.badExitCodes = codes
+	return c
+}
+
+// OkExitCodes sets the exit codes without errors for the command.
+func (c *Command) OkExitCodes(codes []int) *Command {
+	c.okExitCodes = codes
 	return c
 }
 
@@ -107,7 +114,7 @@ func (c *Command) Stderr(err io.Writer) *Command {
 // * * *
 
 // ExitCode returns the exit status code which is returned after of call to Run().
-func (c *Command) ExitCode() int { return c.exitCode }
+//func (c *Command) ExitCode() int { return c.exitCode }
 
 // OutputStdout runs the command and returns the standard output.
 func (c *Command) OutputStdout() (stdout []byte, err error) {
@@ -324,19 +331,28 @@ func (c *Command) Run() (exitCode int, err error) {
 
 	if errors.As(err, &exitErr) {
 		exitCode = exitErr.ExitCode()
+		//c.exitCode = exitCode
 		internal.LogShell.Printf("Exit code: %d", exitCode)
 
 		if c.ctx != nil && exitCode == -1 {
 			return -1, ErrProcKilled
 		}
 
-		for _, v := range c.badExitCodes {
-			if v == exitCode {
-				return exitCode, err
+		if len(c.badExitCodes) != 0 {
+			for _, v := range c.badExitCodes {
+				if v == exitCode {
+					return exitCode, err
+				}
+			}
+		} else if len(c.okExitCodes) != 0 {
+			for _, v := range c.okExitCodes {
+				if v == exitCode {
+					return exitCode, nil
+				}
 			}
 		}
-		c.exitCode = exitCode
-		return exitCode, nil
+
+		return exitCode, err
 	}
 	return -1, err
 }
