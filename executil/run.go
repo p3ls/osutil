@@ -119,60 +119,43 @@ func (c *Command) Stderr(err io.Writer) *Command {
 // OutputStdout runs the command and returns the standard output.
 func (c *Command) OutputStdout() (stdout []byte, err error) {
 	c.saveStdout = true
+	_, err = c.Run()
 
-	if _, err = c.Run(); err != nil {
-		return
-	}
-	stdout = c.bufStdout
-
-	return
+	return c.bufStdout, err
 }
 
 // OutputStderr runs the command and returns the standard error.
 func (c *Command) OutputStderr() (stderr []byte, err error) {
 	c.saveStderr = true
+	_, err = c.Run()
 
-	if _, err = c.Run(); err != nil {
-		return
-	}
-	stderr = c.bufStderr
-
-	return
+	return c.bufStderr, err
 }
 
 // OutputCombined runs the command and returns both standard output and error.
 func (c *Command) OutputCombined() (stdout, stderr []byte, err error) {
 	c.saveStdout = true
 	c.saveStderr = true
+	_, err = c.Run()
 
-	if _, err = c.Run(); err != nil {
-		return
-	}
-	stdout = c.bufStdout
-	stderr = c.bufStderr
-
-	return
+	return c.bufStdout, c.bufStderr, err
 }
 
 // StdoutTofile runs the command and saves the standard output into a file.
 // The full name is formed with the value of 'filename' plus "_stdout.log".
 func (c *Command) StdoutTofile(dir, filename string) error {
 	c.saveStdout = true
-
-	_, err := c.Run()
-	if err != nil {
-		return err
-	}
+	_, errRun := c.Run()
 
 	if c.bufStdout != nil {
 		//fmt.Println(string(c.bufStdout))
-		err = os.WriteFile(filepath.Join(dir, filename+"_stdout.log"), c.bufStdout, 0600)
+		err := os.WriteFile(filepath.Join(dir, filename+"_stdout.log"), c.bufStdout, 0600)
 		if err != nil {
 			return err
 		}
 	}
 
-	return nil
+	return errRun
 }
 
 // StderrTofile runs the command and saves the standard error into a file.
@@ -180,13 +163,11 @@ func (c *Command) StdoutTofile(dir, filename string) error {
 // fnCheckStderr is a function to check the standard error.
 func (c *Command) StderrTofile(dir, filename string, fnCheckStderr func([]byte) error) error {
 	c.saveStderr = true
-
-	_, err := c.Run()
-	if err != nil {
-		return err
-	}
+	_, errRun := c.Run()
 
 	if c.bufStderr != nil {
+		var err error
+
 		if fnCheckStderr != nil {
 			if err = fnCheckStderr(c.bufStderr); err != nil {
 				return err
@@ -198,7 +179,7 @@ func (c *Command) StderrTofile(dir, filename string, fnCheckStderr func([]byte) 
 		}
 	}
 
-	return nil
+	return errRun
 }
 
 // StdCombinedTofile runs the command and saves both standard output and error into files.
@@ -209,11 +190,8 @@ func (c *Command) StdCombinedTofile(
 ) error {
 	c.saveStdout = true
 	c.saveStderr = true
-
-	_, err := c.Run()
-	if err != nil {
-		return err
-	}
+	_, errRun := c.Run()
+	var err error
 
 	if c.bufStderr != nil {
 		if fnCheckStderr != nil {
@@ -234,7 +212,7 @@ func (c *Command) StdCombinedTofile(
 		}
 	}
 
-	return nil
+	return errRun
 }
 
 // Run executes the command.
