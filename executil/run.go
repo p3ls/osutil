@@ -34,7 +34,7 @@ type Command struct {
 	bufStdout  []byte
 	bufStderr  []byte
 
-	//exitCode     int
+	exitCode     int
 	badExitCodes []int
 	okExitCodes  []int
 
@@ -114,7 +114,7 @@ func (c *Command) Stderr(err io.Writer) *Command {
 // * * *
 
 // ExitCode returns the exit status code which is returned after of call to Run().
-//func (c *Command) ExitCode() int { return c.exitCode }
+func (c *Command) ExitCode() int { return c.exitCode }
 
 // OutputStdout runs the command and returns the standard output.
 func (c *Command) OutputStdout() (stdout []byte, err error) {
@@ -145,7 +145,13 @@ func (c *Command) OutputCombined() (stdout, stderr []byte, err error) {
 // The full name is formed with the value of 'filename' plus "_stdout.log".
 func (c *Command) StdoutTofile(dir, filename string) error {
 	c.saveStdout = true
+
 	_, errRun := c.Run()
+	var exitErr *exec.ExitError
+
+	if !errors.As(errRun, &exitErr) {
+		return errRun
+	}
 
 	if c.bufStdout != nil {
 		//fmt.Println(string(c.bufStdout))
@@ -163,7 +169,13 @@ func (c *Command) StdoutTofile(dir, filename string) error {
 // fnCheckStderr is a function to check the standard error.
 func (c *Command) StderrTofile(dir, filename string, fnCheckStderr func([]byte) error) error {
 	c.saveStderr = true
+
 	_, errRun := c.Run()
+	var exitErr *exec.ExitError
+
+	if !errors.As(errRun, &exitErr) {
+		return errRun
+	}
 
 	if c.bufStderr != nil {
 		var err error
@@ -190,7 +202,13 @@ func (c *Command) StdCombinedTofile(
 ) error {
 	c.saveStdout = true
 	c.saveStderr = true
+
 	_, errRun := c.Run()
+	var exitErr *exec.ExitError
+
+	if !errors.As(errRun, &exitErr) {
+		return errRun
+	}
 	var err error
 
 	if c.bufStderr != nil {
@@ -309,7 +327,7 @@ func (c *Command) Run() (exitCode int, err error) {
 
 	if errors.As(err, &exitErr) {
 		exitCode = exitErr.ExitCode()
-		//c.exitCode = exitCode
+		c.exitCode = exitCode
 		internal.LogShell.Printf("Exit code: %d", exitCode)
 
 		if c.ctx != nil && exitCode == -1 {
