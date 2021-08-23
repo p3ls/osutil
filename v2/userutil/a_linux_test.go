@@ -12,8 +12,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/fileutil"
+	"github.com/tredoe/osutil/v2/sysutil"
 )
 
 const (
@@ -35,7 +35,7 @@ var GID, SYS_GID int
 var removeFiles []string
 
 func init() {
-	err := MustBeSuperUser(osutil.SystemUndefined)
+	err := MustBeSuperUser(sysutil.SystemUndefined)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}

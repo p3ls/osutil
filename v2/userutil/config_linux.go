@@ -112,6 +112,7 @@ func (c *configData) init(debug bool) error {
 		if err != nil {
 			return err
 		}
+
 		_confAdduser := &confAdduser{}
 		if err = cfg.Unmarshal(_confAdduser); err != nil {
 			return err
@@ -144,12 +145,12 @@ func (c *configData) init(debug bool) error {
 
 		if found {
 			cfg, err := ini.Load(fileLibuser)
-			//cfg, err := shconf.ParseFile(fileLibuser)
 			if err != nil {
 				return err
 			}
+
 			_confLibuser := &confLibuser{}
-			if err = cfg.Unmarshal(_confLibuser); err != nil {
+			if err = cfg.StrictMapTo(_confLibuser); err != nil {
 				return err
 			}
 			if debug {
