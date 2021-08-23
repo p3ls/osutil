@@ -72,9 +72,9 @@ func (m ManagerEbuild) Clean() error {
 }
 
 func (m ManagerEbuild) AddRepo(alias string, url ...string) error {
-	panic("unimplemented")
+	return ErrRepo
 }
 
 func (m ManagerEbuild) RemoveRepo(r string) error {
-	panic("unimplemented")
+	return ErrRepo
 }

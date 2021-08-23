@@ -92,6 +92,8 @@ func (m ManagerDeb) Clean() error {
 	return err
 }
 
+// https://www.linuxuprising.com/2021/01/apt-key-is-deprecated-how-to-add.html
+
 // url must have the APT repository key.
 func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 	// == 1. Download the APT repository key

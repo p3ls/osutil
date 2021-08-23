@@ -7,6 +7,7 @@
 package sysutil
 
 import (
+	"errors"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -274,6 +275,10 @@ func DetectPkgManag() (PkgManager, error) {
 }
 
 // == Errors
+
+var ErrRepo = errors.New(
+	"the distribution does not allow add or remove third party repositories",
+)
 
 type pkgManagNotfoundError struct {
 	Distro

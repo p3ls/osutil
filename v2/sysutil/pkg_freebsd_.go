@@ -8,7 +8,9 @@
 
 package sysutil
 
-import "github.com/tredoe/osutil/v2/executil"
+import (
+	"github.com/tredoe/osutil/v2/executil"
+)
 
 const (
 	filePkg = "pkg"
@@ -75,9 +77,9 @@ func (m ManagerPkg) Clean() error {
 }
 
 func (m ManagerPkg) AddRepo(alias string, url ...string) error {
-	panic("unimplemented")
+	return ErrRepo
 }
 
 func (m ManagerPkg) RemoveRepo(r string) error {
-	panic("unimplemented")
+	return ErrRepo
 }

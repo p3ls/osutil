@@ -79,6 +79,8 @@ func (m ManagerPacman) Clean() error {
 	return err
 }
 
+// https://arcolinux.com/how-to-add-the-third-party-repo-to-pacman-conf/
+
 func (m ManagerPacman) AddRepo(alias string, url ...string) error {
 	var buf bytes.Buffer
 
