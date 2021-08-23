@@ -1,7 +1,5 @@
 # osutil
 
-WARNING! The API of version v2.0.0 could change.
-
 Access to operating system functionality dependent of every platform.
 
 + config/env: set persistent environment variables
