@@ -70,3 +70,11 @@ func (m ManagerEbuild) Clean() error {
 	_, err = m.cmd.Command(pathEbuild, "--depclean").Run()
 	return err
 }
+
+func (m ManagerEbuild) AddRepo(alias string, url ...string) error {
+	panic("unimplemented")
+}
+
+func (m ManagerEbuild) RemoveRepo(r string) error {
+	panic("unimplemented")
+}

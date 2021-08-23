@@ -8,7 +8,16 @@
 
 package sysutil
 
-import "github.com/tredoe/osutil/executil"
+import (
+	"bytes"
+	"fmt"
+	"os"
+	"path"
+
+	"github.com/tredoe/osutil/config/shconf"
+	"github.com/tredoe/osutil/executil"
+	"github.com/tredoe/osutil/fileutil"
+)
 
 // 'apt' is for the terminal and gives beautiful output.
 // 'apt-get' and 'apt-cache' are for scripts and give stable, parsable output.
@@ -16,6 +25,8 @@ import "github.com/tredoe/osutil/executil"
 const (
 	fileDeb = "apt-get"
 	pathDeb = "/usr/bin/apt-get"
+
+	pathGpg = "/usr/bin/gpg"
 )
 
 // ManagerDeb is the interface to handle the package manager of Linux systems based at Debian.
@@ -79,4 +90,99 @@ func (m ManagerDeb) Clean() error {
 
 	_, err = m.cmd.Command(sudo, pathDeb, "clean").Run()
 	return err
+}
+
+// url must have the APT repository key.
+func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
+	// == 1. Download the APT repository key
+
+	var keyFile bytes.Buffer
+	keyUrl := url[0]
+
+	if err = fileutil.Dload(keyUrl, &keyFile); err != nil {
+		return err
+	}
+
+	gpgOut, stderr, err := m.cmd.Command(pathGpg, "--dearmor", keyFile.String()).OutputCombined()
+	if err != nil {
+		return err
+	}
+	if err = executil.CheckStderr(stderr, err); err != nil {
+		return err
+	}
+
+	keyring := m.keyring(alias)
+
+	fi, err := os.Create(keyring)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err2 := fi.Close(); err2 != nil && err == nil {
+			err = err2
+		}
+	}()
+	if _, err = fi.Write(gpgOut); err != nil {
+		return err
+	}
+	if err = fi.Sync(); err != nil {
+		return err
+	}
+
+	// == 2. Add the repository sources.list entry
+
+	distroName, err := distroCodeName()
+	if err != nil {
+		return err
+	}
+
+	err = fileutil.CreateFromString(
+		m.sourceList(alias),
+		fmt.Sprintf("deb [signed-by=%s] %s %s main", path.Dir(keyUrl), distroName, keyring),
+	)
+	if err != nil {
+		return err
+	}
+
+	// * * *
+
+	return m.Update()
+}
+
+func (m ManagerDeb) RemoveRepo(alias string) error {
+	err := os.Remove(m.keyring(alias))
+	if err != nil {
+		return err
+	}
+	if err = os.Remove(m.sourceList(alias)); err != nil {
+		return err
+	}
+
+	return m.Update()
+}
+
+// == Utility
+//
+
+// distroCodeName returns the version like code name.
+func distroCodeName() (string, error) {
+	_, err := os.Stat("/etc/os-release")
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("%s", DistroUnknown)
+	}
+
+	cfg, err := shconf.ParseFile("/etc/os-release")
+	if err != nil {
+		return "", err
+	}
+
+	return cfg.Get("VERSION_CODENAME")
+}
+
+func (m ManagerDeb) keyring(alias string) string {
+	return "/usr/share/keyrings/" + alias + "-archive-keyring.gpg"
+}
+
+func (m ManagerDeb) sourceList(alias string) string {
+	return "/etc/apt/sources.list.d/" + alias + ".list"
 }

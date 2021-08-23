@@ -14,6 +14,7 @@ import (
 	"github.com/tredoe/goutil/reflectutil"
 	"github.com/tredoe/osutil/config/shconf"
 	"github.com/tredoe/osutil/userutil/crypt"
+	"gopkg.in/ini.v1"
 )
 
 // TODO: handle des, bcrypt and rounds in SHA2.
@@ -142,7 +143,8 @@ func (c *configData) init(debug bool) error {
 		}
 
 		if found {
-			cfg, err := shconf.ParseFile(fileLibuser)
+			cfg, err := ini.Load(fileLibuser)
+			//cfg, err := shconf.ParseFile(fileLibuser)
 			if err != nil {
 				return err
 			}

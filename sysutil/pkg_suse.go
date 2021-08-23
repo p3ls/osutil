@@ -74,3 +74,22 @@ func (m ManagerZypp) Clean() error {
 	_, err := m.cmd.Command(sudo, pathZypp, "clean").Run()
 	return err
 }
+
+// https://opensuse-guide.org/repositories.php
+
+func (m ManagerZypp) AddRepo(alias string, url ...string) error {
+	_, err := m.cmd.Command(sudo, pathZypp, "addrepo", "-f", url[0], alias).Run()
+	if err != nil {
+		return err
+	}
+
+	return m.Update()
+}
+
+func (m ManagerZypp) RemoveRepo(r string) error {
+	if _, err := m.cmd.Command(sudo, pathZypp, "removerepo", r).Run(); err != nil {
+		return err
+	}
+
+	return m.Update()
+}

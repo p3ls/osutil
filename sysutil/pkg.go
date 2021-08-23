@@ -43,6 +43,12 @@ type PkgManager interface {
 
 	// Clean erases both packages downloaded and orphaned dependencies.
 	Clean() error
+
+	// AddRepo adds a repository.
+	AddRepo(alias string, url ...string) error
+
+	// RemoveRepo removes a repository.
+	RemoveRepo(string) error
 }
 
 // PackageType represents a package management system.

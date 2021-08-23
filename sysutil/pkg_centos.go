@@ -90,6 +90,24 @@ func (m ManagerDnf) Clean() error {
 	return err
 }
 
+func (m ManagerDnf) AddRepo(alias string, url ...string) error {
+	_, err := m.cmd.Command(sudo, pathRpm, "-Uvh", url[0]).Run()
+	if err != nil {
+		return err
+	}
+
+	return m.Upgrade()
+}
+
+func (m ManagerDnf) RemoveRepo(alias string) error {
+	err := m.Remove(alias)
+	if err != nil {
+		return err
+	}
+
+	return m.Upgrade()
+}
+
 // * * *
 
 // ManagerYum is the interface to handle the package manager YUM of Linux systems
@@ -147,6 +165,24 @@ func (m ManagerYum) Clean() error {
 	return err
 }
 
+func (m ManagerYum) AddRepo(alias string, url ...string) error {
+	_, err := m.cmd.Command(sudo, pathRpm, "-Uvh", url[0]).Run()
+	if err != nil {
+		return err
+	}
+
+	return m.Upgrade()
+}
+
+func (m ManagerYum) RemoveRepo(alias string) error {
+	err := m.Remove(alias)
+	if err != nil {
+		return err
+	}
+
+	return m.Upgrade()
+}
+
 // * * *
 
 // ManagerRpm is the interface to handle the package manager RPM of Linux systems
@@ -198,5 +234,13 @@ func (m ManagerRpm) Upgrade() error {
 }
 
 func (m ManagerRpm) Clean() error {
+	return nil
+}
+
+func (m ManagerRpm) AddRepo(alias string, url ...string) error {
+	return nil
+}
+
+func (m ManagerRpm) RemoveRepo(r string) error {
 	return nil
 }

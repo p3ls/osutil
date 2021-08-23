@@ -78,3 +78,13 @@ func (m ManagerBrew) Clean() error {
 	_, err = m.cmd.Command(pathBrew, "cleanup").Run()
 	return err
 }
+
+func (m ManagerBrew) AddRepo(alias string, url ...string) error {
+	_, err := m.cmd.Command(pathBrew, "tap", url[0]).Run()
+	return err
+}
+
+func (m ManagerBrew) RemoveRepo(r string) error {
+	_, err := m.cmd.Command(pathBrew, "untap", r).Run()
+	return err
+}

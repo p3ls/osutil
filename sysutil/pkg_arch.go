@@ -8,7 +8,13 @@
 
 package sysutil
 
-import "github.com/tredoe/osutil/executil"
+import (
+	"bytes"
+	"fmt"
+
+	"github.com/tredoe/osutil/edi"
+	"github.com/tredoe/osutil/executil"
+)
 
 const (
 	filePacman = "pacman"
@@ -71,4 +77,29 @@ func (m ManagerPacman) Upgrade() error {
 func (m ManagerPacman) Clean() error {
 	_, err := m.cmd.Command("/usr/bin/paccache", "-r").Run()
 	return err
+}
+
+func (m ManagerPacman) AddRepo(alias string, url ...string) error {
+	var buf bytes.Buffer
+
+	fmt.Fprintf(&buf, "[%s]\n", alias)
+	for _, v := range url {
+		fmt.Fprintf(&buf, "Server = %s\n", v)
+	}
+
+	ed, err := edi.NewEdit("/etc/pacman.conf", nil)
+	if err != nil {
+		return err
+	}
+
+	if err = ed.Append(buf.Bytes()); err != nil {
+		return err
+	}
+
+	return m.Update()
+}
+
+func (m ManagerPacman) RemoveRepo(r string) error {
+	// TODO
+	panic("unimplemented")
 }

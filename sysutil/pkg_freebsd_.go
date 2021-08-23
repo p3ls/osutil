@@ -73,3 +73,11 @@ func (m ManagerPkg) Clean() error {
 	_, err = m.cmd.Command(sudo, pathPkg, "clean", "-y").Run()
 	return err
 }
+
+func (m ManagerPkg) AddRepo(alias string, url ...string) error {
+	panic("unimplemented")
+}
+
+func (m ManagerPkg) RemoveRepo(r string) error {
+	panic("unimplemented")
+}
