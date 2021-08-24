@@ -7,7 +7,9 @@
 package userutil
 
 import (
+	"fmt"
 	"os"
+	"reflect"
 )
 
 var isRoot bool
@@ -35,6 +37,19 @@ func exist(file string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+// printStruct prints a struct to debug.
+func printStruct(t interface{}) {
+	valueof := reflect.ValueOf(t).Elem()
+	typeof := valueof.Type()
+
+	for i := 0; i < valueof.NumField(); i++ {
+		f := valueof.Field(i)
+		fmt.Printf(" %s (%s) = %v\n",
+			typeof.Field(i).Name, f.Type(), f.Interface(),
+		)
+	}
 }
 
 // _SEC_PER_DAY is the number of secons that a day has.

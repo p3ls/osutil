@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/tredoe/goutil/reflectutil"
 	"github.com/tredoe/osutil/v2/config/shconf"
 	"github.com/tredoe/osutil/v2/userutil/crypt"
 	"gopkg.in/ini.v1"
@@ -69,7 +68,7 @@ func (c *configData) init(debug bool) error {
 	}
 	if debug {
 		fmt.Printf("\n* %s\n", fileLogin)
-		reflectutil.PrintStruct(_confLogin)
+		printStruct(_confLogin)
 	}
 
 	if _confLogin.PASS_MAX_DAYS == 0 {
@@ -89,7 +88,7 @@ func (c *configData) init(debug bool) error {
 	}
 	if debug {
 		fmt.Printf("\n* %s\n", fileUseradd)
-		reflectutil.PrintStruct(_confUseradd)
+		printStruct(_confUseradd)
 	}
 
 	if _confUseradd.HOME == "" {
@@ -119,7 +118,7 @@ func (c *configData) init(debug bool) error {
 		}
 		if debug {
 			fmt.Printf("\n* %s\n", fileAdduser)
-			reflectutil.PrintStruct(_confAdduser)
+			printStruct(_confAdduser)
 		}
 
 		if _confLogin.SYS_UID_MIN == 0 || _confLogin.SYS_UID_MAX == 0 ||
@@ -155,7 +154,7 @@ func (c *configData) init(debug bool) error {
 			}
 			if debug {
 				fmt.Printf("\n* %s\n", fileLibuser)
-				reflectutil.PrintStruct(_confLibuser)
+				printStruct(_confLibuser)
 			}
 
 			if _confLibuser.login_defs != fileLogin {
@@ -181,7 +180,7 @@ func (c *configData) init(debug bool) error {
 		}
 		if debug {
 			fmt.Printf("\n* %s\n", filePasswd)
-			reflectutil.PrintStruct(_confPasswd)
+			printStruct(_confPasswd)
 		}
 
 		if _confPasswd.CRYPT != "" {

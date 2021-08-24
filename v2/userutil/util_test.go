@@ -11,6 +11,19 @@ import (
 	"time"
 )
 
+type S struct {
+	A int
+	B string
+}
+
+func TestPrintStruct(t *testing.T) {
+	s := S{23, "skidoo"}
+
+	if testing.Verbose() {
+		printStruct(&s)
+	}
+}
+
 func TestSecToDays(t *testing.T) {
 	now := time.Now()
 
