@@ -4,16 +4,27 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// TODO: to use
+//
+// dnf config-manager -> install: dnf-plugins-core
+// yum-config-manager -> install: yum-utils
+
 package sysutil
 
-import "github.com/tredoe/osutil/v2/executil"
+import (
+	"os"
+
+	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/fileutil"
+)
 
 const (
 	fileDnf = "dnf" // Preferable to YUM
 	pathDnf = "/usr/bin/dnf"
 
-	fileYum = "yum"
-	pathYum = "/usr/bin/yum"
+	fileYum    = "yum"
+	pathYum    = "/usr/bin/yum"
+	pathYumCfg = "/usr/bin/yum-config-manager"
 
 	// RPM is used to install/uninstall local packages.
 	fileRpm = "rpm"
@@ -25,6 +36,8 @@ const (
 type ManagerDnf struct {
 	pathExec string
 	cmd      *executil.Command
+
+	rpm ManagerRpm
 }
 
 // NewManagerDnf returns the DNF package manager.
@@ -34,6 +47,7 @@ func NewManagerDnf() ManagerDnf {
 		cmd: excmd.Command("", "").
 			// https://dnf.readthedocs.io/en/latest/command_ref.html
 			BadExitCodes([]int{1, 3, 200}),
+		rpm: NewManagerRpm(),
 	}
 }
 
@@ -91,7 +105,7 @@ func (m ManagerDnf) Clean() error {
 }
 
 func (m ManagerDnf) ImportKey(alias, keyUrl string) error {
-	return ErrRepo
+	return m.rpm.ImportKey("", keyUrl)
 }
 
 func (m ManagerDnf) ImportKeyFromServer(alias, keyServer, key string) error {
@@ -102,22 +116,48 @@ func (m ManagerDnf) RemoveKey(alias string) error {
 	return ErrRepo
 }
 
+// https://docs.fedoraproject.org/en-US/quick-docs/adding-or-removing-software-repositories-in-fedora/
+
 func (m ManagerDnf) AddRepo(alias string, url ...string) error {
-	_, err := m.cmd.Command(sudo, pathRpm, "-Uvh", url[0]).Run()
+	pathRepo := m.repository(alias)
+
+	err := fileutil.CreateFromString(pathRepo, url[0])
 	if err != nil {
 		return err
 	}
 
-	return m.Upgrade()
+	stderr, err := m.cmd.Command(
+		sudo, pathDnf, "config-manager", "--add-repo", pathRepo,
+	).OutputStderr()
+	if err = executil.CheckStderr(stderr, err); err != nil {
+		return err
+	}
+
+	stderr, err = m.cmd.Command(
+		sudo, pathDnf, "config-manager", "--set-enabled", alias,
+	).OutputStderr()
+
+	err = executil.CheckStderr(stderr, err)
+	return err
+
+	/*_, err := m.cmd.Command(sudo, pathRpm, "-Uvh", url[0]).Run()
+	if err != nil {
+		return err
+	}*/
+
+	//return m.Upgrade()
 }
 
 func (m ManagerDnf) RemoveRepo(alias string) error {
-	err := m.Remove(alias)
-	if err != nil {
+	stderr, err := m.cmd.Command(
+		sudo, pathDnf, "config-manager", "--set-disabled", alias,
+	).OutputStderr()
+	if err = executil.CheckStderr(stderr, err); err != nil {
 		return err
 	}
 
-	return m.Upgrade()
+	return os.Remove(m.repository(alias))
+	//return m.Upgrade()
 }
 
 // * * *
@@ -127,6 +167,8 @@ func (m ManagerDnf) RemoveRepo(alias string) error {
 type ManagerYum struct {
 	pathExec string
 	cmd      *executil.Command
+
+	rpm ManagerRpm
 }
 
 // NewManagerYum returns the YUM package manager.
@@ -135,6 +177,7 @@ func NewManagerYum() ManagerYum {
 		pathExec: pathYum,
 		cmd: excmd.Command("", "").
 			BadExitCodes([]int{1, 2, 3, 16}),
+		rpm: NewManagerRpm(),
 	}
 }
 
@@ -178,7 +221,7 @@ func (m ManagerYum) Clean() error {
 }
 
 func (m ManagerYum) ImportKey(alias, keyUrl string) error {
-	return ErrRepo
+	return m.rpm.ImportKey("", keyUrl)
 }
 
 func (m ManagerYum) ImportKeyFromServer(alias, keyServer, key string) error {
@@ -189,22 +232,41 @@ func (m ManagerYum) RemoveKey(alias string) error {
 	return ErrRepo
 }
 
+// https://docs.fedoraproject.org/en-US/Fedora/16/html/System_Administrators_Guide/sec-Managing_Yum_Repositories.html
+
 func (m ManagerYum) AddRepo(alias string, url ...string) error {
-	_, err := m.cmd.Command(sudo, pathRpm, "-Uvh", url[0]).Run()
-	if err != nil {
+	stderr, err := m.cmd.Command(
+		sudo, pathYumCfg, "--add-repo", url[0],
+	).OutputStderr()
+	if err = executil.CheckStderr(stderr, err); err != nil {
 		return err
 	}
 
-	return m.Upgrade()
+	stderr, err = m.cmd.Command(
+		sudo, pathYumCfg, "--enable", alias,
+	).OutputStderr()
+
+	err = executil.CheckStderr(stderr, err)
+	return err
+
+	/*_, err := m.cmd.Command(sudo, pathRpm, "-Uvh", url[0]).Run()
+	if err != nil {
+		return err
+	}*/
+
+	//return m.Upgrade()
 }
 
 func (m ManagerYum) RemoveRepo(alias string) error {
-	err := m.Remove(alias)
-	if err != nil {
+	stderr, err := m.cmd.Command(
+		sudo, pathYumCfg, "--disable", alias,
+	).OutputStderr()
+	if err = executil.CheckStderr(stderr, err); err != nil {
 		return err
 	}
 
-	return m.Upgrade()
+	return os.Remove(m.repository(alias))
+	//return m.Upgrade()
 }
 
 // * * *
@@ -262,7 +324,10 @@ func (m ManagerRpm) Clean() error {
 }
 
 func (m ManagerRpm) ImportKey(alias, keyUrl string) error {
-	return ErrRepo
+	stderr, err := m.cmd.Command(pathRpm, "--import", keyUrl).OutputStderr()
+
+	err = executil.CheckStderr(stderr, err)
+	return err
 }
 
 func (m ManagerRpm) ImportKeyFromServer(alias, keyServer, key string) error {
@@ -279,4 +344,15 @@ func (m ManagerRpm) AddRepo(alias string, url ...string) error {
 
 func (m ManagerRpm) RemoveRepo(r string) error {
 	return ErrRepo
+}
+
+// == Utility
+//
+
+func (m ManagerDnf) repository(alias string) string {
+	return "/etc/yum.repos.d/" + alias + ".repo"
+}
+
+func (m ManagerYum) repository(alias string) string {
+	return "/etc/yum.repos.d/" + alias + ".repo"
 }

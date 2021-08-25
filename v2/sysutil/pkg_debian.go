@@ -110,9 +110,6 @@ func (m ManagerDeb) ImportKey(alias, keyUrl string) error {
 	stdout, stderr, err := m.cmd.Command(
 		pathGpg, "--dearmor", keyFile.String(),
 	).OutputCombined()
-	if err != nil {
-		return err
-	}
 	if err = executil.CheckStderr(stderr, err); err != nil {
 		return err
 	}
@@ -145,11 +142,9 @@ func (m ManagerDeb) ImportKeyFromServer(alias, keyServer, key string) error {
 		"--keyserver", keyServer,
 		"--recv-keys", key,
 	).OutputStderr()
-	if err = executil.CheckStderr(stderr, err); err != nil {
-		return err
-	}
 
-	return nil
+	err = executil.CheckStderr(stderr, err)
+	return err
 }
 
 func (m ManagerDeb) RemoveKey(alias string) error {
@@ -163,7 +158,7 @@ func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 	}
 
 	err = fileutil.CreateFromString(
-		m.sourceList(alias),
+		m.repository(alias),
 		fmt.Sprintf("deb [signed-by=%s] %s %s main",
 			path.Dir(url[0]), distroName, m.keyring(alias),
 		),
@@ -180,7 +175,7 @@ func (m ManagerDeb) RemoveRepo(alias string) error {
 	if err != nil {
 		return err
 	}
-	if err = os.Remove(m.sourceList(alias)); err != nil {
+	if err = os.Remove(m.repository(alias)); err != nil {
 		return err
 	}
 
@@ -209,6 +204,6 @@ func (m ManagerDeb) keyring(alias string) string {
 	return "/usr/share/keyrings/" + alias + "-archive-keyring.gpg"
 }
 
-func (m ManagerDeb) sourceList(alias string) string {
+func (m ManagerDeb) repository(alias string) string {
 	return "/etc/apt/sources.list.d/" + alias + ".list"
 }
