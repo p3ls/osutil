@@ -7,7 +7,6 @@
 package sysutil
 
 import (
-	"errors"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -44,6 +43,16 @@ type PkgManager interface {
 
 	// Clean erases both packages downloaded and orphaned dependencies.
 	Clean() error
+
+	// ImportKey downloads the OpenPGP key and add it to the system.
+	ImportKey(alias, keyUrl string) error
+
+	// ImportKeyFromServer imports OpenPGP key directly from a keyserver.
+	// Whether 'keyServer' is empty, then it uses a value by default.
+	ImportKeyFromServer(alias, keyServer, key string) error
+
+	// RemoveKey removes the OpenPGP key.
+	RemoveKey(alias string) error
 
 	// AddRepo adds a repository.
 	AddRepo(alias string, url ...string) error
@@ -272,26 +281,4 @@ func DetectPkgManag() (PkgManager, error) {
 	}
 
 	return ManagerVoid{}, fmt.Errorf("package manager not found in $PATH")
-}
-
-// == Errors
-
-var ErrRepo = errors.New(
-	"the distribution does not allow add or remove third party repositories",
-)
-
-type pkgManagNotfoundError struct {
-	Distro
-}
-
-func (e pkgManagNotfoundError) Error() string {
-	return fmt.Sprintf(
-		"package manager not found at Linux distro %s", e.Distro.String(),
-	)
-}
-
-type pkgTypeError string
-
-func (e pkgTypeError) Error() string {
-	return "invalid package type: " + string(e)
 }

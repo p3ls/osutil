@@ -71,6 +71,18 @@ func (m ManagerEbuild) Clean() error {
 	return err
 }
 
+func (m ManagerEbuild) ImportKey(alias, keyUrl string) error {
+	return ErrRepo
+}
+
+func (m ManagerEbuild) ImportKeyFromServer(alias, keyServer, key string) error {
+	return ErrRepo
+}
+
+func (m ManagerEbuild) RemoveKey(alias string) error {
+	return ErrRepo
+}
+
 func (m ManagerEbuild) AddRepo(alias string, url ...string) error {
 	return ErrRepo
 }

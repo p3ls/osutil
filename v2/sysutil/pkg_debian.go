@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/tredoe/osutil/v2/config/shconf"
 	"github.com/tredoe/osutil/v2/executil"
@@ -94,18 +95,21 @@ func (m ManagerDeb) Clean() error {
 
 // https://www.linuxuprising.com/2021/01/apt-key-is-deprecated-how-to-add.html
 
-// url must have the APT repository key.
-func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
-	// == 1. Download the APT repository key
+func (m ManagerDeb) ImportKey(alias, keyUrl string) error {
+	if file := path.Base(keyUrl); !strings.Contains(file, ".") {
+		return ErrKeyUrl
+	}
 
 	var keyFile bytes.Buffer
-	keyUrl := url[0]
 
-	if err = fileutil.Dload(keyUrl, &keyFile); err != nil {
+	err := fileutil.Dload(keyUrl, &keyFile)
+	if err != nil {
 		return err
 	}
 
-	gpgOut, stderr, err := m.cmd.Command(pathGpg, "--dearmor", keyFile.String()).OutputCombined()
+	stdout, stderr, err := m.cmd.Command(
+		pathGpg, "--dearmor", keyFile.String(),
+	).OutputCombined()
 	if err != nil {
 		return err
 	}
@@ -113,9 +117,7 @@ func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 		return err
 	}
 
-	keyring := m.keyring(alias)
-
-	fi, err := os.Create(keyring)
+	fi, err := os.Create(m.keyring(alias))
 	if err != nil {
 		return err
 	}
@@ -124,15 +126,37 @@ func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 			err = err2
 		}
 	}()
-	if _, err = fi.Write(gpgOut); err != nil {
-		return err
-	}
-	if err = fi.Sync(); err != nil {
+	if _, err = fi.Write(stdout); err != nil {
 		return err
 	}
 
-	// == 2. Add the repository sources.list entry
+	return fi.Sync()
+}
 
+func (m ManagerDeb) ImportKeyFromServer(alias, keyServer, key string) error {
+	if keyServer == "" {
+		keyServer = "hkp://keyserver.ubuntu.com:80"
+	}
+
+	stderr, err := m.cmd.Command(
+		pathGpg,
+		"--no-default-keyring",
+		"--keyring", m.keyring(alias),
+		"--keyserver", keyServer,
+		"--recv-keys", key,
+	).OutputStderr()
+	if err = executil.CheckStderr(stderr, err); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m ManagerDeb) RemoveKey(alias string) error {
+	return os.Remove(m.keyring(alias))
+}
+
+func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 	distroName, err := distroCodeName()
 	if err != nil {
 		return err
@@ -140,13 +164,13 @@ func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 
 	err = fileutil.CreateFromString(
 		m.sourceList(alias),
-		fmt.Sprintf("deb [signed-by=%s] %s %s main", path.Dir(keyUrl), distroName, keyring),
+		fmt.Sprintf("deb [signed-by=%s] %s %s main",
+			path.Dir(url[0]), distroName, m.keyring(alias),
+		),
 	)
 	if err != nil {
 		return err
 	}
-
-	// * * *
 
 	return m.Update()
 }

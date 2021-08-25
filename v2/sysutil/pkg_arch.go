@@ -81,6 +81,18 @@ func (m ManagerPacman) Clean() error {
 
 // https://arcolinux.com/how-to-add-the-third-party-repo-to-pacman-conf/
 
+func (m ManagerPacman) ImportKey(alias, keyUrl string) error {
+	return ErrRepo
+}
+
+func (m ManagerPacman) ImportKeyFromServer(alias, keyServer, key string) error {
+	return ErrRepo
+}
+
+func (m ManagerPacman) RemoveKey(alias string) error {
+	return ErrRepo
+}
+
 func (m ManagerPacman) AddRepo(alias string, url ...string) error {
 	var buf bytes.Buffer
 

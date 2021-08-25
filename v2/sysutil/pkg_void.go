@@ -28,6 +28,12 @@ func (m ManagerVoid) Upgrade() error { return nil }
 
 func (m ManagerVoid) Clean() error { return nil }
 
+func (m ManagerVoid) ImportKey(alias, keyUrl string) error { return nil }
+
+func (m ManagerVoid) ImportKeyFromServer(alias, keyServer, key string) error { return nil }
+
+func (m ManagerVoid) RemoveKey(alias string) error { return nil }
+
 func (m ManagerVoid) AddRepo(alias string, url ...string) error { return nil }
 
 func (m ManagerVoid) RemoveRepo(string) error { return nil }

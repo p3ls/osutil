@@ -79,6 +79,18 @@ func (m ManagerBrew) Clean() error {
 	return err
 }
 
+func (m ManagerBrew) ImportKey(alias, keyUrl string) error {
+	return ErrRepo
+}
+
+func (m ManagerBrew) ImportKeyFromServer(alias, keyServer, key string) error {
+	return ErrRepo
+}
+
+func (m ManagerBrew) RemoveKey(alias string) error {
+	return ErrRepo
+}
+
 func (m ManagerBrew) AddRepo(alias string, url ...string) error {
 	_, err := m.cmd.Command(pathBrew, "tap", url[0]).Run()
 	return err

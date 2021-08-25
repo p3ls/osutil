@@ -76,6 +76,18 @@ func (m ManagerPkg) Clean() error {
 	return err
 }
 
+func (m ManagerPkg) ImportKey(alias, keyUrl string) error {
+	return ErrRepo
+}
+
+func (m ManagerPkg) ImportKeyFromServer(alias, keyServer, key string) error {
+	return ErrRepo
+}
+
+func (m ManagerPkg) RemoveKey(alias string) error {
+	return ErrRepo
+}
+
 func (m ManagerPkg) AddRepo(alias string, url ...string) error {
 	return ErrRepo
 }

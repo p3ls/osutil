@@ -77,6 +77,18 @@ func (m ManagerZypp) Clean() error {
 
 // https://opensuse-guide.org/repositories.php
 
+func (m ManagerZypp) ImportKey(alias, keyUrl string) error {
+	return ErrRepo
+}
+
+func (m ManagerZypp) ImportKeyFromServer(alias, keyServer, key string) error {
+	return ErrRepo
+}
+
+func (m ManagerZypp) RemoveKey(alias string) error {
+	return ErrRepo
+}
+
 func (m ManagerZypp) AddRepo(alias string, url ...string) error {
 	_, err := m.cmd.Command(sudo, pathZypp, "addrepo", "-f", url[0], alias).Run()
 	if err != nil {
