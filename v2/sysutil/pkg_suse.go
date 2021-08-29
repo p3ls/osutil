@@ -32,6 +32,8 @@ func NewManagerZypp() ManagerZypp {
 
 func (m ManagerZypp) setExecPath(p string) { m.pathExec = p }
 
+func (m ManagerZypp) Cmd() *executil.Command { return m.cmd }
+
 func (m ManagerZypp) ExecPath() string { return m.pathExec }
 
 func (m ManagerZypp) PackageType() string { return Zypp.String() }

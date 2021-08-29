@@ -6,11 +6,15 @@
 
 package sysutil
 
+import "github.com/tredoe/osutil/v2/executil"
+
 // ManagerVoid is the interface to pass a Manager with an error,
 // avoiding to have to use a pointer.
 type ManagerVoid struct{}
 
 func (m ManagerVoid) setExecPath(string) {}
+
+func (m ManagerVoid) Cmd() *executil.Command { return nil }
 
 func (m ManagerVoid) ExecPath() string { return "" }
 

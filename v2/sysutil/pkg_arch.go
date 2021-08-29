@@ -39,6 +39,8 @@ func NewManagerPacman() ManagerPacman {
 
 func (m ManagerPacman) setExecPath(p string) { m.pathExec = p }
 
+func (m ManagerPacman) Cmd() *executil.Command { return m.cmd }
+
 func (m ManagerPacman) ExecPath() string { return m.pathExec }
 
 func (m ManagerPacman) PackageType() string { return Pacman.String() }

@@ -35,6 +35,8 @@ func NewManagerPkg() ManagerPkg {
 
 func (m ManagerPkg) setExecPath(p string) { m.pathExec = p }
 
+func (m ManagerPkg) Cmd() *executil.Command { return m.cmd }
+
 func (m ManagerPkg) ExecPath() string { return m.pathExec }
 
 func (m ManagerPkg) PackageType() string { return Pkg.String() }

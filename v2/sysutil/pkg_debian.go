@@ -48,6 +48,8 @@ func NewManagerDeb() ManagerDeb {
 
 func (m ManagerDeb) setExecPath(p string) { m.pathExec = p }
 
+func (m ManagerDeb) Cmd() *executil.Command { return m.cmd }
+
 func (m ManagerDeb) ExecPath() string { return m.pathExec }
 
 func (m ManagerDeb) PackageType() string { return Deb.String() }

@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/tredoe/osutil/v2/executil"
 )
 
 const sudo = "sudo"
@@ -19,6 +21,9 @@ const sudo = "sudo"
 type PkgManager interface {
 	// setExecPath sets the executable path.
 	setExecPath(p string)
+
+	// Cmd returns the command configured for the package manager.
+	Cmd() *executil.Command
 
 	// ExecPath returns the executable path.
 	ExecPath() string

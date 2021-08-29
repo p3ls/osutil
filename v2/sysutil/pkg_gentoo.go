@@ -32,6 +32,8 @@ func NewManagerEbuild() ManagerEbuild {
 
 func (m ManagerEbuild) setExecPath(p string) { m.pathExec = p }
 
+func (m ManagerEbuild) Cmd() *executil.Command { return m.cmd }
+
 func (m ManagerEbuild) ExecPath() string { return m.pathExec }
 
 func (m ManagerEbuild) PackageType() string { return Ebuild.String() }

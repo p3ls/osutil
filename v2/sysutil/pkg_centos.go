@@ -53,6 +53,8 @@ func NewManagerDnf() ManagerDnf {
 
 func (m ManagerDnf) setExecPath(p string) { m.pathExec = p }
 
+func (m ManagerDnf) Cmd() *executil.Command { return m.cmd }
+
 func (m ManagerDnf) ExecPath() string { return m.pathExec }
 
 func (m ManagerDnf) PackageType() string { return Dnf.String() }
@@ -183,6 +185,8 @@ func NewManagerYum() ManagerYum {
 
 func (m ManagerYum) setExecPath(p string) { m.pathExec = p }
 
+func (m ManagerYum) Cmd() *executil.Command { return m.cmd }
+
 func (m ManagerYum) ExecPath() string { return m.pathExec }
 
 func (m ManagerYum) PackageType() string { return Yum.String() }
@@ -288,6 +292,8 @@ func NewManagerRpm() ManagerRpm {
 }
 
 func (m ManagerRpm) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerRpm) Cmd() *executil.Command { return m.cmd }
 
 func (m ManagerRpm) ExecPath() string { return m.pathExec }
 

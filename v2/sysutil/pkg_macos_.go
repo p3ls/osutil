@@ -33,6 +33,8 @@ func NewManagerBrew() ManagerBrew {
 
 func (m ManagerBrew) setExecPath(p string) { m.pathExec = p }
 
+func (m ManagerBrew) Cmd() *executil.Command { return m.cmd }
+
 func (m ManagerBrew) ExecPath() string { return m.pathExec }
 
 func (m ManagerBrew) PackageType() string { return Brew.String() }
