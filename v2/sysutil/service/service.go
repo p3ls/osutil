@@ -33,6 +33,26 @@ var (
 	excmdWin = executil.NewCommand("", "").TimeKill(timeKillServ)
 )
 
+// ColumnWin represents the column name at Windows where to find the service name.
+type ColumnWin uint8
+
+const (
+	ColWinName        = iota // Column 'Name'
+	ColWinDisplayname        // Column 'Displayname'
+)
+
+func (c ColumnWin) String() string {
+	switch c {
+	case ColWinName:
+		return "Name"
+	case ColWinDisplayname:
+		return "DisplayName"
+
+	default:
+		panic("unimplemented")
+	}
+}
+
 // Service represents a service.
 type Service struct {
 	name string
@@ -69,7 +89,7 @@ func NewService(sys sysutil.System, dis sysutil.Distro, name string) (*Service, 
 // If 'exclude' is set, it discards the names that contains it.
 // When a service name is not found, returns error 'ServNotFoundError'.
 func LookupService(
-	sys sysutil.System, dis sysutil.Distro, pattern, exclude string,
+	sys sysutil.System, dis sysutil.Distro, pattern, exclude string, column ColumnWin,
 ) (*Service, error) {
 	err := userutil.CheckSudo(sys)
 	if err != nil {
@@ -82,7 +102,7 @@ func LookupService(
 	case sysutil.MacOS:
 		return lookupServiceMacos(pattern, exclude)
 	case sysutil.Windows:
-		return lookupServiceWindows(pattern, exclude)
+		return lookupServiceWindows(pattern, exclude, column)
 	case sysutil.FreeBSD:
 		return lookupServiceFreebsd(pattern, exclude)
 	}
@@ -245,9 +265,7 @@ func lookupServiceMacos(pattern, exclude string) (*Service, error) {
 	return nil, ServNotFoundError{pattern: pattern, dirs: dirs}
 }
 
-func lookupServiceWindows(pattern, exclude string) (*Service, error) {
-	column := "Name"
-
+func lookupServiceWindows(pattern, exclude string, column ColumnWin) (*Service, error) {
 	var out bytes.Buffer
 	cmd := exec.Command(
 		"powershell.exe",
