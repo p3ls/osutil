@@ -37,7 +37,7 @@ var (
 type ColumnWin uint8
 
 const (
-	ColWinName        = iota // Column 'Name'
+	ColWinName        = iota // Column 'Name', by default.
 	ColWinDisplayname        // Column 'Displayname'
 )
 
@@ -60,6 +60,9 @@ type Service struct {
 	sys  sysutil.System
 	dis  sysutil.Distro
 }
+
+// Name returns the service name.
+func (s *Service) Name() string { return s.name }
 
 // NewService creates a new service with the given name.
 // Whether the system is 'SystemUndefined', it is detected.
