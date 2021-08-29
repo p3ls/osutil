@@ -15,7 +15,8 @@ import (
 	"github.com/tredoe/osutil/v2/executil"
 )
 
-const sudo = "sudo"
+// sudo is the path by default at Linux systems.
+const sudo = "/usr/bin/sudo"
 
 // PkgManager is the common interface to handle different package systems.
 type PkgManager interface {

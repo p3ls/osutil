@@ -21,6 +21,7 @@ const (
 // called 'package' or 'pkg'.
 type ManagerPkg struct {
 	pathExec string
+	sudo     string
 	cmd      *executil.Command
 }
 
@@ -28,8 +29,8 @@ type ManagerPkg struct {
 func NewManagerPkg() ManagerPkg {
 	return ManagerPkg{
 		pathExec: pathPkg,
-		cmd: excmd.Command("", "").
-			BadExitCodes([]int{1}),
+		sudo:     "/usr/local/bin/sudo",
+		cmd:      excmd.Command("", "").BadExitCodes([]int{1}),
 	}
 }
 
@@ -44,14 +45,14 @@ func (m ManagerPkg) PackageType() string { return Pkg.String() }
 func (m ManagerPkg) Install(name ...string) error {
 	args := []string{pathPkg, "install", "-y"}
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(m.sudo, append(args, name...)...).Run()
 	return err
 }
 
 func (m ManagerPkg) Remove(name ...string) error {
 	args := []string{pathPkg, "delete", "-y"}
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(m.sudo, append(args, name...)...).Run()
 	return err
 }
 
@@ -60,21 +61,21 @@ func (m ManagerPkg) Purge(name ...string) error {
 }
 
 func (m ManagerPkg) Update() error {
-	_, err := m.cmd.Command(sudo, pathPkg, "update").Run()
+	_, err := m.cmd.Command(m.sudo, pathPkg, "update").Run()
 	return err
 }
 
 func (m ManagerPkg) Upgrade() error {
-	_, err := m.cmd.Command(sudo, pathPkg, "upgrade", "-y").Run()
+	_, err := m.cmd.Command(m.sudo, pathPkg, "upgrade", "-y").Run()
 	return err
 }
 
 func (m ManagerPkg) Clean() error {
-	_, err := m.cmd.Command(sudo, pathPkg, "autoremove", "-y").Run()
+	_, err := m.cmd.Command(m.sudo, pathPkg, "autoremove", "-y").Run()
 	if err != nil {
 		return err
 	}
-	_, err = m.cmd.Command(sudo, pathPkg, "clean", "-y").Run()
+	_, err = m.cmd.Command(m.sudo, pathPkg, "clean", "-y").Run()
 	return err
 }
 
