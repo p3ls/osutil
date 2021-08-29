@@ -14,7 +14,7 @@ import (
 
 // SetupLogger setups the loggers used by some packages.
 // 'log' is used by the packages 'edi', 'fileutil' and 'userutil'.
-// 'logShell' is used by the packages 'executil' and 'pkg'.
+// 'logShell' is used by the package 'executil'.
 func SetupLogger(log, logShell *log.Logger) {
 	internal.Log = log
 	internal.LogShell = logShell

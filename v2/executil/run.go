@@ -70,8 +70,8 @@ func (c *Command) Command(cmd string, args ...string) *Command {
 	}
 }
 
-// TimeTokillCmd sets the time of waiting to finish the command before of kill it.
-func (c *Command) TimeTokillCmd(tm time.Duration) *Command {
+// TimeKill sets the time of waiting to finish the command before of kill it.
+func (c *Command) TimeKill(tm time.Duration) *Command {
 	c.ctx, c.cancelFunc = context.WithTimeout(context.Background(), tm)
 	return c
 }
