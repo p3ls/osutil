@@ -65,50 +65,21 @@ type Service struct {
 	stop  *executil.Command
 }
 
-// CustomStart sets a custom command used to start a service.
-func (s *Service) CustomStart(cmd string, args ...string) *Service {
-	s.start = executil.NewCommand(cmd, args...).TimeKill(timeKillServ)
-
-	if s.sys != sysutil.Windows {
-		s.start.Env([]string{"LANG=C"})
-	}
-
-	return s
-}
-
-// CustomStop sets a custom command used to stop a service.
-func (s *Service) CustomStop(cmd string, args ...string) *Service {
-	s.stop = executil.NewCommand(cmd, args...).TimeKill(timeKillServ)
-
-	if s.sys != sysutil.Windows {
-		s.stop.Env([]string{"LANG=C"})
-	}
-
-	return s
-}
-
 // Name returns the service name.
 func (s *Service) Name() string { return s.name }
 
 // * * *
 
 // NewService creates a new service with the given name.
-// Whether the system is 'SystemUndefined', it is detected.
 func NewService(
 	sys sysutil.System, dis sysutil.Distro, name string,
 ) (*Service, error) {
-	err := userutil.CheckSudo(sys)
-	if err != nil {
-		return nil, err
-	}
-
 	if name == "" {
 		return nil, ErrNoService
 	}
-	if sys <= sysutil.SystemUndefined {
-		if sys, dis, err = sysutil.SystemFromGOOS(); err != nil {
-			return nil, err
-		}
+	err := userutil.CheckSudo(sys)
+	if err != nil {
+		return nil, err
 	}
 
 	return &Service{
@@ -116,6 +87,32 @@ func NewService(
 		sys:  sys,
 		dis:  dis,
 	}, nil
+}
+
+// NewCustomService creates a new service with the custom commands.
+func NewCustomService(
+	sys sysutil.System,
+	cmdStart string, argsStart []string,
+	cmdStop string, argsStop []string,
+) *Service {
+	s := new(Service)
+
+	if cmdStart != "" {
+		s.start = executil.NewCommand(cmdStart, argsStart...).TimeKill(timeKillServ)
+
+		if s.sys != sysutil.Windows {
+			s.start.Env([]string{"LANG=C"})
+		}
+	}
+	if cmdStop != "" {
+		s.stop = executil.NewCommand(cmdStop, argsStop...).TimeKill(timeKillServ)
+
+		if s.sys != sysutil.Windows {
+			s.stop.Env([]string{"LANG=C"})
+		}
+	}
+
+	return s
 }
 
 // LookupService returns the service name matching a pattern using the syntax of Match.
