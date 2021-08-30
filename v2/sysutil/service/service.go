@@ -59,14 +59,38 @@ type Service struct {
 	path string
 	sys  sysutil.System
 	dis  sysutil.Distro
+
+	// Custom commands to both start and stop.
+	cmdStart  string
+	cmdStop   string
+	argsStart []string
+	argsStop  []string
+}
+
+// CustomStart sets a custom command used to start a service.
+func (s *Service) CustomStart(cmd string, args ...string) *Service {
+	s.cmdStart = cmd
+	s.argsStart = args
+	return s
+}
+
+// CustomStop sets a custom command used to stop a service.
+func (s *Service) CustomStop(cmd string, args ...string) *Service {
+	s.cmdStop = cmd
+	s.argsStop = args
+	return s
 }
 
 // Name returns the service name.
 func (s *Service) Name() string { return s.name }
 
+// * * *
+
 // NewService creates a new service with the given name.
 // Whether the system is 'SystemUndefined', it is detected.
-func NewService(sys sysutil.System, dis sysutil.Distro, name string) (*Service, error) {
+func NewService(
+	sys sysutil.System, dis sysutil.Distro, name string,
+) (*Service, error) {
 	err := userutil.CheckSudo(sys)
 	if err != nil {
 		return nil, err
@@ -92,7 +116,10 @@ func NewService(sys sysutil.System, dis sysutil.Distro, name string) (*Service, 
 // If 'exclude' is set, it discards the names that contains it.
 // When a service name is not found, returns error 'ServNotFoundError'.
 func LookupService(
-	sys sysutil.System, dis sysutil.Distro, pattern, exclude string, column ColumnWin,
+	sys sysutil.System,
+	dis sysutil.Distro,
+	pattern, exclude string,
+	column ColumnWin,
 ) (*Service, error) {
 	err := userutil.CheckSudo(sys)
 	if err != nil {
@@ -313,9 +340,15 @@ func lookupServiceWindows(pattern, exclude string, column ColumnWin) (*Service, 
 
 // * * *
 
-// Start starts the service name.
+// Start starts the service.
 func (srv Service) Start() error {
 	internal.LogShell.Print("Starting service ...")
+
+	if srv.cmdStart != "" {
+		stderr, err := excmd.Command(srv.cmdStart, srv.argsStart...).
+			OutputStderr()
+		return executil.CheckStderr(stderr, err)
+	}
 
 	switch srv.sys {
 	case sysutil.Linux:
@@ -373,9 +406,15 @@ func (srv Service) Start() error {
 	return nil
 }
 
-// Stop stops the service name.
+// Stop stops the service.
 func (srv Service) Stop() error {
 	internal.LogShell.Print("Stopping service ...")
+
+	if srv.cmdStop != "" {
+		stderr, err := excmd.Command(srv.cmdStop, srv.argsStop...).
+			OutputStderr()
+		return executil.CheckStderr(stderr, err)
+	}
 
 	switch srv.sys {
 	case sysutil.Linux:
@@ -446,7 +485,7 @@ func (srv Service) Stop() error {
 	return nil
 }
 
-// Restart stops and starts the service name.
+// Restart stops and starts the service.
 func (srv Service) Restart() error {
 	switch srv.sys {
 	case sysutil.Linux:
