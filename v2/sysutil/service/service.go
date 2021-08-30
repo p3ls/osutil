@@ -61,23 +61,29 @@ type Service struct {
 	dis  sysutil.Distro
 
 	// Custom commands to both start and stop.
-	cmdStart  string
-	cmdStop   string
-	argsStart []string
-	argsStop  []string
+	start *executil.Command
+	stop  *executil.Command
 }
 
 // CustomStart sets a custom command used to start a service.
 func (s *Service) CustomStart(cmd string, args ...string) *Service {
-	s.cmdStart = cmd
-	s.argsStart = args
+	s.start = executil.NewCommand(cmd, args...).TimeKill(timeKillServ)
+
+	if s.sys != sysutil.Windows {
+		s.start.Env([]string{"LANG=C"})
+	}
+
 	return s
 }
 
 // CustomStop sets a custom command used to stop a service.
 func (s *Service) CustomStop(cmd string, args ...string) *Service {
-	s.cmdStop = cmd
-	s.argsStop = args
+	s.stop = executil.NewCommand(cmd, args...).TimeKill(timeKillServ)
+
+	if s.sys != sysutil.Windows {
+		s.stop.Env([]string{"LANG=C"})
+	}
+
 	return s
 }
 
@@ -344,9 +350,8 @@ func lookupServiceWindows(pattern, exclude string, column ColumnWin) (*Service, 
 func (srv Service) Start() error {
 	internal.LogShell.Print("Starting service ...")
 
-	if srv.cmdStart != "" {
-		stderr, err := excmd.Command(srv.cmdStart, srv.argsStart...).
-			OutputStderr()
+	if srv.start != nil {
+		stderr, err := srv.start.OutputStderr()
 		return executil.CheckStderr(stderr, err)
 	}
 
@@ -410,9 +415,8 @@ func (srv Service) Start() error {
 func (srv Service) Stop() error {
 	internal.LogShell.Print("Stopping service ...")
 
-	if srv.cmdStop != "" {
-		stderr, err := excmd.Command(srv.cmdStop, srv.argsStop...).
-			OutputStderr()
+	if srv.stop != nil {
+		stderr, err := srv.stop.OutputStderr()
 		return executil.CheckStderr(stderr, err)
 	}
 
