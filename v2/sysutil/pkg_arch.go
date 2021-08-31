@@ -46,23 +46,23 @@ func (m ManagerPacman) ExecPath() string { return m.pathExec }
 func (m ManagerPacman) PackageType() string { return Pacman.String() }
 
 func (m ManagerPacman) Install(name ...string) error {
-	args := []string{"-S", "--needed", "--noprogressbar"}
+	args := append([]string{"-S", "--needed", "--noprogressbar"}, name...)
 
-	_, err := m.cmd.Command(pathPacman, append(args, name...)...).Run()
+	_, err := m.cmd.Command(pathPacman, args...).Run()
 	return err
 }
 
 func (m ManagerPacman) Remove(name ...string) error {
-	args := []string{"-Rs"}
+	args := append([]string{"-Rs"}, name...)
 
-	_, err := m.cmd.Command(pathPacman, append(args, name...)...).Run()
+	_, err := m.cmd.Command(pathPacman, args...).Run()
 	return err
 }
 
 func (m ManagerPacman) Purge(name ...string) error {
-	args := []string{"-Rsn"}
+	args := append([]string{"-Rsn"}, name...)
 
-	_, err := m.cmd.Command(pathPacman, append(args, name...)...).Run()
+	_, err := m.cmd.Command(pathPacman, args...).Run()
 	return err
 }
 
@@ -84,15 +84,15 @@ func (m ManagerPacman) Clean() error {
 // https://arcolinux.com/how-to-add-the-third-party-repo-to-pacman-conf/
 
 func (m ManagerPacman) ImportKey(alias, keyUrl string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerPacman) ImportKeyFromServer(alias, keyServer, key string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerPacman) RemoveKey(alias string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerPacman) AddRepo(alias string, url ...string) error {

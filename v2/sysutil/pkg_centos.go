@@ -60,16 +60,16 @@ func (m ManagerDnf) ExecPath() string { return m.pathExec }
 func (m ManagerDnf) PackageType() string { return Dnf.String() }
 
 func (m ManagerDnf) Install(name ...string) error {
-	args := []string{pathDnf, "install", "-y"}
+	args := append([]string{pathDnf, "install", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 
 func (m ManagerDnf) Remove(name ...string) error {
-	args := []string{pathDnf, "remove", "-y"}
+	args := append([]string{pathDnf, "remove", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 
@@ -111,11 +111,11 @@ func (m ManagerDnf) ImportKey(alias, keyUrl string) error {
 }
 
 func (m ManagerDnf) ImportKeyFromServer(alias, keyServer, key string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerDnf) RemoveKey(alias string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 // https://docs.fedoraproject.org/en-US/quick-docs/adding-or-removing-software-repositories-in-fedora/
@@ -192,16 +192,16 @@ func (m ManagerYum) ExecPath() string { return m.pathExec }
 func (m ManagerYum) PackageType() string { return Yum.String() }
 
 func (m ManagerYum) Install(name ...string) error {
-	args := []string{pathYum, "install", "-y"}
+	args := append([]string{pathYum, "install", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 
 func (m ManagerYum) Remove(name ...string) error {
-	args := []string{pathYum, "remove", "-y"}
+	args := append([]string{pathYum, "remove", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 
@@ -229,11 +229,11 @@ func (m ManagerYum) ImportKey(alias, keyUrl string) error {
 }
 
 func (m ManagerYum) ImportKeyFromServer(alias, keyServer, key string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerYum) RemoveKey(alias string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 // https://docs.fedoraproject.org/en-US/Fedora/16/html/System_Administrators_Guide/sec-Managing_Yum_Repositories.html
@@ -300,16 +300,16 @@ func (m ManagerRpm) ExecPath() string { return m.pathExec }
 func (m ManagerRpm) PackageType() string { return Rpm.String() }
 
 func (m ManagerRpm) Install(name ...string) error {
-	args := []string{"-i"}
+	args := append([]string{"-i"}, name...)
 
-	_, err := m.cmd.Command(pathRpm, append(args, name...)...).Run()
+	_, err := m.cmd.Command(pathRpm, args...).Run()
 	return err
 }
 
 func (m ManagerRpm) Remove(name ...string) error {
-	args := []string{"-e"}
+	args := append([]string{"-e"}, name...)
 
-	_, err := m.cmd.Command(pathRpm, append(args, name...)...).Run()
+	_, err := m.cmd.Command(pathRpm, args...).Run()
 	return err
 }
 
@@ -318,15 +318,15 @@ func (m ManagerRpm) Purge(name ...string) error {
 }
 
 func (m ManagerRpm) Update() error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerRpm) Upgrade() error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerRpm) Clean() error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerRpm) ImportKey(alias, keyUrl string) error {
@@ -337,19 +337,19 @@ func (m ManagerRpm) ImportKey(alias, keyUrl string) error {
 }
 
 func (m ManagerRpm) ImportKeyFromServer(alias, keyServer, key string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerRpm) RemoveKey(alias string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerRpm) AddRepo(alias string, url ...string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerRpm) RemoveRepo(r string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 // == Utility

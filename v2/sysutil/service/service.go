@@ -115,7 +115,7 @@ func NewCustomService(
 	return s
 }
 
-// LookupService returns the service name matching a pattern using the syntax of Match.
+// LookupService returns the service that matchs a pattern using the syntax of Match.
 // If 'exclude' is set, it discards the names that contains it.
 // When a service name is not found, returns error 'ServNotFoundError'.
 func LookupService(

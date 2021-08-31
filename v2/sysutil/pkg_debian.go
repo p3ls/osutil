@@ -55,23 +55,23 @@ func (m ManagerDeb) ExecPath() string { return m.pathExec }
 func (m ManagerDeb) PackageType() string { return Deb.String() }
 
 func (m ManagerDeb) Install(name ...string) error {
-	args := []string{pathDeb, "install", "-y"}
+	args := append([]string{pathDeb, "install", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 
 func (m ManagerDeb) Remove(name ...string) error {
-	args := []string{pathDeb, "remove", "-y"}
+	args := append([]string{pathDeb, "remove", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 
 func (m ManagerDeb) Purge(name ...string) error {
-	args := []string{pathDeb, "purge", "-y"}
+	args := append([]string{pathDeb, "purge", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 

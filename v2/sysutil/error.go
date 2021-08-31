@@ -12,10 +12,8 @@ import (
 )
 
 var (
-	ErrKeyUrl = errors.New("the url has not a key file")
-	ErrRepo   = errors.New(
-		"the distribution does not allow add or remove third party repositories",
-	)
+	ErrKeyUrl   = errors.New("the url has not a key file")
+	ErrManagCmd = errors.New("unsupported command by the package manager")
 )
 
 type pkgManagNotfoundError struct {

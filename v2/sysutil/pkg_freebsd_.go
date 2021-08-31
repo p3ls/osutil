@@ -43,16 +43,16 @@ func (m ManagerPkg) ExecPath() string { return m.pathExec }
 func (m ManagerPkg) PackageType() string { return Pkg.String() }
 
 func (m ManagerPkg) Install(name ...string) error {
-	args := []string{pathPkg, "install", "-y"}
+	args := append([]string{pathPkg, "install", "-y"}, name...)
 
-	_, err := m.cmd.Command(m.sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(m.sudo, args...).Run()
 	return err
 }
 
 func (m ManagerPkg) Remove(name ...string) error {
-	args := []string{pathPkg, "delete", "-y"}
+	args := append([]string{pathPkg, "delete", "-y"}, name...)
 
-	_, err := m.cmd.Command(m.sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(m.sudo, args...).Run()
 	return err
 }
 
@@ -80,21 +80,21 @@ func (m ManagerPkg) Clean() error {
 }
 
 func (m ManagerPkg) ImportKey(alias, keyUrl string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerPkg) ImportKeyFromServer(alias, keyServer, key string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerPkg) RemoveKey(alias string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerPkg) AddRepo(alias string, url ...string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerPkg) RemoveRepo(r string) error {
-	return ErrRepo
+	return ErrManagCmd
 }

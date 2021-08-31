@@ -83,6 +83,10 @@ const (
 	// BSD
 	Brew
 	Pkg
+
+	// Windows
+	Choco
+	Winget
 )
 
 func (pkg PackageType) String() string {
@@ -108,6 +112,11 @@ func (pkg PackageType) String() string {
 		return "brew"
 	case Pkg:
 		return "pkg"
+
+	case Choco:
+		return "Chocolatey"
+	case Winget:
+		return "winget"
 	}
 	panic("unreachable")
 }
@@ -134,6 +143,11 @@ func NewPkgTypeFromStr(s string) (PackageType, error) {
 		return Brew, nil
 	case filePkg:
 		return Pkg, nil
+
+	case fileChoco:
+		return Choco, nil
+	case fileWinget:
+		return Winget, nil
 
 	default:
 		return -1, pkgTypeError(s)
@@ -166,6 +180,12 @@ func NewPkgManagFromType(pkg PackageType) PkgManager {
 		return NewManagerBrew()
 	case Pkg:
 		return NewManagerPkg()
+
+	// Windows
+	case Choco:
+		return NewManagerChoco()
+	case Winget:
+		return NewManagerWinget()
 	}
 	panic("unreachable")
 }
@@ -197,6 +217,9 @@ func NewPkgManagFromSystem(sys System, dis Distro) (PkgManager, error) {
 		return NewManagerBrew(), nil
 	case FreeBSD:
 		return NewManagerPkg(), nil
+	case Windows:
+		// TODO: in the future, to use winget
+		return NewManagerChoco(), nil
 
 	default:
 		panic("unimplemented")
@@ -250,9 +273,8 @@ func NewPkgManagFromDistro(dis Distro) (PkgManager, error) {
 
 // * * *
 
-// execPackage is a list of package managers executables.
-var execPackage = [...]string{
-	// Linux
+// execPkgLinux is a list of package managers executables for Linux.
+var execPkgLinux = []string{
 	fileDeb,
 	fileDnf,
 	fileYum,
@@ -260,16 +282,43 @@ var execPackage = [...]string{
 	filePacman,
 	fileEbuild,
 	fileRpm,
+}
 
-	// BSD
+// execPkgFreebsd is a list of package managers executables for FreeBSD.
+var execPkgFreebsd = []string{
 	fileBrew,
+}
+
+// execPkgMacos is a list of package managers executables for MacOS.
+var execPkgMacos = []string{
 	filePkg,
+}
+
+// execPkgWindows is a list of package managers executables for Windows.
+var execPkgWindows = []string{
+	fileChoco,
+	fileWinget,
 }
 
 // DetectPkgManag tries to get the package manager used in the system, looking for
 // executables at directories in $PATH.
-func DetectPkgManag() (PkgManager, error) {
-	for _, p := range execPackage {
+func DetectPkgManag(sys System) (PkgManager, error) {
+	var execPkg []string
+	switch sys {
+	case Linux:
+		execPkg = execPkgLinux
+	case FreeBSD:
+		execPkg = execPkgFreebsd
+	case MacOS:
+		execPkg = execPkgMacos
+	case Windows:
+		execPkg = execPkgWindows
+
+	default:
+		panic("unimplemented: " + sys.String())
+	}
+
+	for _, p := range execPkg {
 		pathExec, err := exec.LookPath(p)
 		if err == nil {
 			pkg, err := NewPkgTypeFromStr(p)

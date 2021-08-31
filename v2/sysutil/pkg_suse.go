@@ -39,20 +39,21 @@ func (m ManagerZypp) ExecPath() string { return m.pathExec }
 func (m ManagerZypp) PackageType() string { return Zypp.String() }
 
 func (m ManagerZypp) Install(name ...string) error {
-	args := []string{
-		pathZypp,
-		"--non-interactive",
-		"install", "--auto-agree-with-licenses", "-y",
-	}
+	args := append(
+		[]string{
+			pathZypp,
+			"--non-interactive",
+			"install", "--auto-agree-with-licenses", "-y",
+		}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 
 func (m ManagerZypp) Remove(name ...string) error {
-	args := []string{pathZypp, "remove", "-y"}
+	args := append([]string{pathZypp, "remove", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, append(args, name...)...).Run()
+	_, err := m.cmd.Command(sudo, args...).Run()
 	return err
 }
 
@@ -80,15 +81,15 @@ func (m ManagerZypp) Clean() error {
 // https://opensuse-guide.org/repositories.php
 
 func (m ManagerZypp) ImportKey(alias, keyUrl string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerZypp) ImportKeyFromServer(alias, keyServer, key string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerZypp) RemoveKey(alias string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerZypp) AddRepo(alias string, url ...string) error {

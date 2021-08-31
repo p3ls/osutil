@@ -44,9 +44,9 @@ func (m ManagerEbuild) Install(name ...string) error {
 }
 
 func (m ManagerEbuild) Remove(name ...string) error {
-	args := []string{"--unmerge"}
+	args := append([]string{"--unmerge"}, name...)
 
-	_, err := m.cmd.Command(pathEbuild, append(args, name...)...).Run()
+	_, err := m.cmd.Command(pathEbuild, args...).Run()
 	return err
 }
 
@@ -74,21 +74,21 @@ func (m ManagerEbuild) Clean() error {
 }
 
 func (m ManagerEbuild) ImportKey(alias, keyUrl string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerEbuild) ImportKeyFromServer(alias, keyServer, key string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerEbuild) RemoveKey(alias string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerEbuild) AddRepo(alias string, url ...string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerEbuild) RemoveRepo(r string) error {
-	return ErrRepo
+	return ErrManagCmd
 }

@@ -19,16 +19,17 @@ func TestPackager(t *testing.T) {
 	internal.LogShell.SetFlags(0)
 	internal.LogShell.SetPrefix("  >> ")
 
-	mng, err := DetectPkgManag()
+	sys, dis, err := SystemFromGOOS()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	mng, err := DetectPkgManag(sys)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("Package type detected: %s", mng.PackageType())
 
-	sys, dis, err := SystemFromGOOS()
-	if err != nil {
-		t.Fatal(err)
-	}
 	if mng, err = NewPkgManagFromSystem(sys, dis); err != nil {
 		t.Fatal(err)
 	}

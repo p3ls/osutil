@@ -40,16 +40,16 @@ func (m ManagerBrew) ExecPath() string { return m.pathExec }
 func (m ManagerBrew) PackageType() string { return Brew.String() }
 
 func (m ManagerBrew) Install(name ...string) error {
-	args := []string{"install"}
+	args := append([]string{"install"}, name...)
 
-	_, err := m.cmd.Command(pathBrew, append(args, name...)...).Run()
+	_, err := m.cmd.Command(pathBrew, args...).Run()
 	return err
 }
 
 func (m ManagerBrew) Remove(name ...string) error {
-	args := []string{"uninstall"}
+	args := append([]string{"uninstall"}, name...)
 
-	_, err := m.cmd.Command(pathBrew, append(args, name...)...).Run()
+	_, err := m.cmd.Command(pathBrew, args...).Run()
 	return err
 }
 
@@ -82,15 +82,15 @@ func (m ManagerBrew) Clean() error {
 }
 
 func (m ManagerBrew) ImportKey(alias, keyUrl string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerBrew) ImportKeyFromServer(alias, keyServer, key string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerBrew) RemoveKey(alias string) error {
-	return ErrRepo
+	return ErrManagCmd
 }
 
 func (m ManagerBrew) AddRepo(alias string, url ...string) error {
