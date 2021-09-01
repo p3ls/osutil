@@ -15,7 +15,7 @@ import (
 	"github.com/tredoe/osutil/v2/sysutil"
 )
 
-var errNoSuperUser = errors.New("you MUST have superuser privileges")
+var ErrNoSuperUser = errors.New("you MUST have superuser privileges")
 
 var (
 	newLineB = []byte{'\n'}
@@ -42,7 +42,6 @@ func CheckSudo(sys sysutil.System) (err error) {
 }
 
 // MustBeSuperUser checks if the current user is in the superusers group.
-// Panics if it is not being run as superuser.
 func MustBeSuperUser(sys sysutil.System) (err error) {
 	if sys == sysutil.SystemUndefined {
 		if sys, _, err = sysutil.SystemFromGOOS(); err != nil {
@@ -80,8 +79,7 @@ func MustBeSuperUser(sys sysutil.System) (err error) {
 				return nil
 			}
 		}
-		//return errNoSuperUser
-		panic(errNoSuperUser)
+		return ErrNoSuperUser
 
 	default:
 		panic("unimplemented: " + sys.String())
