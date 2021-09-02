@@ -49,41 +49,35 @@ func MustBeSuperUser(sys sysutil.System) (err error) {
 		}
 	}
 
-	switch sys {
-	case sysutil.Linux, sysutil.FreeBSD, sysutil.MacOS, sysutil.Windows:
-		usr, err := user.Current()
-		if err != nil {
-			return err
-		}
-		groups, err := usr.GroupIds()
-		if err != nil {
-			return err
-		}
-
-		findGroup := ""
-		switch sys {
-		case sysutil.Linux, sysutil.FreeBSD:
-			findGroup = "root"
-		case sysutil.MacOS:
-			findGroup = "admin"
-		case sysutil.Windows:
-			findGroup = "Administrators"
-		}
-
-		for _, v := range groups {
-			grp, err := user.LookupGroupId(v)
-			if err != nil {
-				return err
-			}
-			if grp.Name == findGroup {
-				return nil
-			}
-		}
-		return ErrNoSuperUser
-
-	default:
-		panic("unimplemented: " + sys.String())
+	usr, err := user.Current()
+	if err != nil {
+		return err
 	}
+	groups, err := usr.GroupIds()
+	if err != nil {
+		return err
+	}
+
+	findGroup := ""
+	switch sys {
+	case sysutil.Linux, sysutil.FreeBSD:
+		findGroup = "root"
+	case sysutil.MacOS:
+		findGroup = "admin"
+	case sysutil.Windows:
+		findGroup = "Administrators"
+	}
+
+	for _, v := range groups {
+		grp, err := user.LookupGroupId(v)
+		if err != nil {
+			return err
+		}
+		if grp.Name == findGroup {
+			return nil
+		}
+	}
+	return ErrNoSuperUser
 }
 
 // RealUser returns the original user at Unix systems.
