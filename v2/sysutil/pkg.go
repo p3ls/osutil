@@ -18,6 +18,20 @@ import (
 // sudo is the path by default at Linux systems.
 const sudo = "/usr/bin/sudo"
 
+const (
+	taskInstall             = "+ Installing ..."
+	taskRemove              = "+ Removing ..."
+	taskPurge               = "+ Purging ..."
+	taskUpdate              = "+ Updating ..."
+	taskUpgrade             = "+ Upgrading ..."
+	taskClean               = "+ Cleaning ..."
+	taskImportKey           = "+ Importing key ..."
+	taskImportKeyFromServer = "+ Importing key from server ..."
+	taskRemoveKey           = "+ Removing key ..."
+	taskAddRepo             = "+ Adding repository ..."
+	taskRemoveRepo          = "+ Removing repository ..."
+)
+
 // PkgManager is the common interface to handle different package systems.
 type PkgManager interface {
 	// setExecPath sets the executable path.

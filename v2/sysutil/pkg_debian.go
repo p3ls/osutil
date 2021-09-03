@@ -18,6 +18,7 @@ import (
 	"github.com/tredoe/osutil/v2/config/shconf"
 	"github.com/tredoe/osutil/v2/executil"
 	"github.com/tredoe/osutil/v2/fileutil"
+	"github.com/tredoe/osutil/v2/internal"
 )
 
 // 'apt' is for the terminal and gives beautiful output.
@@ -55,6 +56,7 @@ func (m ManagerDeb) ExecPath() string { return m.pathExec }
 func (m ManagerDeb) PackageType() string { return Deb.String() }
 
 func (m ManagerDeb) Install(name ...string) error {
+	internal.Log.Print(taskInstall)
 	args := append([]string{pathDeb, "install", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -62,6 +64,7 @@ func (m ManagerDeb) Install(name ...string) error {
 }
 
 func (m ManagerDeb) Remove(name ...string) error {
+	internal.Log.Print(taskRemove)
 	args := append([]string{pathDeb, "remove", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -69,6 +72,7 @@ func (m ManagerDeb) Remove(name ...string) error {
 }
 
 func (m ManagerDeb) Purge(name ...string) error {
+	internal.Log.Print(taskPurge)
 	args := append([]string{pathDeb, "purge", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -76,16 +80,19 @@ func (m ManagerDeb) Purge(name ...string) error {
 }
 
 func (m ManagerDeb) Update() error {
+	internal.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(sudo, pathDeb, "update", "-qq").Run()
 	return err
 }
 
 func (m ManagerDeb) Upgrade() error {
+	internal.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(sudo, pathDeb, "upgrade", "-y").Run()
 	return err
 }
 
 func (m ManagerDeb) Clean() error {
+	internal.Log.Print(taskClean)
 	_, err := m.cmd.Command(sudo, pathDeb, "autoremove", "-y").Run()
 	if err != nil {
 		return err
@@ -98,6 +105,7 @@ func (m ManagerDeb) Clean() error {
 // https://www.linuxuprising.com/2021/01/apt-key-is-deprecated-how-to-add.html
 
 func (m ManagerDeb) ImportKey(alias, keyUrl string) error {
+	internal.Log.Print(taskImportKey)
 	if file := path.Base(keyUrl); !strings.Contains(file, ".") {
 		return ErrKeyUrl
 	}
@@ -133,6 +141,7 @@ func (m ManagerDeb) ImportKey(alias, keyUrl string) error {
 }
 
 func (m ManagerDeb) ImportKeyFromServer(alias, keyServer, key string) error {
+	internal.Log.Print(taskImportKeyFromServer)
 	if keyServer == "" {
 		keyServer = "hkp://keyserver.ubuntu.com:80"
 	}
@@ -150,10 +159,12 @@ func (m ManagerDeb) ImportKeyFromServer(alias, keyServer, key string) error {
 }
 
 func (m ManagerDeb) RemoveKey(alias string) error {
+	internal.Log.Print(taskRemoveKey)
 	return os.Remove(m.keyring(alias))
 }
 
 func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
+	internal.Log.Print(taskAddRepo)
 	distroName, err := distroCodeName()
 	if err != nil {
 		return err
@@ -173,6 +184,7 @@ func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 }
 
 func (m ManagerDeb) RemoveRepo(alias string) error {
+	internal.Log.Print(taskRemoveRepo)
 	err := os.Remove(m.keyring(alias))
 	if err != nil {
 		return err

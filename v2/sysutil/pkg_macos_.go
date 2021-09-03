@@ -9,7 +9,10 @@
 
 package sysutil
 
-import "github.com/tredoe/osutil/v2/executil"
+import (
+	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/internal"
+)
 
 const (
 	fileBrew = "brew"
@@ -40,6 +43,7 @@ func (m ManagerBrew) ExecPath() string { return m.pathExec }
 func (m ManagerBrew) PackageType() string { return Brew.String() }
 
 func (m ManagerBrew) Install(name ...string) error {
+	internal.Log.Print(taskInstall)
 	args := append([]string{"install"}, name...)
 
 	_, err := m.cmd.Command(pathBrew, args...).Run()
@@ -47,6 +51,7 @@ func (m ManagerBrew) Install(name ...string) error {
 }
 
 func (m ManagerBrew) Remove(name ...string) error {
+	internal.Log.Print(taskRemove)
 	args := append([]string{"uninstall"}, name...)
 
 	_, err := m.cmd.Command(pathBrew, args...).Run()
@@ -54,15 +59,18 @@ func (m ManagerBrew) Remove(name ...string) error {
 }
 
 func (m ManagerBrew) Purge(name ...string) error {
+	internal.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerBrew) Update() error {
+	internal.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(pathBrew, "update").Run()
 	return err
 }
 
 func (m ManagerBrew) Upgrade() error {
+	internal.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathBrew, "upgrade").Run()
 	return err
 }
@@ -70,6 +78,7 @@ func (m ManagerBrew) Upgrade() error {
 //var msgWarning = []byte("Warning:")
 
 func (m ManagerBrew) Clean() error {
+	internal.Log.Print(taskClean)
 	_, err := m.cmd.Command(pathBrew, "autoremove").Run()
 	if err != nil {
 		return err
@@ -94,11 +103,13 @@ func (m ManagerBrew) RemoveKey(alias string) error {
 }
 
 func (m ManagerBrew) AddRepo(alias string, url ...string) error {
+	internal.Log.Print(taskAddRepo)
 	_, err := m.cmd.Command(pathBrew, "tap", url[0]).Run()
 	return err
 }
 
 func (m ManagerBrew) RemoveRepo(r string) error {
+	internal.Log.Print(taskRemoveRepo)
 	_, err := m.cmd.Command(pathBrew, "untap", r).Run()
 	return err
 }
