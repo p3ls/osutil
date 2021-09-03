@@ -15,7 +15,6 @@ import (
 	"os"
 
 	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/fileutil"
 )
 
 const (
@@ -120,29 +119,33 @@ func (m ManagerDnf) RemoveKey(alias string) error {
 
 // https://docs.fedoraproject.org/en-US/quick-docs/adding-or-removing-software-repositories-in-fedora/
 
+var (
+	warningB = []byte("Warning")
+)
+
 func (m ManagerDnf) AddRepo(alias string, url ...string) error {
 	pathRepo := m.repository(alias)
 
-	err := fileutil.CreateFromString(pathRepo, url[0])
+	/*err := fileutil.CreateFromString(pathRepo, url[0])
 	if err != nil {
 		return err
-	}
+	}*/
 
 	stderr, err := m.cmd.Command(
-		sudo, pathDnf, "config-manager", "--add-repo", pathRepo,
+		pathDnf, "config-manager", "--add-repo", pathRepo,
 	).OutputStderr()
-	if err = executil.CheckStderr(stderr, err); err != nil {
+	if err = executil.CheckStderrSkipWarn(stderr, warningB, err); err != nil {
 		return err
 	}
 
 	stderr, err = m.cmd.Command(
-		sudo, pathDnf, "config-manager", "--set-enabled", alias,
+		pathDnf, "config-manager", "--set-enabled", alias,
 	).OutputStderr()
 
 	err = executil.CheckStderr(stderr, err)
 	return err
 
-	/*_, err := m.cmd.Command(sudo, pathRpm, "-Uvh", url[0]).Run()
+	/*_, err := m.cmd.Command(pathRpm, "-Uvh", url[0]).Run()
 	if err != nil {
 		return err
 	}*/
@@ -240,14 +243,14 @@ func (m ManagerYum) RemoveKey(alias string) error {
 
 func (m ManagerYum) AddRepo(alias string, url ...string) error {
 	stderr, err := m.cmd.Command(
-		sudo, pathYumCfg, "--add-repo", url[0],
+		pathYumCfg, "--add-repo", url[0],
 	).OutputStderr()
 	if err = executil.CheckStderr(stderr, err); err != nil {
 		return err
 	}
 
 	stderr, err = m.cmd.Command(
-		sudo, pathYumCfg, "--enable", alias,
+		pathYumCfg, "--enable", alias,
 	).OutputStderr()
 
 	err = executil.CheckStderr(stderr, err)

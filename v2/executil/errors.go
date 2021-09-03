@@ -7,6 +7,7 @@
 package executil
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 )
@@ -26,11 +27,26 @@ func errFromStderr(e []byte) error {
 
 // CheckStderr returns an error whether 'stderr' is not empty or there is any error.
 func CheckStderr(stderr []byte, err error) error {
+	if stderr != nil {
+		return errFromStderr(stderr)
+	}
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// CheckStderrSkipWarn returns an error whether 'stderr' is not empty
+// and it is not a message which starts with 'warning', or there is any error.
+func CheckStderrSkipWarn(stderr, warning []byte, err error) error {
 	if stderr != nil {
-		return errFromStderr(stderr)
+		if !bytes.HasPrefix(stderr, warning) {
+			return errFromStderr(stderr)
+		}
+	}
+	if err != nil {
+		return err
 	}
 
 	return nil
