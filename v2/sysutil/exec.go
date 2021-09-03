@@ -10,8 +10,9 @@ import (
 	"os"
 
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/internal"
 )
 
 var excmd = executil.NewCommand("", "").
-	Stdout(os.Stdout).Stderr(os.Stderr).
+	Stdout(internal.LogShell.Writer()).
 	Env(append([]string{"LANG=C"}, os.Environ()...))

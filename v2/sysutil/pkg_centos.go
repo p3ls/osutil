@@ -119,50 +119,23 @@ func (m ManagerDnf) RemoveKey(alias string) error {
 
 // https://docs.fedoraproject.org/en-US/quick-docs/adding-or-removing-software-repositories-in-fedora/
 
-var (
-	warningB = []byte("Warning")
-)
-
 func (m ManagerDnf) AddRepo(alias string, url ...string) error {
-	pathRepo := m.repository(alias)
+	/*pathRepo := m.repository(alias)
 
-	/*err := fileutil.CreateFromString(pathRepo, url[0])
+	err := fileutil.CreateFromString(pathRepo, url[0]+"\n")
 	if err != nil {
 		return err
 	}*/
 
 	stderr, err := m.cmd.Command(
-		pathDnf, "config-manager", "--add-repo", pathRepo,
-	).OutputStderr()
-	if err = executil.CheckStderrSkipWarn(stderr, warningB, err); err != nil {
-		return err
-	}
-
-	stderr, err = m.cmd.Command(
-		pathDnf, "config-manager", "--set-enabled", alias,
+		pathDnf, "config-manager", "--add-repo", url[0],
 	).OutputStderr()
 
-	err = executil.CheckStderr(stderr, err)
-	return err
-
-	/*_, err := m.cmd.Command(pathRpm, "-Uvh", url[0]).Run()
-	if err != nil {
-		return err
-	}*/
-
-	//return m.Upgrade()
+	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerDnf) RemoveRepo(alias string) error {
-	stderr, err := m.cmd.Command(
-		sudo, pathDnf, "config-manager", "--set-disabled", alias,
-	).OutputStderr()
-	if err = executil.CheckStderr(stderr, err); err != nil {
-		return err
-	}
-
 	return os.Remove(m.repository(alias))
-	//return m.Upgrade()
 }
 
 // * * *
@@ -245,35 +218,12 @@ func (m ManagerYum) AddRepo(alias string, url ...string) error {
 	stderr, err := m.cmd.Command(
 		pathYumCfg, "--add-repo", url[0],
 	).OutputStderr()
-	if err = executil.CheckStderr(stderr, err); err != nil {
-		return err
-	}
 
-	stderr, err = m.cmd.Command(
-		pathYumCfg, "--enable", alias,
-	).OutputStderr()
-
-	err = executil.CheckStderr(stderr, err)
-	return err
-
-	/*_, err := m.cmd.Command(sudo, pathRpm, "-Uvh", url[0]).Run()
-	if err != nil {
-		return err
-	}*/
-
-	//return m.Upgrade()
+	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerYum) RemoveRepo(alias string) error {
-	stderr, err := m.cmd.Command(
-		sudo, pathYumCfg, "--disable", alias,
-	).OutputStderr()
-	if err = executil.CheckStderr(stderr, err); err != nil {
-		return err
-	}
-
 	return os.Remove(m.repository(alias))
-	//return m.Upgrade()
 }
 
 // * * *
