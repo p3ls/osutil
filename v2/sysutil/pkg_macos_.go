@@ -43,7 +43,7 @@ func (m ManagerBrew) ExecPath() string { return m.pathExec }
 func (m ManagerBrew) PackageType() string { return Brew.String() }
 
 func (m ManagerBrew) Install(name ...string) error {
-	osutil.LogShell.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	args := append([]string{"install"}, name...)
 
 	_, err := m.cmd.Command(pathBrew, args...).Run()
@@ -51,7 +51,7 @@ func (m ManagerBrew) Install(name ...string) error {
 }
 
 func (m ManagerBrew) Remove(name ...string) error {
-	osutil.LogShell.Print(taskRemove)
+	osutil.Log.Print(taskRemove)
 	args := append([]string{"uninstall"}, name...)
 
 	_, err := m.cmd.Command(pathBrew, args...).Run()
@@ -59,18 +59,18 @@ func (m ManagerBrew) Remove(name ...string) error {
 }
 
 func (m ManagerBrew) Purge(name ...string) error {
-	osutil.LogShell.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerBrew) Update() error {
-	osutil.LogShell.Print(taskUpdate)
+	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(pathBrew, "update").Run()
 	return err
 }
 
 func (m ManagerBrew) Upgrade() error {
-	osutil.LogShell.Print(taskUpgrade)
+	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathBrew, "upgrade").Run()
 	return err
 }
@@ -78,7 +78,7 @@ func (m ManagerBrew) Upgrade() error {
 //var msgWarning = []byte("Warning:")
 
 func (m ManagerBrew) Clean() error {
-	osutil.LogShell.Print(taskClean)
+	osutil.Log.Print(taskClean)
 	_, err := m.cmd.Command(pathBrew, "autoremove").Run()
 	if err != nil {
 		return err
@@ -103,13 +103,13 @@ func (m ManagerBrew) RemoveKey(alias string) error {
 }
 
 func (m ManagerBrew) AddRepo(alias string, url ...string) error {
-	osutil.LogShell.Print(taskAddRepo)
+	osutil.Log.Print(taskAddRepo)
 	_, err := m.cmd.Command(pathBrew, "tap", url[0]).Run()
 	return err
 }
 
 func (m ManagerBrew) RemoveRepo(r string) error {
-	osutil.LogShell.Print(taskRemoveRepo)
+	osutil.Log.Print(taskRemoveRepo)
 	_, err := m.cmd.Command(pathBrew, "untap", r).Run()
 	return err
 }

@@ -42,7 +42,7 @@ func (m ManagerZypp) ExecPath() string { return m.pathExec }
 func (m ManagerZypp) PackageType() string { return Zypp.String() }
 
 func (m ManagerZypp) Install(name ...string) error {
-	osutil.LogShell.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	args := append(
 		[]string{
 			pathZypp,
@@ -55,7 +55,7 @@ func (m ManagerZypp) Install(name ...string) error {
 }
 
 func (m ManagerZypp) Remove(name ...string) error {
-	osutil.LogShell.Print(taskRemove)
+	osutil.Log.Print(taskRemove)
 	args := append([]string{pathZypp, "remove", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -63,18 +63,18 @@ func (m ManagerZypp) Remove(name ...string) error {
 }
 
 func (m ManagerZypp) Purge(name ...string) error {
-	osutil.LogShell.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerZypp) Update() error {
-	osutil.LogShell.Print(taskUpdate)
+	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(sudo, pathZypp, "refresh").Run()
 	return err
 }
 
 func (m ManagerZypp) Upgrade() error {
-	osutil.LogShell.Print(taskUpgrade)
+	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(
 		sudo, pathZypp, "up", "--auto-agree-with-licenses", "-y",
 	).Run()
@@ -82,7 +82,7 @@ func (m ManagerZypp) Upgrade() error {
 }
 
 func (m ManagerZypp) Clean() error {
-	osutil.LogShell.Print(taskClean)
+	osutil.Log.Print(taskClean)
 	_, err := m.cmd.Command(sudo, pathZypp, "clean").Run()
 	return err
 }
@@ -102,7 +102,7 @@ func (m ManagerZypp) RemoveKey(alias string) error {
 }
 
 func (m ManagerZypp) AddRepo(alias string, url ...string) error {
-	osutil.LogShell.Print(taskAddRepo)
+	osutil.Log.Print(taskAddRepo)
 	_, err := m.cmd.Command(sudo, pathZypp, "addrepo", "-f", url[0], alias).Run()
 	if err != nil {
 		return err
@@ -112,7 +112,7 @@ func (m ManagerZypp) AddRepo(alias string, url ...string) error {
 }
 
 func (m ManagerZypp) RemoveRepo(r string) error {
-	osutil.LogShell.Print(taskRemoveRepo)
+	osutil.Log.Print(taskRemoveRepo)
 	if _, err := m.cmd.Command(sudo, pathZypp, "removerepo", r).Run(); err != nil {
 		return err
 	}

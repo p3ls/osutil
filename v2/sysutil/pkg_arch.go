@@ -47,7 +47,7 @@ func (m ManagerPacman) ExecPath() string { return m.pathExec }
 func (m ManagerPacman) PackageType() string { return Pacman.String() }
 
 func (m ManagerPacman) Install(name ...string) error {
-	osutil.LogShell.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	args := append([]string{"-S", "--needed", "--noprogressbar"}, name...)
 
 	_, err := m.cmd.Command(pathPacman, args...).Run()
@@ -55,7 +55,7 @@ func (m ManagerPacman) Install(name ...string) error {
 }
 
 func (m ManagerPacman) Remove(name ...string) error {
-	osutil.LogShell.Print(taskRemove)
+	osutil.Log.Print(taskRemove)
 	args := append([]string{"-Rs"}, name...)
 
 	_, err := m.cmd.Command(pathPacman, args...).Run()
@@ -63,7 +63,7 @@ func (m ManagerPacman) Remove(name ...string) error {
 }
 
 func (m ManagerPacman) Purge(name ...string) error {
-	osutil.LogShell.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	args := append([]string{"-Rsn"}, name...)
 
 	_, err := m.cmd.Command(pathPacman, args...).Run()
@@ -71,19 +71,19 @@ func (m ManagerPacman) Purge(name ...string) error {
 }
 
 func (m ManagerPacman) Update() error {
-	osutil.LogShell.Print(taskUpdate)
+	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(pathPacman, "-Syu", "--needed", "--noprogressbar").Run()
 	return err
 }
 
 func (m ManagerPacman) Upgrade() error {
-	osutil.LogShell.Print(taskUpgrade)
+	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathPacman, "-Syu").Run()
 	return err
 }
 
 func (m ManagerPacman) Clean() error {
-	osutil.LogShell.Print(taskClean)
+	osutil.Log.Print(taskClean)
 	_, err := m.cmd.Command("/usr/bin/paccache", "-r").Run()
 	return err
 }
@@ -103,7 +103,7 @@ func (m ManagerPacman) RemoveKey(alias string) error {
 }
 
 func (m ManagerPacman) AddRepo(alias string, url ...string) error {
-	osutil.LogShell.Print(taskAddRepo)
+	osutil.Log.Print(taskAddRepo)
 	var buf bytes.Buffer
 
 	fmt.Fprintf(&buf, "[%s]\n", alias)
@@ -124,7 +124,7 @@ func (m ManagerPacman) AddRepo(alias string, url ...string) error {
 }
 
 func (m ManagerPacman) RemoveRepo(r string) error {
-	osutil.LogShell.Print(taskRemoveRepo)
+	osutil.Log.Print(taskRemoveRepo)
 	// TODO
 	panic("unimplemented")
 }

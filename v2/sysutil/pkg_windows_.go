@@ -57,7 +57,7 @@ func (m ManagerChoco) ExecPath() string { return m.pathExec }
 func (m ManagerChoco) PackageType() string { return Choco.String() }
 
 func (m ManagerChoco) Install(name ...string) error {
-	osutil.LogShell.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	args := append([]string{"install"}, name...)
 	args = append(args, "-y")
 
@@ -66,7 +66,7 @@ func (m ManagerChoco) Install(name ...string) error {
 }
 
 func (m ManagerChoco) Remove(name ...string) error {
-	osutil.LogShell.Print(taskRemove)
+	osutil.Log.Print(taskRemove)
 	args := append([]string{"uninstall"}, name...)
 	args = append(args, "-y")
 
@@ -75,7 +75,7 @@ func (m ManagerChoco) Remove(name ...string) error {
 }
 
 func (m ManagerChoco) Purge(name ...string) error {
-	osutil.LogShell.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
@@ -84,7 +84,7 @@ func (m ManagerChoco) Update() error {
 }
 
 func (m ManagerChoco) Upgrade() error {
-	osutil.LogShell.Print(taskUpgrade)
+	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathChoco, "upgrade", "all", "-y").Run()
 	return err
 }
@@ -138,7 +138,7 @@ func (m ManagerWinget) ExecPath() string { return m.pathExec }
 func (m ManagerWinget) PackageType() string { return Choco.String() }
 
 func (m ManagerWinget) Install(name ...string) error {
-	osutil.LogShell.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	var err error
 
 	for _, v := range name {
@@ -160,7 +160,7 @@ func (m ManagerWinget) Remove(name ...string) error {
 }
 
 func (m ManagerWinget) Purge(name ...string) error {
-	osutil.LogShell.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
