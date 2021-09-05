@@ -31,7 +31,7 @@ func NewManagerPkg() ManagerPkg {
 	return ManagerPkg{
 		pathExec: pathPkg,
 		sudo:     "/usr/local/bin/sudo",
-		cmd:      excmd.Command("", "").BadExitCodes([]int{1}),
+		cmd:      cmd.Command("", "").BadExitCodes([]int{1}),
 	}
 }
 
@@ -44,7 +44,7 @@ func (m ManagerPkg) ExecPath() string { return m.pathExec }
 func (m ManagerPkg) PackageType() string { return Pkg.String() }
 
 func (m ManagerPkg) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	args := append([]string{pathPkg, "install", "-y"}, name...)
 
 	_, err := m.cmd.Command(m.sudo, args...).Run()
@@ -52,7 +52,7 @@ func (m ManagerPkg) Install(name ...string) error {
 }
 
 func (m ManagerPkg) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{pathPkg, "delete", "-y"}, name...)
 
 	_, err := m.cmd.Command(m.sudo, args...).Run()
@@ -60,24 +60,24 @@ func (m ManagerPkg) Remove(name ...string) error {
 }
 
 func (m ManagerPkg) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerPkg) Update() error {
-	osutil.Log.Print(taskUpdate)
+	osutil.LogShell.Print(taskUpdate)
 	_, err := m.cmd.Command(m.sudo, pathPkg, "update").Run()
 	return err
 }
 
 func (m ManagerPkg) Upgrade() error {
-	osutil.Log.Print(taskUpgrade)
+	osutil.LogShell.Print(taskUpgrade)
 	_, err := m.cmd.Command(m.sudo, pathPkg, "upgrade", "-y").Run()
 	return err
 }
 
 func (m ManagerPkg) Clean() error {
-	osutil.Log.Print(taskClean)
+	osutil.LogShell.Print(taskClean)
 	_, err := m.cmd.Command(m.sudo, pathPkg, "autoremove", "-y").Run()
 	if err != nil {
 		return err

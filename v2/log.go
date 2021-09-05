@@ -11,10 +11,10 @@ import (
 	"log"
 )
 
-// Global loggers. By default, they do not write logs.
+// Global loggers. By default, they do not write.
 var (
-	// Log is used by the packages 'edi', 'fileutil', 'userutil' and 'sysutil'.
+	// Log is used by the packages 'edi', 'fileutil' and 'userutil'.
 	Log = log.New(io.Discard, "", -1)
-	// LogShell is used by the packages 'executil' and 'sysutil/service'.
+	// LogShell is used by the packages 'executil', 'sysutil' and 'sysutil/service'.
 	LogShell = log.New(io.Discard, "", -1)
 )

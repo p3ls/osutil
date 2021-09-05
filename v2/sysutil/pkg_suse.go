@@ -27,7 +27,7 @@ type ManagerZypp struct {
 func NewManagerZypp() ManagerZypp {
 	return ManagerZypp{
 		pathExec: pathZypp,
-		cmd: excmd.Command("", "").
+		cmd: cmd.Command("", "").
 			// https://www.unix.com/man-page/suse/8/zypper/
 			BadExitCodes([]int{1, 2, 3, 4, 5, 104}),
 	}
@@ -42,7 +42,7 @@ func (m ManagerZypp) ExecPath() string { return m.pathExec }
 func (m ManagerZypp) PackageType() string { return Zypp.String() }
 
 func (m ManagerZypp) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	args := append(
 		[]string{
 			pathZypp,
@@ -55,7 +55,7 @@ func (m ManagerZypp) Install(name ...string) error {
 }
 
 func (m ManagerZypp) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{pathZypp, "remove", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -63,18 +63,18 @@ func (m ManagerZypp) Remove(name ...string) error {
 }
 
 func (m ManagerZypp) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerZypp) Update() error {
-	osutil.Log.Print(taskUpdate)
+	osutil.LogShell.Print(taskUpdate)
 	_, err := m.cmd.Command(sudo, pathZypp, "refresh").Run()
 	return err
 }
 
 func (m ManagerZypp) Upgrade() error {
-	osutil.Log.Print(taskUpgrade)
+	osutil.LogShell.Print(taskUpgrade)
 	_, err := m.cmd.Command(
 		sudo, pathZypp, "up", "--auto-agree-with-licenses", "-y",
 	).Run()
@@ -82,7 +82,7 @@ func (m ManagerZypp) Upgrade() error {
 }
 
 func (m ManagerZypp) Clean() error {
-	osutil.Log.Print(taskClean)
+	osutil.LogShell.Print(taskClean)
 	_, err := m.cmd.Command(sudo, pathZypp, "clean").Run()
 	return err
 }
@@ -102,7 +102,7 @@ func (m ManagerZypp) RemoveKey(alias string) error {
 }
 
 func (m ManagerZypp) AddRepo(alias string, url ...string) error {
-	osutil.Log.Print(taskAddRepo)
+	osutil.LogShell.Print(taskAddRepo)
 	_, err := m.cmd.Command(sudo, pathZypp, "addrepo", "-f", url[0], alias).Run()
 	if err != nil {
 		return err
@@ -112,7 +112,7 @@ func (m ManagerZypp) AddRepo(alias string, url ...string) error {
 }
 
 func (m ManagerZypp) RemoveRepo(r string) error {
-	osutil.Log.Print(taskRemoveRepo)
+	osutil.LogShell.Print(taskRemoveRepo)
 	if _, err := m.cmd.Command(sudo, pathZypp, "removerepo", r).Run(); err != nil {
 		return err
 	}

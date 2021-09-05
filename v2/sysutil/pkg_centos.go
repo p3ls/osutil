@@ -44,7 +44,7 @@ type ManagerDnf struct {
 func NewManagerDnf() ManagerDnf {
 	return ManagerDnf{
 		pathExec: pathDnf,
-		cmd: excmd.Command("", "").
+		cmd: cmd.Command("", "").
 			// https://dnf.readthedocs.io/en/latest/command_ref.html
 			BadExitCodes([]int{1, 3, 200}),
 		rpm: NewManagerRpm(),
@@ -154,7 +154,7 @@ type ManagerYum struct {
 func NewManagerYum() ManagerYum {
 	return ManagerYum{
 		pathExec: pathYum,
-		cmd: excmd.Command("", "").
+		cmd: cmd.Command("", "").
 			BadExitCodes([]int{1, 2, 3, 16}),
 		rpm: NewManagerRpm(),
 	}
@@ -169,7 +169,7 @@ func (m ManagerYum) ExecPath() string { return m.pathExec }
 func (m ManagerYum) PackageType() string { return Yum.String() }
 
 func (m ManagerYum) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	args := append([]string{pathYum, "install", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -177,7 +177,7 @@ func (m ManagerYum) Install(name ...string) error {
 }
 
 func (m ManagerYum) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{pathYum, "remove", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -185,7 +185,7 @@ func (m ManagerYum) Remove(name ...string) error {
 }
 
 func (m ManagerYum) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	return m.Remove(name...)
 }
 
@@ -195,19 +195,19 @@ func (m ManagerYum) Update() error {
 }
 
 func (m ManagerYum) Upgrade() error {
-	osutil.Log.Print(taskUpgrade)
+	osutil.LogShell.Print(taskUpgrade)
 	_, err := m.cmd.Command(sudo, pathYum, "update", "-y").Run()
 	return err
 }
 
 func (m ManagerYum) Clean() error {
-	osutil.Log.Print(taskClean)
+	osutil.LogShell.Print(taskClean)
 	_, err := m.cmd.Command(sudo, pathYum, "clean", "packages").Run()
 	return err
 }
 
 func (m ManagerYum) ImportKey(alias, keyUrl string) error {
-	osutil.Log.Print(taskImportKey)
+	osutil.LogShell.Print(taskImportKey)
 	return m.rpm.ImportKey("", keyUrl)
 }
 
@@ -222,7 +222,7 @@ func (m ManagerYum) RemoveKey(alias string) error {
 // https://docs.fedoraproject.org/en-US/Fedora/16/html/System_Administrators_Guide/sec-Managing_Yum_Repositories.html
 
 func (m ManagerYum) AddRepo(alias string, url ...string) error {
-	osutil.Log.Print(taskAddRepo)
+	osutil.LogShell.Print(taskAddRepo)
 	stderr, err := m.cmd.Command(
 		pathYumCfg, "--add-repo", url[0],
 	).OutputStderr()
@@ -231,7 +231,7 @@ func (m ManagerYum) AddRepo(alias string, url ...string) error {
 }
 
 func (m ManagerYum) RemoveRepo(alias string) error {
-	osutil.Log.Print(taskRemoveRepo)
+	osutil.LogShell.Print(taskRemoveRepo)
 	return os.Remove(m.repository(alias))
 }
 
@@ -248,7 +248,7 @@ type ManagerRpm struct {
 func NewManagerRpm() ManagerRpm {
 	return ManagerRpm{
 		pathExec: pathRpm,
-		cmd:      excmd.Command("", ""),
+		cmd:      cmd.Command("", ""),
 		//BadExitCodes([]int{}),
 	}
 }
@@ -262,7 +262,7 @@ func (m ManagerRpm) ExecPath() string { return m.pathExec }
 func (m ManagerRpm) PackageType() string { return Rpm.String() }
 
 func (m ManagerRpm) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	args := append([]string{"-i"}, name...)
 
 	_, err := m.cmd.Command(pathRpm, args...).Run()
@@ -270,7 +270,7 @@ func (m ManagerRpm) Install(name ...string) error {
 }
 
 func (m ManagerRpm) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{"-e"}, name...)
 
 	_, err := m.cmd.Command(pathRpm, args...).Run()
@@ -278,7 +278,7 @@ func (m ManagerRpm) Remove(name ...string) error {
 }
 
 func (m ManagerRpm) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	return m.Remove(name...)
 }
 
@@ -295,7 +295,7 @@ func (m ManagerRpm) Clean() error {
 }
 
 func (m ManagerRpm) ImportKey(alias, keyUrl string) error {
-	osutil.Log.Print(taskImportKey)
+	osutil.LogShell.Print(taskImportKey)
 	stderr, err := m.cmd.Command(pathRpm, "--import", keyUrl).OutputStderr()
 
 	err = executil.CheckStderr(stderr, err)

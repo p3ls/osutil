@@ -6,7 +6,26 @@
 
 package sysutil
 
-import "os"
+import (
+	"io"
+	"os"
+
+	"github.com/tredoe/osutil/v2/executil"
+)
+
+var (
+	cmd = executil.NewCommand("", "").
+		Env(append([]string{"LANG=C"}, os.Environ()...))
+
+	cmdWin = executil.NewCommand("", "").
+		Env(os.Environ())
+)
+
+// CommandStdout sets the standard out at the commands of the package manager.
+func CommandStdout(out io.Writer) {
+	cmd.Stdout(out)
+	cmdWin.Stdout(out)
+}
 
 // MustDisableColor returns true to indicate that the color should be disabled.
 // It is useful to know when disable the color into a command line interface (cli).

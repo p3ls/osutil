@@ -29,7 +29,7 @@ type ManagerBrew struct {
 func NewManagerBrew() ManagerBrew {
 	return ManagerBrew{
 		pathExec: pathBrew,
-		cmd: excmd.Command("", "").
+		cmd: cmd.Command("", "").
 			BadExitCodes([]int{1}),
 	}
 }
@@ -43,7 +43,7 @@ func (m ManagerBrew) ExecPath() string { return m.pathExec }
 func (m ManagerBrew) PackageType() string { return Brew.String() }
 
 func (m ManagerBrew) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	args := append([]string{"install"}, name...)
 
 	_, err := m.cmd.Command(pathBrew, args...).Run()
@@ -51,7 +51,7 @@ func (m ManagerBrew) Install(name ...string) error {
 }
 
 func (m ManagerBrew) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{"uninstall"}, name...)
 
 	_, err := m.cmd.Command(pathBrew, args...).Run()
@@ -59,18 +59,18 @@ func (m ManagerBrew) Remove(name ...string) error {
 }
 
 func (m ManagerBrew) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerBrew) Update() error {
-	osutil.Log.Print(taskUpdate)
+	osutil.LogShell.Print(taskUpdate)
 	_, err := m.cmd.Command(pathBrew, "update").Run()
 	return err
 }
 
 func (m ManagerBrew) Upgrade() error {
-	osutil.Log.Print(taskUpgrade)
+	osutil.LogShell.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathBrew, "upgrade").Run()
 	return err
 }
@@ -78,7 +78,7 @@ func (m ManagerBrew) Upgrade() error {
 //var msgWarning = []byte("Warning:")
 
 func (m ManagerBrew) Clean() error {
-	osutil.Log.Print(taskClean)
+	osutil.LogShell.Print(taskClean)
 	_, err := m.cmd.Command(pathBrew, "autoremove").Run()
 	if err != nil {
 		return err
@@ -103,13 +103,13 @@ func (m ManagerBrew) RemoveKey(alias string) error {
 }
 
 func (m ManagerBrew) AddRepo(alias string, url ...string) error {
-	osutil.Log.Print(taskAddRepo)
+	osutil.LogShell.Print(taskAddRepo)
 	_, err := m.cmd.Command(pathBrew, "tap", url[0]).Run()
 	return err
 }
 
 func (m ManagerBrew) RemoveRepo(r string) error {
-	osutil.Log.Print(taskRemoveRepo)
+	osutil.LogShell.Print(taskRemoveRepo)
 	_, err := m.cmd.Command(pathBrew, "untap", r).Run()
 	return err
 }

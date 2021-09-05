@@ -41,7 +41,7 @@ type ManagerDeb struct {
 func NewManagerDeb() ManagerDeb {
 	return ManagerDeb{
 		pathExec: pathDeb,
-		cmd: excmd.Command("", "").
+		cmd: cmd.Command("", "").
 			AddEnv([]string{"DEBIAN_FRONTEND=noninteractive"}).
 			BadExitCodes([]int{100}),
 	}
@@ -56,7 +56,7 @@ func (m ManagerDeb) ExecPath() string { return m.pathExec }
 func (m ManagerDeb) PackageType() string { return Deb.String() }
 
 func (m ManagerDeb) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	args := append([]string{pathDeb, "install", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -64,7 +64,7 @@ func (m ManagerDeb) Install(name ...string) error {
 }
 
 func (m ManagerDeb) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{pathDeb, "remove", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -72,7 +72,7 @@ func (m ManagerDeb) Remove(name ...string) error {
 }
 
 func (m ManagerDeb) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	args := append([]string{pathDeb, "purge", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -80,19 +80,19 @@ func (m ManagerDeb) Purge(name ...string) error {
 }
 
 func (m ManagerDeb) Update() error {
-	osutil.Log.Print(taskUpdate)
+	osutil.LogShell.Print(taskUpdate)
 	_, err := m.cmd.Command(sudo, pathDeb, "update", "-qq").Run()
 	return err
 }
 
 func (m ManagerDeb) Upgrade() error {
-	osutil.Log.Print(taskUpgrade)
+	osutil.LogShell.Print(taskUpgrade)
 	_, err := m.cmd.Command(sudo, pathDeb, "upgrade", "-y").Run()
 	return err
 }
 
 func (m ManagerDeb) Clean() error {
-	osutil.Log.Print(taskClean)
+	osutil.LogShell.Print(taskClean)
 	_, err := m.cmd.Command(sudo, pathDeb, "autoremove", "-y").Run()
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func (m ManagerDeb) Clean() error {
 // https://www.linuxuprising.com/2021/01/apt-key-is-deprecated-how-to-add.html
 
 func (m ManagerDeb) ImportKey(alias, keyUrl string) error {
-	osutil.Log.Print(taskImportKey)
+	osutil.LogShell.Print(taskImportKey)
 	if file := path.Base(keyUrl); !strings.Contains(file, ".") {
 		return ErrKeyUrl
 	}
@@ -141,7 +141,7 @@ func (m ManagerDeb) ImportKey(alias, keyUrl string) error {
 }
 
 func (m ManagerDeb) ImportKeyFromServer(alias, keyServer, key string) error {
-	osutil.Log.Print(taskImportKeyFromServer)
+	osutil.LogShell.Print(taskImportKeyFromServer)
 	if keyServer == "" {
 		keyServer = "hkp://keyserver.ubuntu.com:80"
 	}
@@ -159,12 +159,12 @@ func (m ManagerDeb) ImportKeyFromServer(alias, keyServer, key string) error {
 }
 
 func (m ManagerDeb) RemoveKey(alias string) error {
-	osutil.Log.Print(taskRemoveKey)
+	osutil.LogShell.Print(taskRemoveKey)
 	return os.Remove(m.keyring(alias))
 }
 
 func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
-	osutil.Log.Print(taskAddRepo)
+	osutil.LogShell.Print(taskAddRepo)
 	distroName, err := distroCodeName()
 	if err != nil {
 		return err
@@ -184,7 +184,7 @@ func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 }
 
 func (m ManagerDeb) RemoveRepo(alias string) error {
-	osutil.Log.Print(taskRemoveRepo)
+	osutil.LogShell.Print(taskRemoveRepo)
 	err := os.Remove(m.keyring(alias))
 	if err != nil {
 		return err

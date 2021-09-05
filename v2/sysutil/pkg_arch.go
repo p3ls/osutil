@@ -32,7 +32,7 @@ type ManagerPacman struct {
 func NewManagerPacman() ManagerPacman {
 	return ManagerPacman{
 		pathExec: pathPacman,
-		cmd: excmd.Command("", "").
+		cmd: cmd.Command("", "").
 			// https://wiki.archlinux.org/title/Talk:Pacman#Exit_codes
 			BadExitCodes([]int{1}),
 	}
@@ -47,7 +47,7 @@ func (m ManagerPacman) ExecPath() string { return m.pathExec }
 func (m ManagerPacman) PackageType() string { return Pacman.String() }
 
 func (m ManagerPacman) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	args := append([]string{"-S", "--needed", "--noprogressbar"}, name...)
 
 	_, err := m.cmd.Command(pathPacman, args...).Run()
@@ -55,7 +55,7 @@ func (m ManagerPacman) Install(name ...string) error {
 }
 
 func (m ManagerPacman) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{"-Rs"}, name...)
 
 	_, err := m.cmd.Command(pathPacman, args...).Run()
@@ -63,7 +63,7 @@ func (m ManagerPacman) Remove(name ...string) error {
 }
 
 func (m ManagerPacman) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	args := append([]string{"-Rsn"}, name...)
 
 	_, err := m.cmd.Command(pathPacman, args...).Run()
@@ -71,19 +71,19 @@ func (m ManagerPacman) Purge(name ...string) error {
 }
 
 func (m ManagerPacman) Update() error {
-	osutil.Log.Print(taskUpdate)
+	osutil.LogShell.Print(taskUpdate)
 	_, err := m.cmd.Command(pathPacman, "-Syu", "--needed", "--noprogressbar").Run()
 	return err
 }
 
 func (m ManagerPacman) Upgrade() error {
-	osutil.Log.Print(taskUpgrade)
+	osutil.LogShell.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathPacman, "-Syu").Run()
 	return err
 }
 
 func (m ManagerPacman) Clean() error {
-	osutil.Log.Print(taskClean)
+	osutil.LogShell.Print(taskClean)
 	_, err := m.cmd.Command("/usr/bin/paccache", "-r").Run()
 	return err
 }
@@ -103,7 +103,7 @@ func (m ManagerPacman) RemoveKey(alias string) error {
 }
 
 func (m ManagerPacman) AddRepo(alias string, url ...string) error {
-	osutil.Log.Print(taskAddRepo)
+	osutil.LogShell.Print(taskAddRepo)
 	var buf bytes.Buffer
 
 	fmt.Fprintf(&buf, "[%s]\n", alias)
@@ -124,7 +124,7 @@ func (m ManagerPacman) AddRepo(alias string, url ...string) error {
 }
 
 func (m ManagerPacman) RemoveRepo(r string) error {
-	osutil.Log.Print(taskRemoveRepo)
+	osutil.LogShell.Print(taskRemoveRepo)
 	// TODO
 	panic("unimplemented")
 }

@@ -43,7 +43,7 @@ func NewManagerChoco() ManagerChoco {
 	return ManagerChoco{
 		pathExec: pathChoco,
 		// https://docs.chocolatey.org/en-us/choco/commands/install#exit-codes
-		cmd: excmd.Command("", "").
+		cmd: cmdWin.Command("", "").
 			OkExitCodes([]int{0, 1641, 3010}),
 	}
 }
@@ -57,7 +57,7 @@ func (m ManagerChoco) ExecPath() string { return m.pathExec }
 func (m ManagerChoco) PackageType() string { return Choco.String() }
 
 func (m ManagerChoco) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	args := append([]string{"install"}, name...)
 	args = append(args, "-y")
 
@@ -66,7 +66,7 @@ func (m ManagerChoco) Install(name ...string) error {
 }
 
 func (m ManagerChoco) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{"uninstall"}, name...)
 	args = append(args, "-y")
 
@@ -75,7 +75,7 @@ func (m ManagerChoco) Remove(name ...string) error {
 }
 
 func (m ManagerChoco) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	return m.Remove(name...)
 }
 
@@ -84,7 +84,7 @@ func (m ManagerChoco) Update() error {
 }
 
 func (m ManagerChoco) Upgrade() error {
-	osutil.Log.Print(taskUpgrade)
+	osutil.LogShell.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathChoco, "upgrade", "all", "-y").Run()
 	return err
 }
@@ -125,7 +125,7 @@ type ManagerWinget struct {
 func NewManagerWinget() ManagerWinget {
 	return ManagerWinget{
 		pathExec: pathChoco,
-		cmd:      excmd.Command("", ""),
+		cmd:      cmdWin.Command("", ""),
 	}
 }
 
@@ -138,7 +138,7 @@ func (m ManagerWinget) ExecPath() string { return m.pathExec }
 func (m ManagerWinget) PackageType() string { return Choco.String() }
 
 func (m ManagerWinget) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	var err error
 
 	for _, v := range name {
@@ -160,7 +160,7 @@ func (m ManagerWinget) Remove(name ...string) error {
 }
 
 func (m ManagerWinget) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	return m.Remove(name...)
 }
 

@@ -28,7 +28,7 @@ type ManagerEbuild struct {
 func NewManagerEbuild() ManagerEbuild {
 	return ManagerEbuild{
 		pathExec: pathEbuild,
-		cmd:      excmd.Command("", ""),
+		cmd:      cmd.Command("", ""),
 		//BadExitCodes([]int{1}),
 	}
 }
@@ -42,13 +42,13 @@ func (m ManagerEbuild) ExecPath() string { return m.pathExec }
 func (m ManagerEbuild) PackageType() string { return Ebuild.String() }
 
 func (m ManagerEbuild) Install(name ...string) error {
-	osutil.Log.Print(taskInstall)
+	osutil.LogShell.Print(taskInstall)
 	_, err := m.cmd.Command(pathEbuild, name...).Run()
 	return err
 }
 
 func (m ManagerEbuild) Remove(name ...string) error {
-	osutil.Log.Print(taskRemove)
+	osutil.LogShell.Print(taskRemove)
 	args := append([]string{"--unmerge"}, name...)
 
 	_, err := m.cmd.Command(pathEbuild, args...).Run()
@@ -56,24 +56,24 @@ func (m ManagerEbuild) Remove(name ...string) error {
 }
 
 func (m ManagerEbuild) Purge(name ...string) error {
-	osutil.Log.Print(taskPurge)
+	osutil.LogShell.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerEbuild) Update() error {
-	osutil.Log.Print(taskUpdate)
+	osutil.LogShell.Print(taskUpdate)
 	_, err := m.cmd.Command(pathEbuild, "--sync").Run()
 	return err
 }
 
 func (m ManagerEbuild) Upgrade() error {
-	osutil.Log.Print(taskUpgrade)
+	osutil.LogShell.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world").Run()
 	return err
 }
 
 func (m ManagerEbuild) Clean() error {
-	osutil.Log.Print(taskClean)
+	osutil.LogShell.Print(taskClean)
 	_, err := m.cmd.Command(pathEbuild, "--update", "--deep", "--newuse @world").Run()
 	if err != nil {
 		return err
