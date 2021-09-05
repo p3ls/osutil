@@ -32,8 +32,8 @@ var (
 		Env(os.Environ())
 )
 
-// CommandStdout sets the standard out at the commands of the package manager.
-func CommandStdout(out io.Writer) {
+// StdoutCommand sets the standard out at the commands of the package manager.
+func StdoutCommand(out io.Writer) {
 	cmd.Stdout(out)
 	cmdWin.Stdout(out)
 }
