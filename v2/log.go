@@ -7,15 +7,14 @@
 package osutil
 
 import (
+	"io"
 	"log"
-
-	"github.com/tredoe/osutil/v2/internal"
 )
 
-// SetupLogger setups the loggers used by some packages.
-// 'log' is used by the packages 'edi', 'fileutil' and 'userutil'.
-// 'logShell' is used by the package 'executil' and 'sysutil'.
-func SetupLogger(log, logShell *log.Logger) {
-	internal.Log = log
-	internal.LogShell = logShell
-}
+// Global loggers. By default, they do not write logs.
+var (
+	// Log is used by the packages 'edi', 'fileutil', 'userutil' and 'sysutil'.
+	Log = log.New(io.Discard, "", -1)
+	// LogShell is used by the packages 'executil' and 'sysutil/service'.
+	LogShell = log.New(io.Discard, "", -1)
+)

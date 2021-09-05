@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
 	"github.com/tredoe/osutil/v2/userutil"
 )
@@ -345,7 +345,7 @@ func lookupServiceWindows(pattern, exclude string, column ColumnWin) (*Service, 
 
 // Start starts the service.
 func (srv Service) Start() error {
-	internal.LogShell.Print("Starting service ...")
+	osutil.LogShell.Print("Starting service ...")
 
 	if srv.start != nil {
 		stderr, err := srv.start.OutputStderr()
@@ -410,7 +410,7 @@ func (srv Service) Start() error {
 
 // Stop stops the service.
 func (srv Service) Stop() error {
-	internal.LogShell.Print("Stopping service ...")
+	osutil.LogShell.Print("Stopping service ...")
 
 	if srv.stop != nil {
 		stderr, err := srv.stop.OutputStderr()
@@ -490,7 +490,7 @@ func (srv Service) Stop() error {
 func (srv Service) Restart() error {
 	switch srv.sys {
 	case sysutil.Linux:
-		internal.LogShell.Print("Re-starting service ...")
+		osutil.LogShell.Print("Re-starting service ...")
 
 		stderr, err := excmd.Command(
 			"sudo", "systemctl", "restart", srv.name,
@@ -526,7 +526,7 @@ func (srv Service) Restart() error {
 
 // Enable enables the service.
 func (srv Service) Enable() error {
-	internal.LogShell.Print("Enabling service ...")
+	osutil.LogShell.Print("Enabling service ...")
 
 	cmd := "sudo"
 	var args []string
@@ -581,7 +581,7 @@ func (srv Service) Enable() error {
 
 // Disable disables the service.
 func (srv Service) Disable() error {
-	internal.LogShell.Print("Disabling service ...")
+	osutil.LogShell.Print("Disabling service ...")
 
 	switch srv.sys {
 	case sysutil.Linux:

@@ -12,7 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/tredoe/osutil/v2/internal"
+	"github.com/tredoe/osutil/v2"
 )
 
 // WinShell represents a Windows shell.
@@ -46,7 +46,7 @@ var cmdOut = filepath.Join(os.TempDir(), "cmd_out.txt")
 // RunWinshell executes a command into a Windows' shell called from Powershell.
 // Logs the command and returns the command output.
 func RunWinshell(sh WinShell, closeWindow bool, cmd string) (out []byte, err error) {
-	internal.LogShell.Print(cmd)
+	osutil.LogShell.Print(cmd)
 
 	argClose := ""
 	if closeWindow {

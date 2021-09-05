@@ -13,7 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tredoe/osutil/v2/internal"
+	"github.com/tredoe/osutil/v2"
 )
 
 // CopyFile copies a file from 'src' to 'dst'. If 'src' and 'dst' files exist, and are
@@ -72,7 +72,7 @@ func CopyFile(src, dst string) error {
 		return err
 	}
 
-	internal.Log.Printf("File %q copied at %q", src, dst)
+	osutil.Log.Printf("File %q copied at %q", src, dst)
 	return nil
 }
 
@@ -94,7 +94,7 @@ func Create(filename string, b []byte) (err error) {
 		return err
 	}
 
-	internal.Log.Printf("File %q created", filename)
+	osutil.Log.Printf("File %q created", filename)
 	return nil
 }
 
@@ -120,7 +120,7 @@ func Overwrite(filename string, b []byte) (err error) {
 		return err
 	}
 
-	internal.Log.Printf("File %q overwritted", filename)
+	osutil.Log.Printf("File %q overwritted", filename)
 	return nil
 }
 
@@ -151,7 +151,7 @@ func CopytoTemp(filename string) (tmpFile string, err error) {
 		return "", err
 	}
 
-	internal.Log.Printf("File %q copied at %q", filename, fdst.Name())
+	osutil.Log.Printf("File %q copied at %q", filename, fdst.Name())
 	return fdst.Name(), nil
 }
 
@@ -176,6 +176,6 @@ func WritetoTemp(b []byte, name string) (filename string, err error) {
 		return "", err
 	}
 
-	internal.Log.Printf("Created file \"%s\"\n```\n%s```", filename, b)
+	osutil.Log.Printf("Created file \"%s\"\n```\n%s```", filename, b)
 	return
 }

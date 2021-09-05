@@ -14,8 +14,8 @@ package sysutil
 import (
 	"os"
 
+	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/internal"
 )
 
 const (
@@ -169,7 +169,7 @@ func (m ManagerYum) ExecPath() string { return m.pathExec }
 func (m ManagerYum) PackageType() string { return Yum.String() }
 
 func (m ManagerYum) Install(name ...string) error {
-	internal.Log.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	args := append([]string{pathYum, "install", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -177,7 +177,7 @@ func (m ManagerYum) Install(name ...string) error {
 }
 
 func (m ManagerYum) Remove(name ...string) error {
-	internal.Log.Print(taskRemove)
+	osutil.Log.Print(taskRemove)
 	args := append([]string{pathYum, "remove", "-y"}, name...)
 
 	_, err := m.cmd.Command(sudo, args...).Run()
@@ -185,7 +185,7 @@ func (m ManagerYum) Remove(name ...string) error {
 }
 
 func (m ManagerYum) Purge(name ...string) error {
-	internal.Log.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
@@ -195,19 +195,19 @@ func (m ManagerYum) Update() error {
 }
 
 func (m ManagerYum) Upgrade() error {
-	internal.Log.Print(taskUpgrade)
+	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(sudo, pathYum, "update", "-y").Run()
 	return err
 }
 
 func (m ManagerYum) Clean() error {
-	internal.Log.Print(taskClean)
+	osutil.Log.Print(taskClean)
 	_, err := m.cmd.Command(sudo, pathYum, "clean", "packages").Run()
 	return err
 }
 
 func (m ManagerYum) ImportKey(alias, keyUrl string) error {
-	internal.Log.Print(taskImportKey)
+	osutil.Log.Print(taskImportKey)
 	return m.rpm.ImportKey("", keyUrl)
 }
 
@@ -222,7 +222,7 @@ func (m ManagerYum) RemoveKey(alias string) error {
 // https://docs.fedoraproject.org/en-US/Fedora/16/html/System_Administrators_Guide/sec-Managing_Yum_Repositories.html
 
 func (m ManagerYum) AddRepo(alias string, url ...string) error {
-	internal.Log.Print(taskAddRepo)
+	osutil.Log.Print(taskAddRepo)
 	stderr, err := m.cmd.Command(
 		pathYumCfg, "--add-repo", url[0],
 	).OutputStderr()
@@ -231,7 +231,7 @@ func (m ManagerYum) AddRepo(alias string, url ...string) error {
 }
 
 func (m ManagerYum) RemoveRepo(alias string) error {
-	internal.Log.Print(taskRemoveRepo)
+	osutil.Log.Print(taskRemoveRepo)
 	return os.Remove(m.repository(alias))
 }
 
@@ -262,7 +262,7 @@ func (m ManagerRpm) ExecPath() string { return m.pathExec }
 func (m ManagerRpm) PackageType() string { return Rpm.String() }
 
 func (m ManagerRpm) Install(name ...string) error {
-	internal.Log.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	args := append([]string{"-i"}, name...)
 
 	_, err := m.cmd.Command(pathRpm, args...).Run()
@@ -270,7 +270,7 @@ func (m ManagerRpm) Install(name ...string) error {
 }
 
 func (m ManagerRpm) Remove(name ...string) error {
-	internal.Log.Print(taskRemove)
+	osutil.Log.Print(taskRemove)
 	args := append([]string{"-e"}, name...)
 
 	_, err := m.cmd.Command(pathRpm, args...).Run()
@@ -278,7 +278,7 @@ func (m ManagerRpm) Remove(name ...string) error {
 }
 
 func (m ManagerRpm) Purge(name ...string) error {
-	internal.Log.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
@@ -295,7 +295,7 @@ func (m ManagerRpm) Clean() error {
 }
 
 func (m ManagerRpm) ImportKey(alias, keyUrl string) error {
-	internal.Log.Print(taskImportKey)
+	osutil.Log.Print(taskImportKey)
 	stderr, err := m.cmd.Command(pathRpm, "--import", keyUrl).OutputStderr()
 
 	err = executil.CheckStderr(stderr, err)

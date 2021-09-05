@@ -9,10 +9,10 @@ package sysutil
 import (
 	"os"
 
+	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/internal"
 )
 
 var excmd = executil.NewCommand("", "").
-	Stdout(internal.LogShell.Writer()).
+	Stdout(osutil.LogShell.Writer()).
 	Env(append([]string{"LANG=C"}, os.Environ()...))

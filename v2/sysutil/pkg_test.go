@@ -11,13 +11,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tredoe/osutil/v2/internal"
+	"github.com/tredoe/osutil/v2"
 )
 
 func TestPackager(t *testing.T) {
-	internal.LogShell.SetOutput(os.Stdout)
-	internal.LogShell.SetFlags(0)
-	internal.LogShell.SetPrefix("  >> ")
+	osutil.LogShell.SetOutput(os.Stdout)
+	osutil.LogShell.SetFlags(0)
+	osutil.LogShell.SetPrefix("  >> ")
 
 	sys, dis, err := SystemFromGOOS()
 	if err != nil {

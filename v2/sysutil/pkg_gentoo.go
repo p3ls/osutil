@@ -9,8 +9,8 @@
 package sysutil
 
 import (
+	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/internal"
 )
 
 const (
@@ -42,13 +42,13 @@ func (m ManagerEbuild) ExecPath() string { return m.pathExec }
 func (m ManagerEbuild) PackageType() string { return Ebuild.String() }
 
 func (m ManagerEbuild) Install(name ...string) error {
-	internal.Log.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	_, err := m.cmd.Command(pathEbuild, name...).Run()
 	return err
 }
 
 func (m ManagerEbuild) Remove(name ...string) error {
-	internal.Log.Print(taskRemove)
+	osutil.Log.Print(taskRemove)
 	args := append([]string{"--unmerge"}, name...)
 
 	_, err := m.cmd.Command(pathEbuild, args...).Run()
@@ -56,24 +56,24 @@ func (m ManagerEbuild) Remove(name ...string) error {
 }
 
 func (m ManagerEbuild) Purge(name ...string) error {
-	internal.Log.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerEbuild) Update() error {
-	internal.Log.Print(taskUpdate)
+	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(pathEbuild, "--sync").Run()
 	return err
 }
 
 func (m ManagerEbuild) Upgrade() error {
-	internal.Log.Print(taskUpgrade)
+	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world").Run()
 	return err
 }
 
 func (m ManagerEbuild) Clean() error {
-	internal.Log.Print(taskClean)
+	osutil.Log.Print(taskClean)
 	_, err := m.cmd.Command(pathEbuild, "--update", "--deep", "--newuse @world").Run()
 	if err != nil {
 		return err

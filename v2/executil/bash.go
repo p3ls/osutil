@@ -16,7 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tredoe/osutil/v2/internal"
+	"github.com/tredoe/osutil/v2"
 )
 
 // RunAsBashWithMatch executes external commands with access to shell features such as
@@ -293,7 +293,7 @@ func RunAsBashWithMatch(command string) (output []byte, match bool, err error) {
 		}
 	}
 
-	internal.LogShell.Print(command)
+	osutil.LogShell.Print(command)
 	return stdout.Bytes(), match, nil
 }
 

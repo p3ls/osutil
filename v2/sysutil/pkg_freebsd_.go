@@ -9,8 +9,8 @@
 package sysutil
 
 import (
+	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/internal"
 )
 
 const (
@@ -44,7 +44,7 @@ func (m ManagerPkg) ExecPath() string { return m.pathExec }
 func (m ManagerPkg) PackageType() string { return Pkg.String() }
 
 func (m ManagerPkg) Install(name ...string) error {
-	internal.Log.Print(taskInstall)
+	osutil.Log.Print(taskInstall)
 	args := append([]string{pathPkg, "install", "-y"}, name...)
 
 	_, err := m.cmd.Command(m.sudo, args...).Run()
@@ -52,7 +52,7 @@ func (m ManagerPkg) Install(name ...string) error {
 }
 
 func (m ManagerPkg) Remove(name ...string) error {
-	internal.Log.Print(taskRemove)
+	osutil.Log.Print(taskRemove)
 	args := append([]string{pathPkg, "delete", "-y"}, name...)
 
 	_, err := m.cmd.Command(m.sudo, args...).Run()
@@ -60,24 +60,24 @@ func (m ManagerPkg) Remove(name ...string) error {
 }
 
 func (m ManagerPkg) Purge(name ...string) error {
-	internal.Log.Print(taskPurge)
+	osutil.Log.Print(taskPurge)
 	return m.Remove(name...)
 }
 
 func (m ManagerPkg) Update() error {
-	internal.Log.Print(taskUpdate)
+	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(m.sudo, pathPkg, "update").Run()
 	return err
 }
 
 func (m ManagerPkg) Upgrade() error {
-	internal.Log.Print(taskUpgrade)
+	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(m.sudo, pathPkg, "upgrade", "-y").Run()
 	return err
 }
 
 func (m ManagerPkg) Clean() error {
-	internal.Log.Print(taskClean)
+	osutil.Log.Print(taskClean)
 	_, err := m.cmd.Command(m.sudo, pathPkg, "autoremove", "-y").Run()
 	if err != nil {
 		return err

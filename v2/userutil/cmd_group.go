@@ -9,8 +9,8 @@ package userutil
 import (
 	"os/user"
 
+	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
 )
 
@@ -59,7 +59,7 @@ func AddGroupFromCmd(sys sysutil.System, group string) error {
 			return err
 		}
 
-		internal.Log.Printf(
+		osutil.Log.Printf(
 			"the user %q has been added to the group %q.\nYou MUST reboot the system.\n",
 			username, group,
 		)

@@ -8,8 +8,8 @@ package sysutil
 
 import "os"
 
-// MustDisableColor returns true to indicate that the color should be disabled into a
-// command line interface (cli).
+// MustDisableColor returns true to indicate that the color should be disabled.
+// It is useful to know when disable the color into a command line interface (cli).
 //
 // It checks the next environment variables:
 //

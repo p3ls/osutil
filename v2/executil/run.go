@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tredoe/osutil/v2/internal"
+	"github.com/tredoe/osutil/v2"
 )
 
 // Command represents a command to execute.
@@ -239,7 +239,7 @@ func (c *Command) Run() (exitCode int, err error) {
 		cmd = exec.CommandContext(c.ctx, c.cmd, c.args...)
 		defer c.cancelFunc()
 	}
-	internal.LogShell.Printf("%s", strings.Join(cmd.Args, " "))
+	osutil.LogShell.Printf("%s", strings.Join(cmd.Args, " "))
 
 	if len(c.env) != 0 {
 		cmd.Env = c.env
@@ -322,7 +322,7 @@ func (c *Command) Run() (exitCode int, err error) {
 	if errors.As(err, &c.exitError) {
 		exitCode = err.(*exec.ExitError).ExitCode()
 		c.exitCode = exitCode
-		internal.LogShell.Printf("Exit code: %d", exitCode)
+		osutil.LogShell.Printf("Exit code: %d", exitCode)
 
 		if c.ctx != nil && exitCode == -1 {
 			return -1, ErrProcKilled
