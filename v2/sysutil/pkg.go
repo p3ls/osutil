@@ -8,6 +8,8 @@ package sysutil
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -22,8 +24,8 @@ const (
 	taskInstall             = "Installing ..."
 	taskRemove              = "Removing ..."
 	taskPurge               = "Purging ..."
-	taskUpdate              = "Updating ..."
-	taskUpgrade             = "Upgrading ..."
+	taskUpdate              = "Updating repositories ..."
+	taskUpgrade             = "Upgrading packages ..."
 	taskClean               = "Cleaning ..."
 	taskImportKey           = "Importing key ..."
 	taskImportKeyFromServer = "Importing key from server ..."
@@ -31,6 +33,20 @@ const (
 	taskAddRepo             = "Adding repository ..."
 	taskRemoveRepo          = "Removing repository ..."
 )
+
+var (
+	cmd = executil.NewCommand("", "").
+		Env(append([]string{"LANG=C"}, os.Environ()...))
+
+	cmdWin = executil.NewCommand("", "").Env(os.Environ())
+)
+
+// StdoutPkgManager sets the standard out at the commands of the package manager.
+// It must be used before of get a 'PkgManager'.
+func StdoutPkgManager(out io.Writer) {
+	cmd.Stdout(out)
+	cmdWin = cmdWin.Stdout(out)
+}
 
 // PkgManager is the common interface to handle different package systems.
 type PkgManager interface {
