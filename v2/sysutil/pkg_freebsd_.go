@@ -9,6 +9,8 @@
 package sysutil
 
 import (
+	"io"
+
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
 )
@@ -36,6 +38,8 @@ func NewManagerPkg() ManagerPkg {
 }
 
 func (m ManagerPkg) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerPkg) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
 func (m ManagerPkg) Cmd() *executil.Command { return m.cmd }
 

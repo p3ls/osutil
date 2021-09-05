@@ -10,7 +10,7 @@ Also, it handles basic operations in the management of packages in
 FreeBSD, Linux and macOs operating systems.
 
 The output of the commands run by the package managers are not printed. To set the standard output,
-to use 'StdoutPkgManag()' before of get 'PkgManager'.
+to use the method 'SetStdout()'.
 
 NOTE: Package management systems untested:
 

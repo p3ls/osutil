@@ -38,20 +38,17 @@ var (
 	cmd = executil.NewCommand("", "").
 		Env(append([]string{"LANG=C"}, os.Environ()...))
 
-	cmdWin = executil.NewCommand("", "").Env(os.Environ())
+	cmdWin = executil.NewCommand("", "").
+		Env(os.Environ())
 )
-
-// StdoutPkgManager sets the standard out at the commands of the package manager.
-// It must be used before of get a 'PkgManager'.
-func StdoutPkgManager(out io.Writer) {
-	cmd.Stdout(out)
-	cmdWin = cmdWin.Stdout(out)
-}
 
 // PkgManager is the common interface to handle different package systems.
 type PkgManager interface {
 	// setExecPath sets the executable path.
 	setExecPath(p string)
+
+	// SetStdout sets the standard out for the commands of the package manager.
+	SetStdout(out io.Writer)
 
 	// Cmd returns the command configured for the package manager.
 	Cmd() *executil.Command

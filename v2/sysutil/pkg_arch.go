@@ -11,6 +11,7 @@ package sysutil
 import (
 	"bytes"
 	"fmt"
+	"io"
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/edi"
@@ -39,6 +40,8 @@ func NewManagerPacman() ManagerPacman {
 }
 
 func (m ManagerPacman) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerPacman) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
 func (m ManagerPacman) Cmd() *executil.Command { return m.cmd }
 

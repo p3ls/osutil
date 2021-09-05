@@ -9,6 +9,8 @@
 package sysutil
 
 import (
+	"io"
+
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
 )
@@ -34,6 +36,8 @@ func NewManagerEbuild() ManagerEbuild {
 }
 
 func (m ManagerEbuild) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerEbuild) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
 func (m ManagerEbuild) Cmd() *executil.Command { return m.cmd }
 

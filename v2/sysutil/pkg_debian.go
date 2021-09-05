@@ -11,6 +11,7 @@ package sysutil
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"strings"
@@ -48,6 +49,8 @@ func NewManagerDeb() ManagerDeb {
 }
 
 func (m ManagerDeb) setExecPath(p string) { m.pathExec = p }
+
+func (m ManagerDeb) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
 func (m ManagerDeb) Cmd() *executil.Command { return m.cmd }
 
