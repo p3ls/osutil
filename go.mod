@@ -8,21 +8,24 @@ require (
 )
 
 retract (
-        v1.1.1 // breaking change
-        v1.1.2 // breaking change
-        v1.1.3 // breaking change
-        v1.1.4 // breaking change
-        v1.1.5 // breaking change
-        v1.1.6 // breaking change
-        v1.1.7 // breaking change
-        v1.1.8 // breaking change
-        v1.2.0 // breaking change
-        v1.2.1 // breaking change
-        v1.3.0 // breaking change
-        v1.3.1 // breaking change
-        v1.3.2 // breaking change
-        v1.3.3 // breaking change
-        v1.3.4 // breaking change
-        v1.3.5 // breaking change
-        v1.3.6 // retract breaking releases
+        // Breaking changes
+        // curl proxy.golang.org/github.com/tredoe/osutil/@v/list|sort -V
+        v1.1.1
+        v1.1.2
+        v1.1.3
+        v1.1.4
+        v1.1.5
+        v1.1.6
+        v1.1.7
+        v1.1.8
+        v1.2.0
+        v1.2.1
+        v1.3.0
+        v1.3.1
+        v1.3.2
+        v1.3.3
+        v1.3.4
+        v1.3.5
+
+        v1.3.6 // Retract breaking releases
 )
