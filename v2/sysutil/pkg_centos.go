@@ -4,11 +4,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// TODO: to use
-//
-// dnf config-manager -> install: dnf-plugins-core
-// yum-config-manager -> install: yum-utils
-
 package sysutil
 
 import (
@@ -63,7 +58,10 @@ func (m ManagerDnf) PackageType() string { return Dnf.String() }
 
 func (m ManagerDnf) PathExec() string { return m.pathExec }
 
-func (m ManagerDnf) PreUsage() error { return nil }
+func (m ManagerDnf) PreUsage() error {
+	// Required to use: "dnf config-manager"
+	return m.Install("dnf-plugins-core")
+}
 
 func (m ManagerDnf) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
@@ -181,7 +179,10 @@ func (m ManagerYum) PackageType() string { return Yum.String() }
 
 func (m ManagerYum) PathExec() string { return m.pathExec }
 
-func (m ManagerYum) PreUsage() error { return nil }
+func (m ManagerYum) PreUsage() error {
+	// Required to use: "yum-config-manager"
+	return m.Install("yum-utils")
+}
 
 func (m ManagerYum) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
