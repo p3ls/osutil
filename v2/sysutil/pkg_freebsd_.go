@@ -37,15 +37,19 @@ func NewManagerPkg() ManagerPkg {
 	}
 }
 
-func (m ManagerPkg) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerPkg) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerPkg) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerPkg) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerPkg) ExecPath() string { return m.pathExec }
-
 func (m ManagerPkg) PackageType() string { return Pkg.String() }
+
+func (m ManagerPkg) PathExec() string { return m.pathExec }
+
+func (m ManagerPkg) PreUsage() error { return nil }
+
+func (m ManagerPkg) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerPkg) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -68,13 +72,13 @@ func (m ManagerPkg) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerPkg) Update() error {
+func (m ManagerPkg) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(m.sudo, pathPkg, "update").Run()
 	return err
 }
 
-func (m ManagerPkg) Upgrade() error {
+func (m ManagerPkg) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(m.sudo, pathPkg, "upgrade", "-y").Run()
 	return err
@@ -89,6 +93,8 @@ func (m ManagerPkg) Clean() error {
 	_, err = m.cmd.Command(m.sudo, pathPkg, "clean", "-y").Run()
 	return err
 }
+
+// * * *
 
 func (m ManagerPkg) ImportKey(alias, keyUrl string) error {
 	return ErrManagCmd

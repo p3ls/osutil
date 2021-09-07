@@ -49,12 +49,12 @@ func TestPackager(t *testing.T) {
 func testUpdate(mng PkgManager, t *testing.T) {
 	var err error
 
-	fmt.Printf("\n+ Update\n")
-	if err = mng.Update(); err != nil {
+	fmt.Printf("\n+ UpdateIndex\n")
+	if err = mng.UpdateIndex(); err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("\n+ Upgrade\n")
-	if err = mng.Upgrade(); err != nil {
+	fmt.Printf("\n+ Update\n")
+	if err = mng.Update(); err != nil {
 		t.Fatal(err)
 	}
 }

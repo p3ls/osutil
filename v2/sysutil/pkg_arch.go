@@ -39,15 +39,19 @@ func NewManagerPacman() ManagerPacman {
 	}
 }
 
-func (m ManagerPacman) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerPacman) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerPacman) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerPacman) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerPacman) ExecPath() string { return m.pathExec }
-
 func (m ManagerPacman) PackageType() string { return Pacman.String() }
+
+func (m ManagerPacman) PathExec() string { return m.pathExec }
+
+func (m ManagerPacman) PreUsage() error { return nil }
+
+func (m ManagerPacman) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerPacman) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -73,13 +77,13 @@ func (m ManagerPacman) Purge(name ...string) error {
 	return err
 }
 
-func (m ManagerPacman) Update() error {
+func (m ManagerPacman) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(pathPacman, "-Syu", "--needed", "--noprogressbar").Run()
 	return err
 }
 
-func (m ManagerPacman) Upgrade() error {
+func (m ManagerPacman) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathPacman, "-Syu").Run()
 	return err
@@ -90,6 +94,8 @@ func (m ManagerPacman) Clean() error {
 	_, err := m.cmd.Command("/usr/bin/paccache", "-r").Run()
 	return err
 }
+
+// * * *
 
 // https://arcolinux.com/how-to-add-the-third-party-repo-to-pacman-conf/
 
@@ -123,7 +129,7 @@ func (m ManagerPacman) AddRepo(alias string, url ...string) error {
 		return err
 	}
 
-	return m.Update()
+	return m.UpdateIndex()
 }
 
 func (m ManagerPacman) RemoveRepo(r string) error {

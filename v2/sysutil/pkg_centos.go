@@ -32,6 +32,9 @@ const (
 	pathRpm = "/usr/bin/rpm"
 )
 
+// == Dnf
+//
+
 // ManagerDnf is the interface to handle the package manager DNG of Linux systems
 // based at Red Hat.
 type ManagerDnf struct {
@@ -52,15 +55,19 @@ func NewManagerDnf() ManagerDnf {
 	}
 }
 
-func (m ManagerDnf) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerDnf) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerDnf) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerDnf) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerDnf) ExecPath() string { return m.pathExec }
-
 func (m ManagerDnf) PackageType() string { return Dnf.String() }
+
+func (m ManagerDnf) PathExec() string { return m.pathExec }
+
+func (m ManagerDnf) PreUsage() error { return nil }
+
+func (m ManagerDnf) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerDnf) Install(name ...string) error {
 	args := append([]string{pathDnf, "install", "-y"}, name...)
@@ -80,7 +87,7 @@ func (m ManagerDnf) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerDnf) Update() error {
+func (m ManagerDnf) UpdateIndex() error {
 	// check-update does not update else it checks the updating.
 	return nil
 
@@ -95,7 +102,7 @@ func (m ManagerDnf) Update() error {
 	return err*/
 }
 
-func (m ManagerDnf) Upgrade() error {
+func (m ManagerDnf) Update() error {
 	_, err := m.cmd.Command(sudo, pathDnf, "update", "-y").Run()
 	return err
 }
@@ -108,6 +115,8 @@ func (m ManagerDnf) Clean() error {
 	_, err = m.cmd.Command(sudo, pathDnf, "clean", "all").Run()
 	return err
 }
+
+// * * *
 
 func (m ManagerDnf) ImportKey(alias, keyUrl string) error {
 	return m.rpm.ImportKey("", keyUrl)
@@ -142,7 +151,8 @@ func (m ManagerDnf) RemoveRepo(alias string) error {
 	return os.Remove(m.repository(alias))
 }
 
-// * * *
+// == Yum
+//
 
 // ManagerYum is the interface to handle the package manager YUM of Linux systems
 // based at Red Hat.
@@ -163,15 +173,19 @@ func NewManagerYum() ManagerYum {
 	}
 }
 
-func (m ManagerYum) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerYum) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerYum) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerYum) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerYum) ExecPath() string { return m.pathExec }
-
 func (m ManagerYum) PackageType() string { return Yum.String() }
+
+func (m ManagerYum) PathExec() string { return m.pathExec }
+
+func (m ManagerYum) PreUsage() error { return nil }
+
+func (m ManagerYum) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerYum) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -194,12 +208,12 @@ func (m ManagerYum) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerYum) Update() error {
+func (m ManagerYum) UpdateIndex() error {
 	// check-update does not update else it checks the updating.
 	return ErrManagCmd
 }
 
-func (m ManagerYum) Upgrade() error {
+func (m ManagerYum) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(sudo, pathYum, "update", "-y").Run()
 	return err
@@ -210,6 +224,8 @@ func (m ManagerYum) Clean() error {
 	_, err := m.cmd.Command(sudo, pathYum, "clean", "packages").Run()
 	return err
 }
+
+// * * *
 
 func (m ManagerYum) ImportKey(alias, keyUrl string) error {
 	osutil.Log.Print(taskImportKey)
@@ -240,7 +256,8 @@ func (m ManagerYum) RemoveRepo(alias string) error {
 	return os.Remove(m.repository(alias))
 }
 
-// * * *
+// == RPM
+//
 
 // ManagerRpm is the interface to handle the package manager RPM of Linux systems
 // based at Red Hat.
@@ -258,15 +275,19 @@ func NewManagerRpm() ManagerRpm {
 	}
 }
 
-func (m ManagerRpm) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerRpm) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerRpm) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerRpm) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerRpm) ExecPath() string { return m.pathExec }
-
 func (m ManagerRpm) PackageType() string { return Rpm.String() }
+
+func (m ManagerRpm) PathExec() string { return m.pathExec }
+
+func (m ManagerRpm) PreUsage() error { return nil }
+
+func (m ManagerRpm) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerRpm) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -289,17 +310,19 @@ func (m ManagerRpm) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerRpm) Update() error {
+func (m ManagerRpm) UpdateIndex() error {
 	return ErrManagCmd
 }
 
-func (m ManagerRpm) Upgrade() error {
+func (m ManagerRpm) Update() error {
 	return ErrManagCmd
 }
 
 func (m ManagerRpm) Clean() error {
 	return ErrManagCmd
 }
+
+// * * *
 
 func (m ManagerRpm) ImportKey(alias, keyUrl string) error {
 	osutil.Log.Print(taskImportKey)

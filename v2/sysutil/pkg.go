@@ -44,20 +44,26 @@ var (
 
 // PkgManager is the common interface to handle different package systems.
 type PkgManager interface {
-	// setExecPath sets the executable path.
-	setExecPath(p string)
-
-	// SetStdout sets the standard out for the commands of the package manager.
-	SetStdout(out io.Writer)
+	// setPathExec sets the path of the executable.
+	setPathExec(p string)
 
 	// Cmd returns the command configured for the package manager.
 	Cmd() *executil.Command
 
-	// ExecPath returns the executable path.
-	ExecPath() string
-
 	// PackageType returns the package type.
 	PackageType() string
+
+	// PathExec returns the path of the executable.
+	PathExec() string
+
+	// PreUsage creates the files or installs the programs which are necessary for that
+	// all methods can be used.
+	PreUsage() error
+
+	// SetStdout sets the standard out for the commands of the package manager.
+	SetStdout(out io.Writer)
+
+	// * * *
 
 	// Install installs packages.
 	Install(name ...string) error
@@ -68,14 +74,16 @@ type PkgManager interface {
 	// Purge removes packages and its configuration files (if the package system does it).
 	Purge(name ...string) error
 
-	// Update resynchronizes the package index files from their sources.
-	Update() error
+	// UpdateIndex resynchronizes the package index files from their sources.
+	UpdateIndex() error
 
-	// Upgrade upgrades all the packages on the system.
-	Upgrade() error
+	// Update installs the newest versions of all packages currently installed.
+	Update() error
 
 	// Clean erases both packages downloaded and orphaned dependencies.
 	Clean() error
+
+	// * * *
 
 	// ImportKey downloads the OpenPGP key and add it to the system.
 	ImportKey(alias, keyUrl string) error
@@ -233,7 +241,7 @@ func NewPkgManagFromSystem(sys System, dis Distro) (PkgManager, error) {
 			return pkg[0], nil
 		}
 		for _, v := range pkg {
-			_, err := exec.LookPath(v.ExecPath())
+			_, err := exec.LookPath(v.PathExec())
 			if err == nil {
 				return v, nil
 			}
@@ -354,8 +362,8 @@ func DetectPkgManag(sys System) (PkgManager, error) {
 			}
 			mng := NewPkgManagFromType(pkg)
 
-			if mng.ExecPath() != pathExec {
-				mng.setExecPath(pathExec)
+			if mng.PathExec() != pathExec {
+				mng.setPathExec(pathExec)
 			}
 
 			return mng, nil

@@ -50,13 +50,15 @@ func NewManagerChoco() ManagerChoco {
 	}
 }
 
-func (m ManagerChoco) setExecPath(p string) { m.pathExec = p }
+func (m ManagerChoco) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerChoco) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
 func (m ManagerChoco) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerChoco) ExecPath() string { return m.pathExec }
+func (m ManagerChoco) PathExec() string { return m.pathExec }
+
+func (m ManagerChoco) PreUsage() error { return nil }
 
 func (m ManagerChoco) PackageType() string { return Choco.String() }
 
@@ -83,11 +85,11 @@ func (m ManagerChoco) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerChoco) Update() error {
+func (m ManagerChoco) UpdateIndex() error {
 	return ErrManagCmd
 }
 
-func (m ManagerChoco) Upgrade() error {
+func (m ManagerChoco) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathChoco, "upgrade", "all", "-y").Run()
 	return err
@@ -133,15 +135,19 @@ func NewManagerWinget() ManagerWinget {
 	}
 }
 
-func (m ManagerWinget) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerWinget) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerWinget) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerWinget) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerWinget) ExecPath() string { return m.pathExec }
-
 func (m ManagerWinget) PackageType() string { return Choco.String() }
+
+func (m ManagerWinget) PathExec() string { return m.pathExec }
+
+func (m ManagerWinget) PreUsage() error { return nil }
+
+func (m ManagerWinget) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerWinget) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -170,17 +176,19 @@ func (m ManagerWinget) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerWinget) Update() error {
+func (m ManagerWinget) UpdateIndex() error {
 	return ErrManagCmd
 }
 
-func (m ManagerWinget) Upgrade() error {
+func (m ManagerWinget) Update() error {
 	return ErrManagCmd
 }
 
 func (m ManagerWinget) Clean() error {
 	return ErrManagCmd
 }
+
+// * * *
 
 func (m ManagerWinget) ImportKey(alias, keyUrl string) error {
 	return ErrManagCmd

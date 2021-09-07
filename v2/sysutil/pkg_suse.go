@@ -35,15 +35,19 @@ func NewManagerZypp() ManagerZypp {
 	}
 }
 
-func (m ManagerZypp) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerZypp) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerZypp) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerZypp) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerZypp) ExecPath() string { return m.pathExec }
-
 func (m ManagerZypp) PackageType() string { return Zypp.String() }
+
+func (m ManagerZypp) PathExec() string { return m.pathExec }
+
+func (m ManagerZypp) PreUsage() error { return nil }
+
+func (m ManagerZypp) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerZypp) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -71,13 +75,13 @@ func (m ManagerZypp) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerZypp) Update() error {
+func (m ManagerZypp) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(sudo, pathZypp, "refresh").Run()
 	return err
 }
 
-func (m ManagerZypp) Upgrade() error {
+func (m ManagerZypp) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(
 		sudo, pathZypp, "up", "--auto-agree-with-licenses", "-y",
@@ -90,6 +94,8 @@ func (m ManagerZypp) Clean() error {
 	_, err := m.cmd.Command(sudo, pathZypp, "clean").Run()
 	return err
 }
+
+// * * *
 
 // https://opensuse-guide.org/repositories.php
 
@@ -112,7 +118,7 @@ func (m ManagerZypp) AddRepo(alias string, url ...string) error {
 		return err
 	}
 
-	return m.Update()
+	return m.UpdateIndex()
 }
 
 func (m ManagerZypp) RemoveRepo(r string) error {
@@ -121,5 +127,5 @@ func (m ManagerZypp) RemoveRepo(r string) error {
 		return err
 	}
 
-	return m.Update()
+	return m.UpdateIndex()
 }

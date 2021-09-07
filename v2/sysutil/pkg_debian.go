@@ -48,15 +48,22 @@ func NewManagerDeb() ManagerDeb {
 	}
 }
 
-func (m ManagerDeb) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerDeb) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerDeb) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerDeb) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerDeb) ExecPath() string { return m.pathExec }
-
 func (m ManagerDeb) PackageType() string { return Deb.String() }
+
+func (m ManagerDeb) PathExec() string { return m.pathExec }
+
+func (m ManagerDeb) PreUsage() error {
+
+	return nil
+}
+
+func (m ManagerDeb) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerDeb) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -82,13 +89,13 @@ func (m ManagerDeb) Purge(name ...string) error {
 	return err
 }
 
-func (m ManagerDeb) Update() error {
+func (m ManagerDeb) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(sudo, pathDeb, "update", "-qq").Run()
 	return err
 }
 
-func (m ManagerDeb) Upgrade() error {
+func (m ManagerDeb) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(sudo, pathDeb, "upgrade", "-y").Run()
 	return err
@@ -183,7 +190,7 @@ func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 		return err
 	}
 
-	return m.Update()
+	return m.UpdateIndex()
 }
 
 func (m ManagerDeb) RemoveRepo(alias string) error {
@@ -196,7 +203,7 @@ func (m ManagerDeb) RemoveRepo(alias string) error {
 		return err
 	}
 
-	return m.Update()
+	return m.UpdateIndex()
 }
 
 // == Utility

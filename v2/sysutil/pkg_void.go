@@ -16,15 +16,19 @@ import (
 // avoiding to have to use a pointer.
 type ManagerVoid struct{}
 
-func (m ManagerVoid) setExecPath(string) {}
-
-func (m ManagerVoid) SetStdout(out io.Writer) {}
+func (m ManagerVoid) setPathExec(string) {}
 
 func (m ManagerVoid) Cmd() *executil.Command { return nil }
 
-func (m ManagerVoid) ExecPath() string { return "" }
-
 func (m ManagerVoid) PackageType() string { return "" }
+
+func (m ManagerVoid) PathExec() string { return "" }
+
+func (m ManagerVoid) PreUsage() error { return nil }
+
+func (m ManagerVoid) SetStdout(out io.Writer) {}
+
+// * * *
 
 func (m ManagerVoid) Install(name ...string) error { return nil }
 
@@ -32,11 +36,13 @@ func (m ManagerVoid) Remove(name ...string) error { return nil }
 
 func (m ManagerVoid) Purge(name ...string) error { return nil }
 
+func (m ManagerVoid) UpdateIndex() error { return nil }
+
 func (m ManagerVoid) Update() error { return nil }
 
-func (m ManagerVoid) Upgrade() error { return nil }
-
 func (m ManagerVoid) Clean() error { return nil }
+
+// * * *
 
 func (m ManagerVoid) ImportKey(alias, keyUrl string) error { return nil }
 

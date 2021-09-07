@@ -36,15 +36,19 @@ func NewManagerBrew() ManagerBrew {
 	}
 }
 
-func (m ManagerBrew) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerBrew) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerBrew) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerBrew) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerBrew) ExecPath() string { return m.pathExec }
-
 func (m ManagerBrew) PackageType() string { return Brew.String() }
+
+func (m ManagerBrew) PathExec() string { return m.pathExec }
+
+func (m ManagerBrew) PreUsage() error { return nil }
+
+func (m ManagerBrew) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerBrew) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -67,13 +71,13 @@ func (m ManagerBrew) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerBrew) Update() error {
+func (m ManagerBrew) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(pathBrew, "update").Run()
 	return err
 }
 
-func (m ManagerBrew) Upgrade() error {
+func (m ManagerBrew) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathBrew, "upgrade").Run()
 	return err
@@ -93,6 +97,8 @@ func (m ManagerBrew) Clean() error {
 	_, err = m.cmd.Command(pathBrew, "cleanup").Run()
 	return err
 }
+
+// * * *
 
 func (m ManagerBrew) ImportKey(alias, keyUrl string) error {
 	return ErrManagCmd

@@ -35,15 +35,19 @@ func NewManagerEbuild() ManagerEbuild {
 	}
 }
 
-func (m ManagerEbuild) setExecPath(p string) { m.pathExec = p }
-
-func (m ManagerEbuild) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+func (m ManagerEbuild) setPathExec(p string) { m.pathExec = p }
 
 func (m ManagerEbuild) Cmd() *executil.Command { return m.cmd }
 
-func (m ManagerEbuild) ExecPath() string { return m.pathExec }
-
 func (m ManagerEbuild) PackageType() string { return Ebuild.String() }
+
+func (m ManagerEbuild) PathExec() string { return m.pathExec }
+
+func (m ManagerEbuild) PreUsage() error { return nil }
+
+func (m ManagerEbuild) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
+
+// * * *
 
 func (m ManagerEbuild) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
@@ -64,13 +68,13 @@ func (m ManagerEbuild) Purge(name ...string) error {
 	return m.Remove(name...)
 }
 
-func (m ManagerEbuild) Update() error {
+func (m ManagerEbuild) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
 	_, err := m.cmd.Command(pathEbuild, "--sync").Run()
 	return err
 }
 
-func (m ManagerEbuild) Upgrade() error {
+func (m ManagerEbuild) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(pathEbuild, "--update", "--deep", "--with-bdeps=y", "--newuse @world").Run()
 	return err
@@ -85,6 +89,8 @@ func (m ManagerEbuild) Clean() error {
 	_, err = m.cmd.Command(pathEbuild, "--depclean").Run()
 	return err
 }
+
+// * * *
 
 func (m ManagerEbuild) ImportKey(alias, keyUrl string) error {
 	return ErrManagCmd
