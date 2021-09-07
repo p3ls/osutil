@@ -6,7 +6,7 @@
 
 // Distro: Debian
 
-package sysutil
+package pkg
 
 import (
 	"bytes"

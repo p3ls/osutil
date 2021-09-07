@@ -4,20 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-/*
-Package sysutil defines operating systems and detects the Linux distribution.
-Also, it handles basic operations in the management of packages in
-FreeBSD, Linux and macOs operating systems.
-
-The output of the commands run by the package managers are not printed. To set the standard output,
-to use the method 'SetStdout()'.
-
-NOTE: Package management systems untested:
-
- + Packman (Arch)
- + ebuild  (Gentoo)
- + RPM     (CentOS)
-*/
+// Package sysutil defines the operating systems and detects the Linux distributions.
 package sysutil
 
 import (

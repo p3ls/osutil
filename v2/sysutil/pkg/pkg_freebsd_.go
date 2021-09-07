@@ -6,7 +6,7 @@
 
 // System: FreeBSD
 
-package sysutil
+package pkg
 
 import (
 	"io"

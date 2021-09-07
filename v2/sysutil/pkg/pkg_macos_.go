@@ -7,7 +7,7 @@
 // System: macOS
 // Note: running Homebrew as root is extremely dangerous and no longer supported.
 
-package sysutil
+package pkg
 
 import (
 	"io"

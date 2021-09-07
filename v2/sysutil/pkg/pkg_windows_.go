@@ -17,7 +17,7 @@
 // Packages:
 // https://github.com/microsoft/winget-pkgs/tree/master/manifests
 
-package sysutil
+package pkg
 
 import (
 	"io"

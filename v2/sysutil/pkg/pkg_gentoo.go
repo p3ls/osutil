@@ -6,7 +6,7 @@
 
 // Distro: Gentoo
 
-package sysutil
+package pkg
 
 import (
 	"io"

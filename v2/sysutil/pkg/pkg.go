@@ -4,7 +4,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package sysutil
+/*
+Package pkg handles the basic operations in the management of packages at
+FreeBSD, Linux and macOS operating systems.
+
+By default, the output of the commands run by the package managers are not printed.
+To set the standard output, to use the method 'SetStdout()'.
+
+NOTE: the next package management systems are untested:
+
+ + Packman (Arch)
+ + ebuild  (Gentoo)
+ + RPM     (CentOS)
+*/
+package pkg
 
 import (
 	"fmt"
