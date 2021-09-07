@@ -57,6 +57,23 @@ func (m ManagerDeb) PackageType() string { return Deb.String() }
 func (m ManagerDeb) PathExec() string { return m.pathExec }
 
 func (m ManagerDeb) PreUsage() error {
+	// == Directory required to import keys
+
+	dirGnupg := "/root/.gnupg"
+
+	info, err := os.Stat(dirGnupg)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+
+		return os.Mkdir(dirGnupg, "0700")
+	}
+
+	// If it already exists
+	if !info.IsDir() {
+		return fmt.Errors("%q must be a directory", dirGnupg)
+	}
 
 	return nil
 }
