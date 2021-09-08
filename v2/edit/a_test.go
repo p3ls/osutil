@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-package edi
+package edit
 
 import (
 	"io/ioutil"
@@ -28,7 +28,7 @@ culpa qui officia deserunt mollit anim id est laborum.
 )
 
 func Test_a(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "edi-")
+	tmpFile, err := ioutil.TempFile("", "edit-")
 	if err != nil {
 		t.Fatal(err)
 	}

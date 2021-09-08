@@ -18,7 +18,7 @@ import (
 	"path"
 
 	"github.com/tredoe/osutil/v2/config/shconf"
-	"github.com/tredoe/osutil/v2/edi"
+	"github.com/tredoe/osutil/v2/edit"
 	"github.com/tredoe/osutil/v2/userutil"
 )
 
@@ -164,7 +164,7 @@ func _Set(filename, key, value string) error {
 		}
 	}
 
-	return edi.Append(filename, edi.ModBackup, []byte(key+string(conf.Separator())+value))
+	return edit.Append(filename, edit.ModBackup, []byte(key+string(conf.Separator())+value))
 }
 
 // _MSet sets multiple values named by the keys in the given filename.
@@ -194,7 +194,7 @@ func _MSet(filename string, keys, values []string) error {
 		buf.WriteByte('\n')
 	}
 
-	return edi.Append(filename, edi.ModBackup, buf.Bytes())
+	return edit.Append(filename, edit.ModBackup, buf.Bytes())
 }
 
 // == Set session-wide variables

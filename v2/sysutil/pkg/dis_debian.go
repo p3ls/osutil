@@ -20,6 +20,7 @@ import (
 	"github.com/tredoe/osutil/v2/config/shconf"
 	"github.com/tredoe/osutil/v2/executil"
 	"github.com/tredoe/osutil/v2/fileutil"
+	"github.com/tredoe/osutil/v2/sysutil"
 )
 
 // 'apt' is for the terminal and gives beautiful output.
@@ -67,12 +68,12 @@ func (m ManagerDeb) PreUsage() error {
 			return err
 		}
 
-		return os.Mkdir(dirGnupg, "0700")
+		return os.Mkdir(dirGnupg, 0700)
 	}
 
 	// If it already exists
 	if !info.IsDir() {
-		return fmt.Errors("%q must be a directory", dirGnupg)
+		return fmt.Errorf("%q must be a directory", dirGnupg)
 	}
 
 	return nil
@@ -230,7 +231,7 @@ func (m ManagerDeb) RemoveRepo(alias string) error {
 func distroCodeName() (string, error) {
 	_, err := os.Stat("/etc/os-release")
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("%s", DistroUnknown)
+		return "", fmt.Errorf("%s", sysutil.DistroUnknown)
 	}
 
 	cfg, err := shconf.ParseFile("/etc/os-release")

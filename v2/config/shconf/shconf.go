@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/tredoe/osutil/v2/edi"
+	"github.com/tredoe/osutil/v2/edit"
 )
 
 var (
@@ -201,11 +201,11 @@ func (c *Config) Set(key, value string) error {
 	}
 
 	separator := string(c.Separator())
-	replAt := []edi.ReplacerAtLine{
+	replAt := []edit.ReplacerAtLine{
 		{Line: key + separator, Search: separator + ".*", Replace: separator + value},
 	}
 
-	if err := edi.ReplaceAtLine(c.filename, nil, replAt); err != nil {
+	if err := edit.ReplaceAtLine(c.filename, nil, replAt); err != nil {
 		return err
 	}
 	c.data[key] = value

@@ -4,10 +4,12 @@ Access to operating system functionality dependent of every platform.
 
 + config/env: set persistent environment variables
 + config/shconf: parser and scanner for the configuration in format shell-variable
-+ edi: editing of files
++ edit: editing of files
 + executil: executes commands in shells
 + fileutil: handles common operations at files
-+ sysutil: defines operating systems, detects Linux distributions and handles different package systems
++ sysutil: defines operating systems and detects Linux distributions
++ sysutil/pkg: handles the basic operations in the management of packages
++ sysutil/service: handles the services
 + userutil: provides access to UNIX users database in local files
 + user/crypt: password hashing used in UNIX
 

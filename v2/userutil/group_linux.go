@@ -346,9 +346,9 @@ func (g *Group) Add() (gid int, err error) {
 
 // DelGroup removes a group from the system.
 func DelGroup(name string) (err error) {
-	err = del(name, &Group{})
+	err = delFile(name, &Group{})
 	if err == nil && useGshadow {
-		err = del(name, &GShadow{})
+		err = delFile(name, &GShadow{})
 	}
 	return
 }
@@ -372,7 +372,7 @@ func AddUsersToGroup(name string, members ...string) error {
 	if err = _addMembers(&gr.UserList, members...); err != nil {
 		return err
 	}
-	if err = edit(name, gr); err != nil {
+	if err = editFile(name, gr); err != nil {
 		return err
 	}
 
@@ -385,7 +385,7 @@ func AddUsersToGroup(name string, members ...string) error {
 		if err = _addMembers(&sg.UserList, members...); err != nil {
 			return err
 		}
-		if err = edit(name, sg); err != nil {
+		if err = editFile(name, sg); err != nil {
 			return err
 		}
 	}
@@ -431,7 +431,7 @@ func DelUsersInGroup(name string, members ...string) error {
 	if err = _delMembers(&gr.UserList, members...); err != nil {
 		return err
 	}
-	if err = edit(name, gr); err != nil {
+	if err = editFile(name, gr); err != nil {
 		return err
 	}
 
@@ -444,7 +444,7 @@ func DelUsersInGroup(name string, members ...string) error {
 		if err = _delMembers(&sg.UserList, members...); err != nil {
 			return err
 		}
-		if err = edit(name, sg); err != nil {
+		if err = editFile(name, sg); err != nil {
 			return err
 		}
 	}

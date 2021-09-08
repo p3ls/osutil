@@ -7,13 +7,7 @@
 package sysutil
 
 import (
-	"errors"
 	"fmt"
-)
-
-var (
-	ErrKeyUrl   = errors.New("the url has not a key file")
-	ErrManagCmd = errors.New("unsupported command by the package manager")
 )
 
 type pkgManagNotfoundError struct {
@@ -24,10 +18,4 @@ func (e pkgManagNotfoundError) Error() string {
 	return fmt.Sprintf(
 		"package manager not found at Linux distro %s", e.Distro.String(),
 	)
-}
-
-type pkgTypeError string
-
-func (e pkgTypeError) Error() string {
-	return "invalid package type: " + string(e)
 }

@@ -6,7 +6,7 @@
 
 // Distro: Arch
 
-package sysutil
+package pkg
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 	"io"
 
 	"github.com/tredoe/osutil/v2"
-	"github.com/tredoe/osutil/v2/edi"
+	"github.com/tredoe/osutil/v2/edit"
 	"github.com/tredoe/osutil/v2/executil"
 )
 
@@ -120,7 +120,7 @@ func (m ManagerPacman) AddRepo(alias string, url ...string) error {
 		fmt.Fprintf(&buf, "Server = %s\n", v)
 	}
 
-	ed, err := edi.NewEdit("/etc/pacman.conf", nil)
+	ed, err := edit.NewEdit("/etc/pacman.conf", nil)
 	if err != nil {
 		return err
 	}

@@ -14,7 +14,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/tredoe/osutil/v2/edi"
+	"github.com/tredoe/osutil/v2/edit"
 )
 
 // A row represents the structure of a row into a file.
@@ -117,7 +117,7 @@ var filesBackuped = make(map[string]struct{}, 4)
 func backup(filename string) error {
 	if DO_BACKUP {
 		if _, ok := filesBackuped[filename]; !ok {
-			if err := edi.Backup(filename); err != nil {
+			if err := edit.Backup(filename); err != nil {
 				return err
 			}
 			filesBackuped[filename] = struct{}{}
@@ -126,17 +126,17 @@ func backup(filename string) error {
 	return nil
 }
 
-func edit(name string, r row) error { return _edit(name, r, false) }
+func editFile(name string, r row) error { return _editFile(name, r, false) }
 
-func del(name string, r row) error { return _edit(name, r, true) }
+func delFile(name string, r row) error { return _editFile(name, r, true) }
 
-// _edit is a generic editor for the given user/group name.
+// _editFile is a generic editor for the given user/group name.
 // If remove is true, it removes the structure of the user/group name.
 //
 // TODO: get better performance if start to store since when the file is edited.
 // So there is to store the size of all lines read until that point to seek from
 // there.
-func _edit(name string, _row row, remove bool) (err error) {
+func _editFile(name string, _row row, remove bool) (err error) {
 	filename := _row.filename()
 
 	dbf, err := openDBFile(filename, os.O_RDWR)

@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/tredoe/osutil/v2"
+	"github.com/tredoe/osutil/v2/sysutil"
 )
 
 func TestPackager(t *testing.T) {
@@ -19,7 +20,7 @@ func TestPackager(t *testing.T) {
 	osutil.LogShell.SetFlags(0)
 	osutil.LogShell.SetPrefix("  >> ")
 
-	sys, dis, err := SystemFromGOOS()
+	sys, dis, err := sysutil.SystemFromGOOS()
 	if err != nil {
 		t.Fatal(err)
 	}

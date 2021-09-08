@@ -15,7 +15,6 @@ NOTE: the next package management systems are untested:
 
  + Packman (Arch)
  + ebuild  (Gentoo)
- + RPM     (CentOS)
 */
 package pkg
 
@@ -28,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/sysutil"
 )
 
 // sudo is the path by default at Linux systems.
@@ -241,9 +241,9 @@ func NewPkgManagFromType(pkg PackageType) PkgManager {
 // * * *
 
 // NewPkgManagFromSystem returns the package manager used by a system.
-func NewPkgManagFromSystem(sys System, dis Distro) (PkgManager, error) {
+func NewPkgManagFromSystem(sys sysutil.System, dis sysutil.Distro) (PkgManager, error) {
 	switch sys {
-	case Linux:
+	case sysutil.Linux:
 		return NewPkgManagFromDistro(dis)
 		/*pkg, err := NewPkgManagFromDistro(dis)
 		if err != nil {
@@ -261,11 +261,11 @@ func NewPkgManagFromSystem(sys System, dis Distro) (PkgManager, error) {
 		}
 		return ManagerVoid{}, pkgManagNotfoundError{dis}*/
 
-	case MacOS:
+	case sysutil.MacOS:
 		return NewManagerBrew(), nil
-	case FreeBSD:
+	case sysutil.FreeBSD:
 		return NewManagerPkg(), nil
-	case Windows:
+	case sysutil.Windows:
 		// TODO: in the future, to use winget
 		return NewManagerChoco(), nil
 
@@ -275,20 +275,20 @@ func NewPkgManagFromSystem(sys System, dis Distro) (PkgManager, error) {
 }
 
 // NewPkgManagFromDistro returns the package manager used by a Linux distro.
-func NewPkgManagFromDistro(dis Distro) (PkgManager, error) {
+func NewPkgManagFromDistro(dis sysutil.Distro) (PkgManager, error) {
 	switch dis {
-	case Debian, Ubuntu:
+	case sysutil.Debian, sysutil.Ubuntu:
 		return NewManagerDeb(), nil
 
-	case OpenSUSE:
+	case sysutil.OpenSUSE:
 		return NewManagerZypp(), nil
 
-	case Arch, Manjaro:
+	case sysutil.Arch, sysutil.Manjaro:
 		return NewManagerPacman(), nil
 
 	// DNF is the default package manager of Fedora 22, CentOS8, and RHEL8.
-	case CentOS, Fedora:
-		verStr, err := DetectSystemVer(Linux)
+	case sysutil.CentOS, sysutil.Fedora:
+		verStr, err := sysutil.DetectSystemVer(sysutil.Linux)
 		if err != nil {
 			return ManagerVoid{}, err
 		}
@@ -299,11 +299,11 @@ func NewPkgManagFromDistro(dis Distro) (PkgManager, error) {
 
 		useDnf := true
 		switch dis {
-		case CentOS:
+		case sysutil.CentOS:
 			if ver < 8 {
 				useDnf = false
 			}
-		case Fedora:
+		case sysutil.Fedora:
 			if ver < 22 {
 				useDnf = false
 			}
@@ -350,16 +350,16 @@ var execPkgWindows = []string{
 
 // DetectPkgManag tries to get the package manager used in the system, looking for
 // executables at directories in $PATH.
-func DetectPkgManag(sys System) (PkgManager, error) {
+func DetectPkgManag(sys sysutil.System) (PkgManager, error) {
 	var execPkg []string
 	switch sys {
-	case Linux:
+	case sysutil.Linux:
 		execPkg = execPkgLinux
-	case FreeBSD:
+	case sysutil.FreeBSD:
 		execPkg = execPkgFreebsd
-	case MacOS:
+	case sysutil.MacOS:
 		execPkg = execPkgMacos
-	case Windows:
+	case sysutil.Windows:
 		execPkg = execPkgWindows
 
 	default:

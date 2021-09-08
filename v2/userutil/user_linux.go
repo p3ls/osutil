@@ -384,9 +384,9 @@ func (u *User) Add() (uid int, err error) {
 
 // DelUser removes an user from the system.
 func DelUser(name string) (err error) {
-	err = del(name, &User{})
+	err = delFile(name, &User{})
 	if err == nil {
-		err = del(name, &Shadow{})
+		err = delFile(name, &Shadow{})
 	}
 	return
 }
