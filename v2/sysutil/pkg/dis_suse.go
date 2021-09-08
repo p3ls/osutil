@@ -77,8 +77,9 @@ func (m ManagerZypp) Purge(name ...string) error {
 
 func (m ManagerZypp) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	_, err := m.cmd.Command(sudo, pathZypp, "refresh").Run()
-	return err
+	stderr, err := m.cmd.Command(sudo, pathZypp, "refresh").OutputStderr()
+
+	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerZypp) Update() error {

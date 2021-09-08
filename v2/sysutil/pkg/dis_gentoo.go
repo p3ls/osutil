@@ -70,8 +70,9 @@ func (m ManagerEbuild) Purge(name ...string) error {
 
 func (m ManagerEbuild) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	_, err := m.cmd.Command(pathEbuild, "--sync").Run()
-	return err
+	stderr, err := m.cmd.Command(pathEbuild, "--sync").OutputStderr()
+
+	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerEbuild) Update() error {

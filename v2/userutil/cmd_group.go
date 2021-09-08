@@ -60,7 +60,7 @@ func AddGroupFromCmd(sys sysutil.System, group string) error {
 		}
 
 		osutil.Log.Printf(
-			"the user %q has been added to the group %q.\nYou MUST reboot the system.\n",
+			"The user %q has been added to the group %q.\nYou MUST reboot the system.\n",
 			username, group,
 		)
 		return nil

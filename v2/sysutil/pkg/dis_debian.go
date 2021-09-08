@@ -30,8 +30,11 @@ const (
 	fileDeb = "apt-get"
 	pathDeb = "/usr/bin/apt-get"
 
+	//pathAptKey = "/usr/bin/apt-key"
 	pathGpg = "/usr/bin/gpg"
 )
+
+var failedB = []byte("failed")
 
 // ManagerDeb is the interface to handle the package manager of Linux systems based at Debian.
 type ManagerDeb struct {
@@ -109,8 +112,9 @@ func (m ManagerDeb) Purge(name ...string) error {
 
 func (m ManagerDeb) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	_, err := m.cmd.Command(sudo, pathDeb, "update", "-qq").Run()
-	return err
+	stderr, err := m.cmd.Command(sudo, pathDeb, "update", "-qq").OutputStderr()
+
+	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerDeb) Update() error {
@@ -174,6 +178,13 @@ func (m ManagerDeb) ImportKeyFromServer(alias, keyServer, key string) error {
 		keyServer = "hkp://keyserver.ubuntu.com:80"
 	}
 
+	/*stderr, err := m.cmd.Command(
+		pathAptKey,
+		"adv",
+		"--keyserver", keyServer,
+		"--recv", key,
+	).OutputStderr()*/
+
 	stderr, err := m.cmd.Command(
 		pathGpg,
 		"--no-default-keyring",
@@ -182,7 +193,9 @@ func (m ManagerDeb) ImportKeyFromServer(alias, keyServer, key string) error {
 		"--recv-keys", key,
 	).OutputStderr()
 
-	err = executil.CheckStderr(stderr, err)
+	if bytes.Contains(stderr, failedB) {
+		return fmt.Errorf("%s", stderr)
+	}
 	return err
 }
 
@@ -193,15 +206,24 @@ func (m ManagerDeb) RemoveKey(alias string) error {
 
 func (m ManagerDeb) AddRepo(alias string, url ...string) (err error) {
 	osutil.Log.Print(taskAddRepo)
-	distroName, err := distroCodeName()
-	if err != nil {
-		return err
-	}
+	//distroName, err := distroCodeName()
+	//if err != nil {
+	//	return err
+	//}
+
+	// If there is an error like:
+	// E: The repository 'https://repo... focal Release' does not have a Release file.
+	//
+	// Then, there is to use:
+	// "deb [signed-by=%s] %s main/""
 
 	err = fileutil.CreateFromString(
 		m.repository(alias),
-		fmt.Sprintf("deb [signed-by=%s] %s %s main",
-			path.Dir(url[0]), distroName, m.keyring(alias),
+		//fmt.Sprintf("deb [signed-by=%s] %s %s main\n",
+		//	m.keyring(alias), url[0], distroName,
+		//),
+		fmt.Sprintf("deb [signed-by=%s] %s main/\n",
+			m.keyring(alias), url[0],
 		),
 	)
 	if err != nil {

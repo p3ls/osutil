@@ -74,8 +74,9 @@ func (m ManagerPkg) Purge(name ...string) error {
 
 func (m ManagerPkg) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	_, err := m.cmd.Command(m.sudo, pathPkg, "update").Run()
-	return err
+	stderr, err := m.cmd.Command(m.sudo, pathPkg, "update").OutputStderr()
+
+	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerPkg) Update() error {

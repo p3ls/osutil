@@ -73,8 +73,9 @@ func (m ManagerBrew) Purge(name ...string) error {
 
 func (m ManagerBrew) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	_, err := m.cmd.Command(pathBrew, "update").Run()
-	return err
+	stderr, err := m.cmd.Command(pathBrew, "update").OutputStderr()
+
+	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerBrew) Update() error {

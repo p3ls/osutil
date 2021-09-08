@@ -79,8 +79,11 @@ func (m ManagerPacman) Purge(name ...string) error {
 
 func (m ManagerPacman) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	_, err := m.cmd.Command(pathPacman, "-Syu", "--needed", "--noprogressbar").Run()
-	return err
+	stderr, err := m.cmd.Command(
+		pathPacman, "-Syu", "--needed", "--noprogressbar",
+	).OutputStderr()
+
+	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerPacman) Update() error {
