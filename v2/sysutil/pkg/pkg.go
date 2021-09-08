@@ -55,8 +55,8 @@ var (
 		Env(os.Environ())
 )
 
-// PkgManager is the common interface to handle different package systems.
-type PkgManager interface {
+// Manager is the common interface to handle different package systems.
+type Manager interface {
 	// setPathExec sets the path of the executable.
 	setPathExec(p string)
 
@@ -169,8 +169,8 @@ func (pkg PackageType) String() string {
 	panic("unreachable")
 }
 
-// NewPkgTypeFromStr returns a package management system from the string.
-func NewPkgTypeFromStr(s string) (PackageType, error) {
+// NewTypeFromStr returns a package management system from the string.
+func NewTypeFromStr(s string) (PackageType, error) {
 	switch strings.ToLower(s) {
 	case fileDeb:
 		return Deb, nil
@@ -204,8 +204,8 @@ func NewPkgTypeFromStr(s string) (PackageType, error) {
 
 // * * *
 
-// NewPkgManagFromType returns the interface to handle the package manager.
-func NewPkgManagFromType(pkg PackageType) PkgManager {
+// NewManagerFromType returns the interface to handle the package manager.
+func NewManagerFromType(pkg PackageType) Manager {
 	switch pkg {
 	// Linux
 	case Deb:
@@ -240,12 +240,12 @@ func NewPkgManagFromType(pkg PackageType) PkgManager {
 
 // * * *
 
-// NewPkgManagFromSystem returns the package manager used by a system.
-func NewPkgManagFromSystem(sys sysutil.System, dis sysutil.Distro) (PkgManager, error) {
+// NewManagerFromSystem returns the package manager used by a system.
+func NewManagerFromSystem(sys sysutil.System, dis sysutil.Distro) (Manager, error) {
 	switch sys {
 	case sysutil.Linux:
-		return NewPkgManagFromDistro(dis)
-		/*pkg, err := NewPkgManagFromDistro(dis)
+		return NewManagerFromDistro(dis)
+		/*pkg, err := NewManagerFromDistro(dis)
 		if err != nil {
 			return ManagerVoid{}, err
 		}
@@ -274,8 +274,8 @@ func NewPkgManagFromSystem(sys sysutil.System, dis sysutil.Distro) (PkgManager, 
 	}
 }
 
-// NewPkgManagFromDistro returns the package manager used by a Linux distro.
-func NewPkgManagFromDistro(dis sysutil.Distro) (PkgManager, error) {
+// NewManagerFromDistro returns the package manager used by a Linux distro.
+func NewManagerFromDistro(dis sysutil.Distro) (Manager, error) {
 	switch dis {
 	case sysutil.Debian, sysutil.Ubuntu:
 		return NewManagerDeb(), nil
@@ -348,9 +348,9 @@ var execPkgWindows = []string{
 	fileWinget,
 }
 
-// DetectPkgManag tries to get the package manager used in the system, looking for
+// DetectManager tries to get the package manager used in the system, looking for
 // executables at directories in $PATH.
-func DetectPkgManag(sys sysutil.System) (PkgManager, error) {
+func DetectManager(sys sysutil.System) (Manager, error) {
 	var execPkg []string
 	switch sys {
 	case sysutil.Linux:
@@ -369,11 +369,11 @@ func DetectPkgManag(sys sysutil.System) (PkgManager, error) {
 	for _, p := range execPkg {
 		pathExec, err := exec.LookPath(p)
 		if err == nil {
-			pkg, err := NewPkgTypeFromStr(p)
+			pkg, err := NewTypeFromStr(p)
 			if err != nil {
 				return ManagerVoid{}, err
 			}
-			mng := NewPkgManagFromType(pkg)
+			mng := NewManagerFromType(pkg)
 
 			if mng.PathExec() != pathExec {
 				mng.setPathExec(pathExec)
