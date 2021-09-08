@@ -21,6 +21,7 @@ import (
 	"github.com/tredoe/osutil/v2/executil"
 	"github.com/tredoe/osutil/v2/fileutil"
 	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/tredoe/osutil/v2/userutil"
 )
 
 // 'apt' is for the terminal and gives beautiful output.
@@ -34,8 +35,6 @@ const (
 	pathGpg = "/usr/bin/gpg"
 )
 
-var failedB = []byte("failed")
-
 // ManagerDeb is the interface to handle the package manager of Linux systems based at Debian.
 type ManagerDeb struct {
 	pathExec string
@@ -43,13 +42,17 @@ type ManagerDeb struct {
 }
 
 // NewManagerDeb returns the Deb package manager.
-func NewManagerDeb() ManagerDeb {
+func NewManagerDeb() (ManagerDeb, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+		return ManagerDeb{}, err
+	}
+
 	return ManagerDeb{
 		pathExec: pathDeb,
 		cmd: cmd.Command("", "").
 			AddEnv([]string{"DEBIAN_FRONTEND=noninteractive"}).
 			BadExitCodes([]int{100}),
-	}
+	}, nil
 }
 
 func (m ManagerDeb) setPathExec(p string) { m.pathExec = p }
@@ -88,49 +91,49 @@ func (m ManagerDeb) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
 func (m ManagerDeb) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
-	args := append([]string{pathDeb, "install", "-y"}, name...)
+	args := append([]string{"install", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathDeb, args...).Run()
 	return err
 }
 
 func (m ManagerDeb) Remove(name ...string) error {
 	osutil.Log.Print(taskRemove)
-	args := append([]string{pathDeb, "remove", "-y"}, name...)
+	args := append([]string{"remove", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathDeb, args...).Run()
 	return err
 }
 
 func (m ManagerDeb) Purge(name ...string) error {
 	osutil.Log.Print(taskPurge)
-	args := append([]string{pathDeb, "purge", "-y"}, name...)
+	args := append([]string{"purge", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathDeb, args...).Run()
 	return err
 }
 
 func (m ManagerDeb) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	stderr, err := m.cmd.Command(sudo, pathDeb, "update", "-qq").OutputStderr()
+	stderr, err := m.cmd.Command(pathDeb, "update", "-qq").OutputStderr()
 
 	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerDeb) Update() error {
 	osutil.Log.Print(taskUpgrade)
-	_, err := m.cmd.Command(sudo, pathDeb, "upgrade", "-y").Run()
+	_, err := m.cmd.Command(pathDeb, "upgrade", "-y").Run()
 	return err
 }
 
 func (m ManagerDeb) Clean() error {
 	osutil.Log.Print(taskClean)
-	_, err := m.cmd.Command(sudo, pathDeb, "autoremove", "-y").Run()
+	_, err := m.cmd.Command(pathDeb, "autoremove", "-y").Run()
 	if err != nil {
 		return err
 	}
 
-	_, err = m.cmd.Command(sudo, pathDeb, "clean").Run()
+	_, err = m.cmd.Command(pathDeb, "clean").Run()
 	return err
 }
 

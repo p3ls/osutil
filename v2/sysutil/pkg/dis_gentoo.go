@@ -13,6 +13,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -27,12 +29,16 @@ type ManagerEbuild struct {
 }
 
 // NewManagerEbuild returns the Ebuild package manager.
-func NewManagerEbuild() ManagerEbuild {
+func NewManagerEbuild() (ManagerEbuild, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+		return ManagerEbuild{}, err
+	}
+
 	return ManagerEbuild{
 		pathExec: pathEbuild,
 		cmd:      cmd.Command("", ""),
 		//BadExitCodes([]int{1}),
-	}
+	}, nil
 }
 
 func (m ManagerEbuild) setPathExec(p string) { m.pathExec = p }

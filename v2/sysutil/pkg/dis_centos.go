@@ -12,6 +12,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -40,14 +42,20 @@ type ManagerDnf struct {
 }
 
 // NewManagerDnf returns the DNF package manager.
-func NewManagerDnf() ManagerDnf {
+func NewManagerDnf() (ManagerDnf, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+		return ManagerDnf{}, err
+	}
+
+	managerRpm, _ := NewManagerRpm()
+
 	return ManagerDnf{
 		pathExec: pathDnf,
 		cmd: cmd.Command("", "").
 			// https://dnf.readthedocs.io/en/latest/command_ref.html
 			BadExitCodes([]int{1, 3, 200}),
-		rpm: NewManagerRpm(),
-	}
+		rpm: managerRpm,
+	}, nil
 }
 
 func (m ManagerDnf) setPathExec(p string) { m.pathExec = p }
@@ -68,16 +76,16 @@ func (m ManagerDnf) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 // * * *
 
 func (m ManagerDnf) Install(name ...string) error {
-	args := append([]string{pathDnf, "install", "-y"}, name...)
+	args := append([]string{"install", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathDnf, args...).Run()
 	return err
 }
 
 func (m ManagerDnf) Remove(name ...string) error {
-	args := append([]string{pathDnf, "remove", "-y"}, name...)
+	args := append([]string{"remove", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathDnf, args...).Run()
 	return err
 }
 
@@ -93,7 +101,7 @@ func (m ManagerDnf) UpdateIndex() error {
 	// Also returns a list of the packages to be updated in list format.
 	// Returns 0 if no packages are available for update.
 	// Returns 1 if an error occurred.
-	/*err := m.cmd.Command(sudo, pathDnf, "check-update")
+	/*err := m.cmd.Command(pathDnf, "check-update")
 	if err != nil {
 		// Check the exit code
 	}
@@ -101,16 +109,16 @@ func (m ManagerDnf) UpdateIndex() error {
 }
 
 func (m ManagerDnf) Update() error {
-	_, err := m.cmd.Command(sudo, pathDnf, "update", "-y").Run()
+	_, err := m.cmd.Command(pathDnf, "update", "-y").Run()
 	return err
 }
 
 func (m ManagerDnf) Clean() error {
-	_, err := m.cmd.Command(sudo, pathDnf, "autoremove", "-y").Run()
+	_, err := m.cmd.Command(pathDnf, "autoremove", "-y").Run()
 	if err != nil {
 		return err
 	}
-	_, err = m.cmd.Command(sudo, pathDnf, "clean", "all").Run()
+	_, err = m.cmd.Command(pathDnf, "clean", "all").Run()
 	return err
 }
 
@@ -162,13 +170,18 @@ type ManagerYum struct {
 }
 
 // NewManagerYum returns the YUM package manager.
-func NewManagerYum() ManagerYum {
+func NewManagerYum() (ManagerYum, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+		return ManagerYum{}, err
+	}
+	managerRpm, _ := NewManagerRpm()
+
 	return ManagerYum{
 		pathExec: pathYum,
 		cmd: cmd.Command("", "").
 			BadExitCodes([]int{1, 2, 3, 16}),
-		rpm: NewManagerRpm(),
-	}
+		rpm: managerRpm,
+	}, nil
 }
 
 func (m ManagerYum) setPathExec(p string) { m.pathExec = p }
@@ -190,17 +203,17 @@ func (m ManagerYum) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
 func (m ManagerYum) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
-	args := append([]string{pathYum, "install", "-y"}, name...)
+	args := append([]string{"install", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathYum, args...).Run()
 	return err
 }
 
 func (m ManagerYum) Remove(name ...string) error {
 	osutil.Log.Print(taskRemove)
-	args := append([]string{pathYum, "remove", "-y"}, name...)
+	args := append([]string{"remove", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathYum, args...).Run()
 	return err
 }
 
@@ -216,13 +229,13 @@ func (m ManagerYum) UpdateIndex() error {
 
 func (m ManagerYum) Update() error {
 	osutil.Log.Print(taskUpgrade)
-	_, err := m.cmd.Command(sudo, pathYum, "update", "-y").Run()
+	_, err := m.cmd.Command(pathYum, "update", "-y").Run()
 	return err
 }
 
 func (m ManagerYum) Clean() error {
 	osutil.Log.Print(taskClean)
-	_, err := m.cmd.Command(sudo, pathYum, "clean", "packages").Run()
+	_, err := m.cmd.Command(pathYum, "clean", "packages").Run()
 	return err
 }
 
@@ -268,12 +281,16 @@ type ManagerRpm struct {
 }
 
 // NewManagerRpm returns the RPM package manager.
-func NewManagerRpm() ManagerRpm {
+func NewManagerRpm() (ManagerRpm, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+		return ManagerRpm{}, err
+	}
+
 	return ManagerRpm{
 		pathExec: pathRpm,
 		cmd:      cmd.Command("", ""),
 		//BadExitCodes([]int{}),
-	}
+	}, nil
 }
 
 func (m ManagerRpm) setPathExec(p string) { m.pathExec = p }

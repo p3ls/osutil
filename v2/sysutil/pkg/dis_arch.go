@@ -16,6 +16,8 @@ import (
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/edit"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -30,13 +32,17 @@ type ManagerPacman struct {
 }
 
 // NewManagerPacman returns the Pacman package manager.
-func NewManagerPacman() ManagerPacman {
+func NewManagerPacman() (ManagerPacman, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+		return ManagerPacman{}, err
+	}
+
 	return ManagerPacman{
 		pathExec: pathPacman,
 		cmd: cmd.Command("", "").
 			// https://wiki.archlinux.org/title/Talk:Pacman#Exit_codes
 			BadExitCodes([]int{1}),
-	}
+	}, nil
 }
 
 func (m ManagerPacman) setPathExec(p string) { m.pathExec = p }

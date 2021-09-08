@@ -30,9 +30,6 @@ import (
 	"github.com/tredoe/osutil/v2/sysutil"
 )
 
-// sudo is the path by default at Linux systems.
-const sudo = "/usr/bin/sudo"
-
 const (
 	taskInstall             = "Installing ..."
 	taskRemove              = "Removing ..."
@@ -54,6 +51,10 @@ var (
 	cmdWin = executil.NewCommand("", "").
 		Env(os.Environ())
 )
+
+var failedB = []byte("failed")
+
+//var msgWarning = []byte("Warning:")
 
 // Manager is the common interface to handle different package systems.
 type Manager interface {
@@ -205,7 +206,7 @@ func NewTypeFromStr(s string) (PackageType, error) {
 // * * *
 
 // NewManagerFromType returns the interface to handle the package manager.
-func NewManagerFromType(pkg PackageType) Manager {
+func NewManagerFromType(pkg PackageType) (Manager, error) {
 	switch pkg {
 	// Linux
 	case Deb:
@@ -262,12 +263,12 @@ func NewManagerFromSystem(sys sysutil.System, dis sysutil.Distro) (Manager, erro
 		return ManagerVoid{}, pkgManagNotfoundError{dis}*/
 
 	case sysutil.MacOS:
-		return NewManagerBrew(), nil
+		return NewManagerBrew()
 	case sysutil.FreeBSD:
-		return NewManagerPkg(), nil
+		return NewManagerPkg()
 	case sysutil.Windows:
 		// TODO: in the future, to use winget
-		return NewManagerChoco(), nil
+		return NewManagerChoco()
 
 	default:
 		panic("unimplemented")
@@ -278,13 +279,13 @@ func NewManagerFromSystem(sys sysutil.System, dis sysutil.Distro) (Manager, erro
 func NewManagerFromDistro(dis sysutil.Distro) (Manager, error) {
 	switch dis {
 	case sysutil.Debian, sysutil.Ubuntu:
-		return NewManagerDeb(), nil
+		return NewManagerDeb()
 
 	case sysutil.OpenSUSE:
-		return NewManagerZypp(), nil
+		return NewManagerZypp()
 
 	case sysutil.Arch, sysutil.Manjaro:
-		return NewManagerPacman(), nil
+		return NewManagerPacman()
 
 	// DNF is the default package manager of Fedora 22, CentOS8, and RHEL8.
 	case sysutil.CentOS, sysutil.Fedora:
@@ -310,9 +311,9 @@ func NewManagerFromDistro(dis sysutil.Distro) (Manager, error) {
 		}
 
 		if useDnf {
-			return NewManagerDnf(), nil
+			return NewManagerDnf()
 		}
-		return NewManagerYum(), nil
+		return NewManagerYum()
 
 	default:
 		panic("unimplemented")
@@ -373,7 +374,10 @@ func DetectManager(sys sysutil.System) (Manager, error) {
 			if err != nil {
 				return ManagerVoid{}, err
 			}
-			mng := NewManagerFromType(pkg)
+			mng, err := NewManagerFromType(pkg)
+			if err != nil {
+				return ManagerVoid{}, err
+			}
 
 			if mng.PathExec() != pathExec {
 				mng.setPathExec(pathExec)

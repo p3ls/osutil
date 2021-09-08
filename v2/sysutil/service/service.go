@@ -10,13 +10,9 @@
 package service
 
 import (
-	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
-	"os/exec"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/tredoe/osutil/v2"
@@ -68,8 +64,6 @@ type Service struct {
 // Name returns the service name.
 func (s *Service) Name() string { return s.name }
 
-// * * *
-
 // NewService creates a new service with the given name.
 func NewService(
 	sys sysutil.System, dis sysutil.Distro, name string,
@@ -77,8 +71,7 @@ func NewService(
 	if name == "" {
 		return nil, ErrNoService
 	}
-	err := userutil.CheckSudo(sys)
-	if err != nil {
+	if err := userutil.MustBeSuperUser(sys); err != nil {
 		return nil, err
 	}
 
@@ -115,265 +108,34 @@ func NewCustomService(
 	return s
 }
 
-// LookupService returns the service that matchs a pattern using the syntax of Match.
-// If 'exclude' is set, it discards the names that contains it.
-// When a service name is not found, returns error 'ServNotFoundError'.
-func LookupService(
-	sys sysutil.System,
-	dis sysutil.Distro,
-	pattern, exclude string,
-	column ColumnWin,
-) (*Service, error) {
-	err := userutil.CheckSudo(sys)
-	if err != nil {
-		return nil, err
-	}
-
-	switch sys {
-	case sysutil.Linux:
-		return lookupServiceLinux(dis, pattern, exclude)
-	case sysutil.MacOS:
-		return lookupServiceMacos(pattern, exclude)
-	case sysutil.Windows:
-		return lookupServiceWindows(pattern, exclude, column)
-	case sysutil.FreeBSD:
-		return lookupServiceFreebsd(pattern, exclude)
-	}
-
-	panic("unreachable")
-}
-
-func lookupServiceFreebsd(pattern, exclude string) (*Service, error) {
-	dirs := []string{"/usr/local/etc/rc.d/"}
-
-	for _, dir := range dirs {
-		files, err := filepath.Glob(dir + pattern)
-		if err != nil {
-			return nil, err
-		}
-		if files == nil {
-			continue
-		}
-
-		for i := len(files) - 1; i >= 0; i-- {
-			pathService := files[i]
-
-			if exclude != "" && strings.Contains(pathService, exclude) {
-				continue
-			}
-			serviceName := filepath.Base(pathService)
-
-			return &Service{
-				name: serviceName,
-				path: pathService,
-				sys:  sysutil.FreeBSD,
-			}, nil
-		}
-	}
-
-	return nil, ServNotFoundError{pattern: pattern, dirs: dirs}
-}
-
-func lookupServiceLinux(dis sysutil.Distro, pattern, exclude string) (*Service, error) {
-	var dirs []string
-
-	switch dis {
-	case sysutil.Debian, sysutil.Ubuntu:
-		dirs = []string{
-			"/lib/systemd/system/",
-		}
-	case sysutil.CentOS, sysutil.Fedora:
-		dirs = []string{
-			"/lib/systemd/system/",
-			"/etc/init.d/",
-		}
-	case sysutil.OpenSUSE:
-		dirs = []string{
-			"/usr/lib/systemd/system/",
-			"/etc/init.d/",
-		}
-
-	default:
-		dirs = []string{
-			"/lib/systemd/system/",
-			"/usr/lib/systemd/system/",
-			"/etc/init.d/",
-		}
-	}
-
-	for _, dir := range dirs {
-		files, err := filepath.Glob(dir + pattern)
-		if err != nil {
-			return nil, err
-		}
-		if files == nil {
-			continue
-		}
-
-		for i := len(files) - 1; i >= 0; i-- {
-			pathService := files[i]
-
-			if exclude != "" && strings.Contains(pathService, exclude) {
-				continue
-			}
-			if strings.Contains(pathService, "@") {
-				continue
-			}
-
-			//fmt.Println("SERVICE:", pathService) // DEBUG
-			serviceName := filepath.Base(pathService)
-
-			// The file could be finished with an extension like '.service' or '.target',
-			// and with several dots like 'firebird3.0.service'
-			if strings.Contains(serviceName, ".") {
-				idLastDot := strings.LastIndex(serviceName, ".")
-				part1 := serviceName[:idLastDot]
-				part2 := serviceName[idLastDot+1:] // discard dot
-
-				if len(part2) > 2 {
-					serviceName = part1
-				}
-			}
-
-			return &Service{
-				name: serviceName,
-				path: pathService,
-				sys:  sysutil.Linux,
-				dis:  dis,
-			}, nil
-		}
-	}
-
-	return nil, ServNotFoundError{pattern: pattern, dirs: dirs}
-}
-
-// Handle services installed through HomeBrew:
-//
-// + brew services list
-// + ls -l ~/Library/LaunchAgents/
-
-func lookupServiceMacos(pattern, exclude string) (*Service, error) {
-	dirs := []string{ // Installed by
-		fmt.Sprintf("/Library/LaunchDaemons/*.%s*", pattern),   // binary installer
-		fmt.Sprintf("/usr/local/Cellar/%s/*/*.plist", pattern), // HomeBrew
-	}
-
-	for iDir, dir := range dirs {
-		files, err := filepath.Glob(dir)
-		if err != nil {
-			return nil, err
-		}
-		if files == nil {
-			continue
-		}
-
-		for i := 0; i < len(files); i++ {
-			pathService := files[i]
-
-			serviceName := ""
-			switch iDir {
-			case 0:
-				serviceName = strings.SplitAfter(pathService, "/Library/LaunchDaemons/")[1]
-				//if split := strings.SplitN(serviceName, ".plist", 2); len(split) != 1 {
-				//	serviceName = split[0]
-				//}
-				serviceName = strings.SplitN(serviceName, ".plist", 2)[0]
-			case 1:
-				serviceName = strings.SplitAfter(pathService, "/usr/local/Cellar/")[1]
-				serviceName = strings.SplitN(serviceName, "/", 2)[0]
-			}
-
-			if exclude != "" && strings.Contains(serviceName, exclude) {
-				continue
-			}
-
-			return &Service{
-				name: serviceName,
-				path: pathService,
-				sys:  sysutil.MacOS,
-			}, nil
-		}
-	}
-
-	return nil, ServNotFoundError{pattern: pattern, dirs: dirs}
-}
-
-func lookupServiceWindows(pattern, exclude string, column ColumnWin) (*Service, error) {
-	var out bytes.Buffer
-	cmd := exec.Command(
-		"powershell.exe",
-		fmt.Sprintf("Get-Service -%s %q | Select-Object Name", column, pattern),
-	)
-	cmd.Stdout = &out
-
-	err := cmd.Run()
-	if err != nil {
-		return nil, err
-	}
-
-	rd := bytes.NewReader(out.Bytes())
-	sc := bufio.NewScanner(rd)
-	line := ""
-
-	for sc.Scan() {
-		line = strings.TrimSpace(sc.Text())
-
-		if line == "" {
-			continue
-		}
-		if line[0] == '-' || strings.HasPrefix(line, "Name") {
-			line = ""
-			continue
-		}
-
-		break
-	}
-	if err = sc.Err(); err != nil {
-		return nil, err
-	}
-	if line == "" {
-		return nil, ServNotFoundError{pattern: pattern}
-	}
-
-	return &Service{
-		name: line,
-		sys:  sysutil.Windows,
-	}, nil
-}
-
 // * * *
 
 // Start starts the service.
 func (srv Service) Start() error {
+	var err error
+	var stderr []byte
+
 	osutil.Log.Print("Starting service ...")
 
 	if srv.start != nil {
-		stderr, err := srv.start.OutputStderr()
+		stderr, err = srv.start.OutputStderr()
 		return executil.CheckStderr(stderr, err)
 	}
 
 	switch srv.sys {
 	case sysutil.Linux:
-		stderr, err := excmd.Command(
-			"sudo", "systemctl", "start", srv.name,
+		stderr, err = excmd.Command(
+			"systemctl", "start", srv.name,
 		).OutputStderr()
-
-		if err = executil.CheckStderr(stderr, err); err != nil {
-			return err
-		}
 
 	case sysutil.FreeBSD:
-		stderr, err := excmd.Command(
-			"sudo", "service", srv.name, "start",
+		stderr, err = excmd.Command(
+			"service", srv.name, "start",
 		).OutputStderr()
 
-		if err = executil.CheckStderr(stderr, err); err != nil {
-			return err
-		}
-
 	case sysutil.MacOS:
-		stderr, err := excmd.Command(
-			"sudo", "launchctl", "load", "-F", srv.name,
+		stderr, err = excmd.Command(
+			"launchctl", "load", "-F", srv.name,
 		).OutputStderr()
 
 		if err != nil {
@@ -382,12 +144,9 @@ func (srv Service) Start() error {
 			}
 			//logs.Debug.Printf("%s\n%s", stderr, err)
 		}
-		if err = executil.CheckStderr(stderr, err); err != nil {
-			return err
-		}
 
 	case sysutil.Windows:
-		stderr, err := excmdWin.Command(
+		stderr, err = excmdWin.Command(
 			"net", "start", srv.name,
 		).OutputStderr()
 
@@ -397,15 +156,12 @@ func (srv Service) Start() error {
 			}
 			//logs.Debug.Printf("%s\n%s", stderr, err)
 		}
-		if err = executil.CheckStderr(stderr, err); err != nil {
-			return err
-		}
 
 	default:
 		panic("unimplemented: " + srv.sys.String())
 	}
 
-	return nil
+	return executil.CheckStderr(stderr, err)
 }
 
 // Stop stops the service.
@@ -429,7 +185,7 @@ func (srv Service) Stop() error {
 
 		if bytes.HasPrefix(stdout, []byte("active")) {
 			stderr, err := excmd.Command(
-				"sudo", "systemctl", "stop", srv.name,
+				"systemctl", "stop", srv.name,
 			).OutputStderr()
 
 			if err = executil.CheckStderr(stderr, err); err != nil {
@@ -439,7 +195,7 @@ func (srv Service) Stop() error {
 
 	case sysutil.FreeBSD:
 		stderr, err := excmd.Command(
-			"sudo", "service", srv.name, "stop",
+			"service", srv.name, "stop",
 		).OutputStderr()
 
 		if err = executil.CheckStderr(stderr, err); err != nil {
@@ -448,7 +204,7 @@ func (srv Service) Stop() error {
 
 	case sysutil.MacOS:
 		stderr, err := excmd.Command(
-			"sudo", "launchctl", "unload", "-F", srv.name,
+			"launchctl", "unload", "-F", srv.name,
 		).OutputStderr()
 
 		if stderr != nil {
@@ -493,7 +249,7 @@ func (srv Service) Restart() error {
 		osutil.Log.Print("Re-starting service ...")
 
 		stderr, err := excmd.Command(
-			"sudo", "systemctl", "restart", srv.name,
+			"systemctl", "restart", srv.name,
 		).OutputStderr()
 
 		if err = executil.CheckStderr(stderr, err); err != nil {
@@ -507,7 +263,7 @@ func (srv Service) Restart() error {
 
 	case sysutil.FreeBSD:
 		stderr, err := excmd.Command(
-			"sudo", "service", srv.name, "restart",
+			"service", srv.name, "restart",
 		).OutputStderr()
 
 		if err = executil.CheckStderr(stderr, err); err != nil {
@@ -526,14 +282,14 @@ func (srv Service) Restart() error {
 
 // Enable enables the service.
 func (srv Service) Enable() error {
-	osutil.Log.Print("Enabling service ...")
+	var err error
+	var stderr []byte
 
-	cmd := "sudo"
-	var args []string
+	osutil.Log.Print("Enabling service ...")
 
 	switch srv.sys {
 	case sysutil.Linux:
-		args = []string{"systemctl", "enable", srv.name}
+		args := []string{"systemctl", "enable", srv.name}
 
 		switch srv.dis {
 		case sysutil.CentOS:
@@ -544,48 +300,37 @@ func (srv Service) Enable() error {
 			}
 		}
 
-		stderr, err := excmd.Command(
-			cmd, args...,
-		).OutputStderr()
+		stderr, err = excmd.Command(args[0], args[1:]...).OutputStderr()
 
-		return executil.CheckStderr(stderr, err)
-
-	case sysutil.FreeBSD:
-		//"sysrc sshd_enable='YES'"
+	//case sysutil.FreeBSD:
+	//"sysrc sshd_enable='YES'"
 
 	case sysutil.MacOS:
-		args = []string{"launchctl", "enable", srv.name}
-
-		stderr, err := excmd.Command(
-			cmd, args...,
+		stderr, err = excmd.Command(
+			"launchctl", "enable", srv.name,
 		).OutputStderr()
-
-		return executil.CheckStderr(stderr, err)
 
 	case sysutil.Windows:
-		cmd = "sc"
-		args = []string{"sc", "config", srv.name, "start= demand"}
-
-		stderr, err := excmdWin.Command(
-			cmd, args...,
+		stderr, err = excmdWin.Command(
+			"sc", "config", srv.name, "start= demand",
 		).OutputStderr()
-
-		return executil.CheckStderr(stderr, err)
 
 	default:
 		panic("unimplemented: " + srv.sys.String())
 	}
 
-	return nil
+	return executil.CheckStderr(stderr, err)
 }
 
 // Disable disables the service.
 func (srv Service) Disable() error {
+	var err error
+	var stderr []byte
+
 	osutil.Log.Print("Disabling service ...")
 
 	switch srv.sys {
 	case sysutil.Linux:
-		cmd := "sudo"
 		args := []string{"systemctl", "disable", srv.name}
 
 		switch srv.dis {
@@ -597,34 +342,26 @@ func (srv Service) Disable() error {
 			}
 		}
 
-		stderr, err := excmd.Command(
-			cmd, args...,
-		).OutputStderr()
+		stderr, err = excmd.Command(args[0], args[1:]...).OutputStderr()
 
-		return executil.CheckStderr(stderr, err)
-
-	case sysutil.FreeBSD:
-		//"sysrc sshd_enable='YES'"
+	//case sysutil.FreeBSD:
+	//"sysrc sshd_enable='YES'"
 
 	case sysutil.MacOS:
-		stderr, err := excmd.Command(
-			"sudo", "launchctl", "disable", srv.name,
+		stderr, err = excmd.Command(
+			"launchctl", "disable", srv.name,
 		).OutputStderr()
-
-		return executil.CheckStderr(stderr, err)
 
 	case sysutil.Windows:
-		stderr, err := excmdWin.Command(
+		stderr, err = excmdWin.Command(
 			"sc", "config", srv.name, "start= disabled",
 		).OutputStderr()
-
-		return executil.CheckStderr(stderr, err)
 
 	default:
 		panic("unimplemented: " + srv.sys.String())
 	}
 
-	return nil
+	return executil.CheckStderr(stderr, err)
 }
 
 // == Errors

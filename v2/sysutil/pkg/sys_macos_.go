@@ -28,12 +28,12 @@ type ManagerBrew struct {
 }
 
 // NewManagerBrew returns the Homebrew package manager.
-func NewManagerBrew() ManagerBrew {
+func NewManagerBrew() (ManagerBrew, error) {
 	return ManagerBrew{
 		pathExec: pathBrew,
 		cmd: cmd.Command("", "").
 			BadExitCodes([]int{1}),
-	}
+	}, nil
 }
 
 func (m ManagerBrew) setPathExec(p string) { m.pathExec = p }
@@ -83,8 +83,6 @@ func (m ManagerBrew) Update() error {
 	_, err := m.cmd.Command(pathBrew, "upgrade").Run()
 	return err
 }
-
-//var msgWarning = []byte("Warning:")
 
 func (m ManagerBrew) Clean() error {
 	osutil.Log.Print(taskClean)

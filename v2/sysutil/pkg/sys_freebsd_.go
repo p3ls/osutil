@@ -13,6 +13,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -24,17 +26,19 @@ const (
 // called 'package' or 'pkg'.
 type ManagerPkg struct {
 	pathExec string
-	sudo     string
 	cmd      *executil.Command
 }
 
 // NewManagerPkg returns the Pkg package manager.
-func NewManagerPkg() ManagerPkg {
+func NewManagerPkg() (ManagerPkg, error) {
+	if err := userutil.MustBeSuperUser(sysutil.FreeBSD); err != nil {
+		return ManagerPkg{}, err
+	}
+
 	return ManagerPkg{
 		pathExec: pathPkg,
-		sudo:     "/usr/local/bin/sudo",
 		cmd:      cmd.Command("", "").BadExitCodes([]int{1}),
-	}
+	}, nil
 }
 
 func (m ManagerPkg) setPathExec(p string) { m.pathExec = p }
@@ -53,17 +57,17 @@ func (m ManagerPkg) SetStdout(out io.Writer) { m.cmd.Stdout(out) }
 
 func (m ManagerPkg) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
-	args := append([]string{pathPkg, "install", "-y"}, name...)
+	args := append([]string{"install", "-y"}, name...)
 
-	_, err := m.cmd.Command(m.sudo, args...).Run()
+	_, err := m.cmd.Command(pathPkg, args...).Run()
 	return err
 }
 
 func (m ManagerPkg) Remove(name ...string) error {
 	osutil.Log.Print(taskRemove)
-	args := append([]string{pathPkg, "delete", "-y"}, name...)
+	args := append([]string{"delete", "-y"}, name...)
 
-	_, err := m.cmd.Command(m.sudo, args...).Run()
+	_, err := m.cmd.Command(pathPkg, args...).Run()
 	return err
 }
 
@@ -74,24 +78,24 @@ func (m ManagerPkg) Purge(name ...string) error {
 
 func (m ManagerPkg) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	stderr, err := m.cmd.Command(m.sudo, pathPkg, "update").OutputStderr()
+	stderr, err := m.cmd.Command(pathPkg, "update").OutputStderr()
 
 	return executil.CheckStderr(stderr, err)
 }
 
 func (m ManagerPkg) Update() error {
 	osutil.Log.Print(taskUpgrade)
-	_, err := m.cmd.Command(m.sudo, pathPkg, "upgrade", "-y").Run()
+	_, err := m.cmd.Command(pathPkg, "upgrade", "-y").Run()
 	return err
 }
 
 func (m ManagerPkg) Clean() error {
 	osutil.Log.Print(taskClean)
-	_, err := m.cmd.Command(m.sudo, pathPkg, "autoremove", "-y").Run()
+	_, err := m.cmd.Command(pathPkg, "autoremove", "-y").Run()
 	if err != nil {
 		return err
 	}
-	_, err = m.cmd.Command(m.sudo, pathPkg, "clean", "-y").Run()
+	_, err = m.cmd.Command(pathPkg, "clean", "-y").Run()
 	return err
 }
 

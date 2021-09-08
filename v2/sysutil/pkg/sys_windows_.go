@@ -24,6 +24,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -41,13 +43,17 @@ type ManagerChoco struct {
 }
 
 // NewManagerChoco returns the Chocolatey package manager.
-func NewManagerChoco() ManagerChoco {
+func NewManagerChoco() (ManagerChoco, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Windows); err != nil {
+		return ManagerChoco{}, err
+	}
+
 	return ManagerChoco{
 		pathExec: pathChoco,
 		// https://docs.chocolatey.org/en-us/choco/commands/install#exit-codes
 		cmd: cmdWin.Command("", "").
 			OkExitCodes([]int{0, 1641, 3010}),
-	}
+	}, nil
 }
 
 func (m ManagerChoco) setPathExec(p string) { m.pathExec = p }
@@ -128,11 +134,15 @@ type ManagerWinget struct {
 }
 
 // NewManagerWinget returns the winget package manager.
-func NewManagerWinget() ManagerWinget {
+func NewManagerWinget() (ManagerWinget, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Windows); err != nil {
+		return ManagerWinget{}, err
+	}
+
 	return ManagerWinget{
 		pathExec: pathChoco,
 		cmd:      cmdWin.Command("", ""),
-	}
+	}, nil
 }
 
 func (m ManagerWinget) setPathExec(p string) { m.pathExec = p }

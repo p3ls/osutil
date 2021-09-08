@@ -13,6 +13,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const fileZypp = "zypper"
@@ -26,13 +28,17 @@ type ManagerZypp struct {
 }
 
 // NewManagerZypp returns the Zypp package manager.
-func NewManagerZypp() ManagerZypp {
+func NewManagerZypp() (ManagerZypp, error) {
+	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+		return ManagerZypp{}, err
+	}
+
 	return ManagerZypp{
 		pathExec: pathZypp,
 		cmd: cmd.Command("", "").
 			// https://www.unix.com/man-page/suse/8/zypper/
 			BadExitCodes([]int{1, 2, 3, 4, 5, 104}),
-	}
+	}, nil
 }
 
 func (m ManagerZypp) setPathExec(p string) { m.pathExec = p }
@@ -53,20 +59,19 @@ func (m ManagerZypp) Install(name ...string) error {
 	osutil.Log.Print(taskInstall)
 	args := append(
 		[]string{
-			pathZypp,
 			"--non-interactive",
 			"install", "--auto-agree-with-licenses", "-y",
 		}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathZypp, args...).Run()
 	return err
 }
 
 func (m ManagerZypp) Remove(name ...string) error {
 	osutil.Log.Print(taskRemove)
-	args := append([]string{pathZypp, "remove", "-y"}, name...)
+	args := append([]string{"remove", "-y"}, name...)
 
-	_, err := m.cmd.Command(sudo, args...).Run()
+	_, err := m.cmd.Command(pathZypp, args...).Run()
 	return err
 }
 
@@ -77,7 +82,7 @@ func (m ManagerZypp) Purge(name ...string) error {
 
 func (m ManagerZypp) UpdateIndex() error {
 	osutil.Log.Print(taskUpdate)
-	stderr, err := m.cmd.Command(sudo, pathZypp, "refresh").OutputStderr()
+	stderr, err := m.cmd.Command(pathZypp, "refresh").OutputStderr()
 
 	return executil.CheckStderr(stderr, err)
 }
@@ -85,14 +90,14 @@ func (m ManagerZypp) UpdateIndex() error {
 func (m ManagerZypp) Update() error {
 	osutil.Log.Print(taskUpgrade)
 	_, err := m.cmd.Command(
-		sudo, pathZypp, "up", "--auto-agree-with-licenses", "-y",
+		pathZypp, "up", "--auto-agree-with-licenses", "-y",
 	).Run()
 	return err
 }
 
 func (m ManagerZypp) Clean() error {
 	osutil.Log.Print(taskClean)
-	_, err := m.cmd.Command(sudo, pathZypp, "clean").Run()
+	_, err := m.cmd.Command(pathZypp, "clean").Run()
 	return err
 }
 
@@ -114,7 +119,7 @@ func (m ManagerZypp) RemoveKey(alias string) error {
 
 func (m ManagerZypp) AddRepo(alias string, url ...string) error {
 	osutil.Log.Print(taskAddRepo)
-	_, err := m.cmd.Command(sudo, pathZypp, "addrepo", "-f", url[0], alias).Run()
+	_, err := m.cmd.Command(pathZypp, "addrepo", "-f", url[0], alias).Run()
 	if err != nil {
 		return err
 	}
@@ -124,7 +129,7 @@ func (m ManagerZypp) AddRepo(alias string, url ...string) error {
 
 func (m ManagerZypp) RemoveRepo(r string) error {
 	osutil.Log.Print(taskRemoveRepo)
-	if _, err := m.cmd.Command(sudo, pathZypp, "removerepo", r).Run(); err != nil {
+	if _, err := m.cmd.Command(pathZypp, "removerepo", r).Run(); err != nil {
 		return err
 	}
 
