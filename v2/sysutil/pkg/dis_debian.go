@@ -20,8 +20,8 @@ import (
 	"github.com/tredoe/osutil/v2/config/shconf"
 	"github.com/tredoe/osutil/v2/executil"
 	"github.com/tredoe/osutil/v2/fileutil"
+	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
-	"github.com/tredoe/osutil/v2/userutil"
 )
 
 // 'apt' is for the terminal and gives beautiful output.
@@ -42,8 +42,9 @@ type ManagerDeb struct {
 }
 
 // NewManagerDeb returns the Deb package manager.
+// It checks if it is being run by an administrator.
 func NewManagerDeb() (ManagerDeb, error) {
-	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+	if err := internal.CheckSuperuser(sysutil.Linux); err != nil {
 		return ManagerDeb{}, err
 	}
 

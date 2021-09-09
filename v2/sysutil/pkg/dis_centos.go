@@ -12,8 +12,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
-	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -42,8 +42,9 @@ type ManagerDnf struct {
 }
 
 // NewManagerDnf returns the DNF package manager.
+// It checks if it is being run by an administrator.
 func NewManagerDnf() (ManagerDnf, error) {
-	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+	if err := internal.CheckSuperuser(sysutil.Linux); err != nil {
 		return ManagerDnf{}, err
 	}
 
@@ -170,8 +171,9 @@ type ManagerYum struct {
 }
 
 // NewManagerYum returns the YUM package manager.
+// It checks if it is being run by an administrator.
 func NewManagerYum() (ManagerYum, error) {
-	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+	if err := internal.CheckSuperuser(sysutil.Linux); err != nil {
 		return ManagerYum{}, err
 	}
 	managerRpm, _ := NewManagerRpm()
@@ -281,8 +283,9 @@ type ManagerRpm struct {
 }
 
 // NewManagerRpm returns the RPM package manager.
+// It checks if it is being run by an administrator.
 func NewManagerRpm() (ManagerRpm, error) {
-	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+	if err := internal.CheckSuperuser(sysutil.Linux); err != nil {
 		return ManagerRpm{}, err
 	}
 

@@ -24,8 +24,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
-	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -43,8 +43,9 @@ type ManagerChoco struct {
 }
 
 // NewManagerChoco returns the Chocolatey package manager.
+// It checks if it is being run by an administrator.
 func NewManagerChoco() (ManagerChoco, error) {
-	if err := userutil.MustBeSuperUser(sysutil.Windows); err != nil {
+	if err := internal.CheckSuperuser(sysutil.Windows); err != nil {
 		return ManagerChoco{}, err
 	}
 
@@ -134,8 +135,9 @@ type ManagerWinget struct {
 }
 
 // NewManagerWinget returns the winget package manager.
+// It checks if it is being run by an administrator.
 func NewManagerWinget() (ManagerWinget, error) {
-	if err := userutil.MustBeSuperUser(sysutil.Windows); err != nil {
+	if err := internal.CheckSuperuser(sysutil.Windows); err != nil {
 		return ManagerWinget{}, err
 	}
 

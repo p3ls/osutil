@@ -13,8 +13,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
-	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -30,8 +30,9 @@ type ManagerPkg struct {
 }
 
 // NewManagerPkg returns the Pkg package manager.
+// It checks if it is being run by an administrator.
 func NewManagerPkg() (ManagerPkg, error) {
-	if err := userutil.MustBeSuperUser(sysutil.FreeBSD); err != nil {
+	if err := internal.CheckSuperuser(sysutil.FreeBSD); err != nil {
 		return ManagerPkg{}, err
 	}
 

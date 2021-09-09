@@ -87,9 +87,9 @@ func DetectDistro() (Distro, error) {
 	return DistroUnknown, nil
 }
 
-// DetectDistroVer returns the Linux distro version.
+// DistroVer returns the Linux distro version.
 // The 'verNum' is different to -1 when it can be converted to a numeric value.
-func DetectDistroVer() (verStr string, verNum float32, err error) {
+func DistroVer() (verStr string, verNum float32, err error) {
 	_, err = os.Stat("/etc/os-release")
 	if os.IsNotExist(err) {
 		return "", -1, fmt.Errorf("%s", DistroUnknown)

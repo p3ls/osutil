@@ -17,8 +17,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
-	"github.com/tredoe/osutil/v2/userutil"
 )
 
 // timeKillServ is the time used to wait before of kill a service.
@@ -65,13 +65,14 @@ type Service struct {
 func (s *Service) Name() string { return s.name }
 
 // NewService creates a new service with the given name.
+// It checks if it is being run by an administrator.
 func NewService(
 	sys sysutil.System, dis sysutil.Distro, name string,
 ) (*Service, error) {
 	if name == "" {
 		return nil, ErrNoService
 	}
-	if err := userutil.MustBeSuperUser(sys); err != nil {
+	if err := internal.CheckSuperuser(sys); err != nil {
 		return nil, err
 	}
 

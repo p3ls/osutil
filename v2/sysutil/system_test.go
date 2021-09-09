@@ -28,12 +28,12 @@ func TestExecWinshell(t *testing.T) {
 }
 
 func TestDetectSystem(t *testing.T) {
-	sys, _, err := SystemFromGOOS()
+	sys, err := DetectSystem()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ver, err := DetectSystemVer(sys)
+	ver, err := SystemVer(sys)
 	if err != nil {
 		t.Error(err)
 	}

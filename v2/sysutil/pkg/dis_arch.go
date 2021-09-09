@@ -16,8 +16,8 @@ import (
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/edit"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
-	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -32,8 +32,9 @@ type ManagerPacman struct {
 }
 
 // NewManagerPacman returns the Pacman package manager.
+// It checks if it is being run by an administrator.
 func NewManagerPacman() (ManagerPacman, error) {
-	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+	if err := internal.CheckSuperuser(sysutil.Linux); err != nil {
 		return ManagerPacman{}, err
 	}
 

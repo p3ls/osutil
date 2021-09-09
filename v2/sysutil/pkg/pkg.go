@@ -289,7 +289,7 @@ func NewManagerFromDistro(dis sysutil.Distro) (Manager, error) {
 
 	// DNF is the default package manager of Fedora 22, CentOS8, and RHEL8.
 	case sysutil.CentOS, sysutil.Fedora:
-		verStr, err := sysutil.DetectSystemVer(sysutil.Linux)
+		verStr, err := sysutil.SystemVer(sysutil.Linux)
 		if err != nil {
 			return ManagerVoid{}, err
 		}

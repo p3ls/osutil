@@ -23,9 +23,10 @@ var (
 )
 
 // CheckSudo executes command 'sudo' to check that the user has permission.
+// Whether the system is 'SystemUndefined', it is detected.
 func CheckSudo(sys sysutil.System) (err error) {
 	if sys == sysutil.SystemUndefined {
-		if sys, _, err = sysutil.SystemFromGOOS(); err != nil {
+		if sys, err = sysutil.DetectSystem(); err != nil {
 			return err
 		}
 	}
@@ -42,9 +43,10 @@ func CheckSudo(sys sysutil.System) (err error) {
 }
 
 // MustBeSuperUser checks if the current user is in the superusers group.
+// Whether the system is 'SystemUndefined', it is detected.
 func MustBeSuperUser(sys sysutil.System) (err error) {
 	if sys == sysutil.SystemUndefined {
-		if sys, _, err = sysutil.SystemFromGOOS(); err != nil {
+		if sys, err = sysutil.DetectSystem(); err != nil {
 			return err
 		}
 	}

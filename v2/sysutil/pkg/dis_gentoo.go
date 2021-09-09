@@ -13,8 +13,8 @@ import (
 
 	"github.com/tredoe/osutil/v2"
 	"github.com/tredoe/osutil/v2/executil"
+	"github.com/tredoe/osutil/v2/internal"
 	"github.com/tredoe/osutil/v2/sysutil"
-	"github.com/tredoe/osutil/v2/userutil"
 )
 
 const (
@@ -29,8 +29,9 @@ type ManagerEbuild struct {
 }
 
 // NewManagerEbuild returns the Ebuild package manager.
+// It checks if it is being run by an administrator.
 func NewManagerEbuild() (ManagerEbuild, error) {
-	if err := userutil.MustBeSuperUser(sysutil.Linux); err != nil {
+	if err := internal.CheckSuperuser(sysutil.Linux); err != nil {
 		return ManagerEbuild{}, err
 	}
 

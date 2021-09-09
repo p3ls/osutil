@@ -20,18 +20,18 @@ func TestPackager(t *testing.T) {
 	osutil.LogShell.SetFlags(0)
 	osutil.LogShell.SetPrefix("  >> ")
 
-	sys, dis, err := sysutil.SystemFromGOOS()
+	sys, dis, err := sysutil.DetectSystemWDistro()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	mng, err := DetectPkgManag(sys)
+	mng, err := DetectManager(sys)
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("Package type detected: %s", mng.PackageType())
 
-	if mng, err = NewPkgManagFromSystem(sys, dis); err != nil {
+	if mng, err = NewManagerFromSystem(sys, dis); err != nil {
 		t.Fatal(err)
 	}
 	t.Logf("Package type to use: %s", mng.PackageType())
@@ -47,7 +47,7 @@ func TestPackager(t *testing.T) {
 	testInstall(mng, t)
 }
 
-func testUpdate(mng PkgManager, t *testing.T) {
+func testUpdate(mng Manager, t *testing.T) {
 	var err error
 
 	fmt.Printf("\n+ UpdateIndex\n")
@@ -60,7 +60,7 @@ func testUpdate(mng PkgManager, t *testing.T) {
 	}
 }
 
-func testInstall(mng PkgManager, t *testing.T) {
+func testInstall(mng Manager, t *testing.T) {
 	var err error
 	pkg := "nano" // vim
 

@@ -48,8 +48,27 @@ func (s System) String() string {
 	}
 }
 
-// SystemFromGOOS returns the system from 'GOOS', and the distribution at Linux systems.
-func SystemFromGOOS() (sys System, dist Distro, err error) {
+// DetectSystem returns the system from 'GOOS'.
+func DetectSystem() (sys System, err error) {
+	switch runtime.GOOS {
+	case "linux":
+		sys = Linux
+	case "freebsd":
+		sys = FreeBSD
+	case "darwin":
+		sys = MacOS
+	case "windows":
+		sys = Windows
+
+	default:
+		return 0, errSystem
+	}
+
+	return
+}
+
+// DetectSystemWDistro returns the system from 'GOOS', and the distribution at Linux systems.
+func DetectSystemWDistro() (sys System, dist Distro, err error) {
 	switch runtime.GOOS {
 	case "linux":
 		sys = Linux
@@ -78,11 +97,11 @@ var (
 	osVersion = []byte("os version")
 )
 
-// DetectSystemVer returns the operating system version.
-func DetectSystemVer(sys System) (string, error) {
+// SystemVer returns the operating system version.
+func SystemVer(sys System) (string, error) {
 	switch sys {
 	case Linux:
-		ver, _, err := DetectDistroVer()
+		ver, _, err := DistroVer()
 
 		return ver, err
 	case MacOS:

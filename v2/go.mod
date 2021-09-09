@@ -7,8 +7,6 @@ require (
 	gopkg.in/ini.v1 v1.62.0
 )
 
-retract (
-	// Breaking changes
-	// curl proxy.golang.org/github.com/tredoe/osutil/v2/@v/list |sort -V
-	v2.0.0
-)
+// Breaking changes
+// curl proxy.golang.org/github.com/tredoe/osutil/v2/@v/list |sort -V
+retract v2.0.0
