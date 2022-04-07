@@ -1,4 +1,4 @@
-module github.com/tredoe/osutil/v2
+module github.com/p3ls/osutil/v2
 
 go 1.16
 
