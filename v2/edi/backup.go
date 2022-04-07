@@ -9,7 +9,6 @@ package edi
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -80,7 +79,7 @@ func Backup(filename string) error {
 	if _, err := io.Copy(fdst, fsrc); err != nil {
 		return err
 	}
-	log.Printf("Backup created from %q at %q", filename, fileBackup)
+	// log.Printf("Backup created from %q at %q", filename, fileBackup)
 
 	// Flushes memory to disk
 	return fdst.Sync()
