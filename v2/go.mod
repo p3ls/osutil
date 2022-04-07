@@ -26,6 +26,7 @@ retract (
 	v2.0.0-rc.14
 	v2.0.0-rc.15
 	v2.0.0-rc.16
+	v2.0.0-rc.17
 
 	v2.0.1 // Retract breaking releases
 )
