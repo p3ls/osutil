@@ -13,4 +13,4 @@ Please keep the list sorted.
 
 ## Code
 
-- Jonas mg (https://github.com/p3ls)
+* Jonas mg (https://github.com/tredoe)
