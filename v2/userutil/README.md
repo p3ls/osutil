@@ -2,16 +2,16 @@
 
 Provides access to the users database. It is available for Linux (by now).
 
-[Documentation online](http://gowalker.org/github.com/tredoe/osutil/user)
+[Documentation online](http://gowalker.org/github.com/p3ls/osutil/user)
 
 ## Installation
 
-	go get github.com/tredoe/osutil/user
+    go get github.com/p3ls/osutil/user
 
 To run the tests, it is necessary to run them as root.  
 Do not worry because the tests are done in copies of original files.
 
-	sudo env PATH=$PATH go test -v
+    sudo env PATH=$PATH go test -v
 
 ## Status
 
@@ -23,8 +23,8 @@ to can use it in home systems.
 
 My list of priorities are (for when I have time):
 
-+ BSD systems (included Mac OS)
-+ Windows
+- BSD systems (included Mac OS)
+- Windows
 
 ## Configuration
 
@@ -34,16 +34,16 @@ different configuration system.
 
 In the case of Linux, the research has been done in 10 different distributions:
 
-	Arch
-	CentOS
-	Debian
-	Fedora
-	Gentoo
-	Mageia (Mandriva's fork)
-	OpenSUSE
-	PCLinuxOS
-	Slackware
-	Ubuntu
+    Arch
+    CentOS
+    Debian
+    Fedora
+    Gentoo
+    Mageia (Mandriva's fork)
+    OpenSUSE
+    PCLinuxOS
+    Slackware
+    Ubuntu
 
 ## License
 

@@ -16,7 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tredoe/osutil/v2"
+	"github.com/p3ls/osutil/v2"
 )
 
 // RunAsBashWithMatch executes external commands with access to shell features such as

@@ -13,7 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tredoe/osutil/v2"
+	"github.com/p3ls/osutil/v2"
 )
 
 // CopyFile copies a file from 'src' to 'dst'. If 'src' and 'dst' files exist, and are

@@ -4,5 +4,4 @@
 
 ### Other authors
 
-[Jonas mg](https://github.com/tredoe)
-
+[Jonas mg](https://github.com/p3ls)

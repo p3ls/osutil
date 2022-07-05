@@ -11,7 +11,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/tredoe/osutil/v2/config/shconf"
+	"github.com/p3ls/osutil/v2/config/shconf"
 )
 
 // Distro represents a distribution of Linux system.

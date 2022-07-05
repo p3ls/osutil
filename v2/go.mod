@@ -9,7 +9,7 @@ require (
 
 retract (
 	// Breaking changes
-	// curl proxy.golang.org/github.com/tredoe/osutil/v2/@v/list |sort -V
+	// curl proxy.golang.org/github.com/p3ls/osutil/v2/@v/list |sort -V
 	v2.0.0
 	v2.0.0-rc
 	v2.0.0-rc.1

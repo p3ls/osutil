@@ -16,10 +16,10 @@ import (
 	"path"
 	"strings"
 
-	"github.com/tredoe/osutil/v2"
-	"github.com/tredoe/osutil/v2/config/shconf"
-	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/fileutil"
+	"github.com/p3ls/osutil/v2"
+	"github.com/p3ls/osutil/v2/config/shconf"
+	"github.com/p3ls/osutil/v2/executil"
+	"github.com/p3ls/osutil/v2/fileutil"
 )
 
 // 'apt' is for the terminal and gives beautiful output.

@@ -17,9 +17,9 @@ import (
 	"os"
 	"path"
 
-	"github.com/tredoe/osutil/v2/config/shconf"
-	"github.com/tredoe/osutil/v2/edi"
-	"github.com/tredoe/osutil/v2/userutil"
+	"github.com/p3ls/osutil/v2/config/shconf"
+	"github.com/p3ls/osutil/v2/edi"
+	"github.com/p3ls/osutil/v2/userutil"
 )
 
 var isRoot bool

@@ -12,7 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/tredoe/osutil/v2"
+	"github.com/p3ls/osutil/v2"
 )
 
 // WinShell represents a Windows shell.

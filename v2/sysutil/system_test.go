@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/tredoe/osutil/v2/executil"
+	"github.com/p3ls/osutil/v2/executil"
 )
 
 func TestExecWinshell(t *testing.T) {

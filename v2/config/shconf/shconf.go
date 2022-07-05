@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/tredoe/osutil/v2/edi"
+	"github.com/p3ls/osutil/v2/edi"
 )
 
 var (

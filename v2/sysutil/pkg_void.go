@@ -9,7 +9,7 @@ package sysutil
 import (
 	"io"
 
-	"github.com/tredoe/osutil/v2/executil"
+	"github.com/p3ls/osutil/v2/executil"
 )
 
 // ManagerVoid is the interface to pass a Manager with an error,

@@ -11,8 +11,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/tredoe/osutil/v2/config/shconf"
-	"github.com/tredoe/osutil/v2/userutil/crypt"
+	"github.com/p3ls/osutil/v2/config/shconf"
+	"github.com/p3ls/osutil/v2/userutil/crypt"
 	"gopkg.in/ini.v1"
 )
 

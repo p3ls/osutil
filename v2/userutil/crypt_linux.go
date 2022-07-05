@@ -23,11 +23,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/tredoe/osutil/v2/userutil/crypt"
-	_ "github.com/tredoe/osutil/v2/userutil/crypt/md5_crypt"
-	_ "github.com/tredoe/osutil/v2/userutil/crypt/sha256_crypt"
-	_ "github.com/tredoe/osutil/v2/userutil/crypt/sha512_crypt"
-	//_ "github.com/tredoe/osutil/v2/userutil/crypt/bcrypt"
+	"github.com/p3ls/osutil/v2/userutil/crypt"
+	_ "github.com/p3ls/osutil/v2/userutil/crypt/md5_crypt"
+	_ "github.com/p3ls/osutil/v2/userutil/crypt/sha256_crypt"
+	_ "github.com/p3ls/osutil/v2/userutil/crypt/sha512_crypt"
+	//_ "github.com/p3ls/osutil/v2/userutil/crypt/bcrypt"
 )
 
 const lockChar = '!' // Character added at the beginning of the passwd to lock it.
@@ -67,7 +67,7 @@ func lookupCrypter() (crypt.Crypter, error) {
 }
 
 // SetCrypter sets the crypt function to can hash the passwords.
-// The type "crypt.Crypt" comes from package "github.com/tredoe/osutil/v2/user/crypt".
+// The type "crypt.Crypt" comes from package "github.com/p3ls/osutil/v2/user/crypt".
 func SetCrypter(c crypt.Crypt) {
 	loadConfig()
 	config.crypter = crypt.New(c)

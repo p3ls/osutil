@@ -9,9 +9,9 @@ package userutil
 import (
 	"os/user"
 
-	"github.com/tredoe/osutil/v2"
-	"github.com/tredoe/osutil/v2/executil"
-	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/p3ls/osutil/v2"
+	"github.com/p3ls/osutil/v2/executil"
+	"github.com/p3ls/osutil/v2/sysutil"
 )
 
 // AddGroupFromCmd adds the given group to the original user.

@@ -12,7 +12,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tredoe/osutil/v2"
+	"github.com/p3ls/osutil/v2"
 )
 
 // CheckDir checks if the path exists and if it is a directory.

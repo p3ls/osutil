@@ -12,8 +12,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tredoe/osutil/v2/fileutil"
-	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/p3ls/osutil/v2/fileutil"
+	"github.com/p3ls/osutil/v2/sysutil"
 )
 
 const (

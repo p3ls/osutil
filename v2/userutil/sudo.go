@@ -12,7 +12,7 @@ import (
 	"os/exec"
 	"os/user"
 
-	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/p3ls/osutil/v2/sysutil"
 )
 
 var ErrNoSuperUser = errors.New("you MUST have superuser privileges")

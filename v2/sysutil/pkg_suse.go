@@ -11,8 +11,8 @@ package sysutil
 import (
 	"io"
 
-	"github.com/tredoe/osutil/v2"
-	"github.com/tredoe/osutil/v2/executil"
+	"github.com/p3ls/osutil/v2"
+	"github.com/p3ls/osutil/v2/executil"
 )
 
 const fileZypp = "zypper"

@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tredoe/osutil/v2/executil"
+	"github.com/p3ls/osutil/v2/executil"
 )
 
 // sudo is the path by default at Linux systems.

@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/tredoe/osutil/v2/executil"
+	"github.com/p3ls/osutil/v2/executil"
 )
 
 var errSystem = errors.New("unsopported operating system")

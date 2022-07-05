@@ -9,7 +9,7 @@ package userutil
 import (
 	"testing"
 
-	"github.com/tredoe/osutil/v2/sysutil"
+	"github.com/p3ls/osutil/v2/sysutil"
 )
 
 func TestSudo(t *testing.T) {

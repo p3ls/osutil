@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tredoe/osutil/v2"
+	"github.com/p3ls/osutil/v2"
 )
 
 // Command represents a command to execute.

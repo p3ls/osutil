@@ -13,7 +13,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/tredoe/osutil/v2"
+	"github.com/p3ls/osutil/v2"
 )
 
 // A ModeEdit value is a set of flags (or 0) to control behavior at edit a file.

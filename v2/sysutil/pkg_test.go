@@ -11,7 +11,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tredoe/osutil/v2"
+	"github.com/p3ls/osutil/v2"
 )
 
 func TestPackager(t *testing.T) {

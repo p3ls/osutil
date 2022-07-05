@@ -1,5 +1,5 @@
-crypt
-=====
+# crypt
+
 A password hashing library.
 
 The goal of crypt is to bring a library of many common and popular password
@@ -17,7 +17,7 @@ Note: forked from <https://github.com/jeramey/go-pwhash>
 
 ## Installation
 
-	go get github.com/tredoe/osutil/user/crypt
+    go get github.com/p3ls/osutil/user/crypt
 
 ## License
 
